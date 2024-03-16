@@ -3,7 +3,7 @@
 
 pacman::p_load(tidyverse, sf, tmap)
 
-moll_proj <- "+proj=moll +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs"
+moll_proj <- "ESRI:54009"
 
 PUs <- read_rds("Results/RDS/PUs_01_mangroves_biotyp_cc.rds")
 
