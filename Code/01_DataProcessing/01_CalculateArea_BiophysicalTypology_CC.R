@@ -13,9 +13,9 @@ predictions_CC <- read.csv("Data/Predictions_Buelow/mangrove-forecasts.csv") %>%
 
 mangroves_biotyp <- readRDS("Results/RDS/mangroves_distribution_mollweide.rds")
 
-  # sf::st_read("Data/MangroveTypology/Mangrove_Typology_v3_2020.shp") %>%
-  # st_transform(moll_proj) %>%
-  # st_make_valid()
+# sf::st_read("Data/MangroveTypology/Mangrove_Typology_v3_2020.shp") %>%
+# st_transform(moll_proj) %>%
+# st_make_valid()
 
 mangroves_biotyp_cc <- mangroves_biotyp %>%
   left_join(predictions_CC, by = "ID")
@@ -42,9 +42,11 @@ PUs_mangroves_biotyp_cc_intersection <- PUs_mangroves_biotyp_cc_intersection %>%
             Lagoon = sum(Lagoon , na.rm = T),
             OpenCoast = sum(OpenCoast, na.rm = T),
             Prob_gain_stability_landward = weighted.mean(Prob_gain_stability_landward,
-                                                         as.numeric(area_km2)), #mean of the probability weighted by the area
+                                                         as.numeric(area_km2),
+                                                         na.rm = T), #mean of the probability weighted by the area
             Prob_gain_stability_seaward = weighted.mean(Prob_gain_stability_seaward,
-                                                        as.numeric(area_km2)),
+                                                        as.numeric(area_km2),
+                                                        na.rm = T),
             area_km2 = sum(area_km2, na.rm = T))
 
 dir.create("Results/RDS/", recursive = TRUE)
@@ -56,7 +58,7 @@ PUs_mangroves_biotyp_cc <- PUs %>%
     (PUs_mangroves_biotyp_cc_intersection %>%
        st_drop_geometry() %>%
        as_tibble()
-             ), by = "ID")
+    ), by = "ID")
 
 saveRDS(PUs_mangroves_biotyp_cc,
         "Results/RDS/PUs_01_mangroves_biotyp_cc.rds")

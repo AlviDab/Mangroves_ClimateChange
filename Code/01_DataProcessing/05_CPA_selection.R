@@ -9,26 +9,43 @@ source("Code/Functions/f_find_priority.r")
 
 dir.create("Results/RDS/prioritisation_input/")
 
-# ncores <- detectCores() - 2
+#add mean probability of gain stability
+PUs <- PUs %>%
+  mutate(Prob_gain_stability_mean =
+           (Prob_gain_stability_landward + Prob_gain_stability_seaward)/2
+  )
 
-# plan(multisession, workers = ncores)
+#remove eventual NAs using nearest neighborhood
+
+#Add using nearest neighborhood the missing values
+source("Code/Functions/fRemove_NANearestNeighbourg_IUCN.R")
+
+PUs <- PUs %>%
+  fNN_IUCN("Prob_gain_stability_landward") %>%
+  fNN_IUCN("Prob_gain_stability_seaward") %>%
+  fNN_IUCN("Prob_gain_stability_mean")
+
+#ncores <- detectCores() - 2
+
+#plan(multisession, workers = ncores)
 
 map(seq(0.05, 0.3, by = 0.05),
     #.options = furrr_options(seed = TRUE),
     function(prct) {
-  map(c("landward", "seaward"),
-      #.options = furrr_options(seed = TRUE),
-      function(CC_direction) {
-    PUs_CC <- f_find_priority(PUs,
-                              paste0("Prob_gain_stability_", CC_direction),
-                              prct)
+      map(c(#"landward", "seaward",
+        "mean"),
+        #.options = furrr_options(seed = TRUE),
+        function(CC_direction) {
+          PUs_CC <- f_find_priority(PUs,
+                                    paste0("Prob_gain_stability_", CC_direction),
+                                    prct)
 
-    saveRDS(PUs_CC,
-            paste0("Results/RDS/prioritisation_input/PUs_05_mangroves_cc_IUCN_split_by_MEOW_and_biotyp_priority_",
-            prct, "_", CC_direction, ".rds")
-            )
-  })
-})
+          saveRDS(PUs_CC,
+                  paste0("Results/RDS/prioritisation_input/PUs_05_mangroves_cc_IUCN_split_by_MEOW_and_biotyp_priority_",
+                         prct, "_", CC_direction, ".rds")
+          )
+        })
+    })
 
 #plan(sequential)
 

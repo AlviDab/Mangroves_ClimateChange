@@ -1,0 +1,17 @@
+The figure is a map of the planning units that overlap the global mangrove distribution. There is a comparison of the selection using climate-smart and climate-naive methods.
+
+'mean' means that I am using a mean value of landward and seaward change in the prioritisation.
+
+The value reported is the percentage used as a tradeoff to select climate-priority areas for each conservation feature (more on the method 'climate-priority areas' in Buenafe et al. 2023 - https://doi.org/10.1002/eap.2852).
+
+In the figures:
+
+# Fill
+- both plans → the planning unit was selected in both climate-smart and climate-naive plans;
+- only climate-smart →planning unit was selected only in the climate-smart plan;
+- only climate-naive → planning unit was selected only in the climate-naive plan;
+- not selected → the planning units was never selected.
+
+# Border of the planning unit
+- black: planning unit locked-in as climate-priority area
+- transparent: planning unit not locked-in

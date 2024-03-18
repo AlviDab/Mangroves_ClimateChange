@@ -16,10 +16,10 @@ split_species <- function(x) {
     dplyr::select(all_of(x), MEOW)
 
   sp_MEOW %>%
-     pivot_wider(names_from = "MEOW",
-                 values_from = x,
-                 names_glue = paste0(x, "_{MEOW}")
-                 ) %>%
+    pivot_wider(names_from = "MEOW",
+                values_from = x,
+                names_glue = paste0(x, "_{MEOW}")
+    ) %>%
     st_drop_geometry()
 }
 
@@ -46,7 +46,7 @@ int_biotyp <- function(BioTyp) {
     select(starts_with("Sp_")) %>%
     rename_with(~paste0(., "_", BioTyp))
 
-  }
+}
 
 sp_MEOW_biotyp <- map(c("Delta", "Estuary", "Lagoon", "OpenCoast"), int_biotyp) %>%
   bind_cols() %>%

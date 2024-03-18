@@ -15,8 +15,8 @@ pacman::p_load(sf, tidyverse, spatialgridr, spatialplanr)
 moll_proj <- "ESRI:54009"
 
 gmw <- sf::st_read("Data/gmw_v3_2020/vector/gmw_v3_2020_vec.shp") %>%
-      st_transform(moll_proj) %>%
-      st_make_valid()
+  st_transform(moll_proj) %>%
+  st_make_valid()
 
 # It takes too long to start with a global set of PUs.
 # Lets try getting the PUs within the bbox of the GMW data
