@@ -57,6 +57,8 @@ future_map(seq(0.05, 0.3, by = 0.05),
              ggsave(plot = plot_overlap, paste0("Figures/01_map_differences/overlap_",
                                                 CC_direction, "_", prct, ".pdf"),
                     dpi = 300, width = 30, height = 12, units = "cm")
+             saveRDS(plot_overlap, paste0("Figures/01_map_differences/RDS/overlap_",
+                                                CC_direction, "_", prct, ".rds"))
            })
 
 plan(sequential)

@@ -3,14 +3,14 @@
 
 pacman::p_load(tidyverse, sf, parallel, furrr, purrr)
 
-PUs <- readRDS("Results/RDS/PUs_04_mangroves_cc_IUCN_split_by_MEOW_and_biotyp.rds")
+PUs_start <- readRDS("Results/RDS/PUs_04_mangroves_cc_IUCN_split_by_MEOW_and_biotyp.rds")
 
 source("Code/Functions/f_find_priority.r")
 
 dir.create("Results/RDS/prioritisation_input/")
 
 #add mean probability of gain stability
-PUs <- PUs %>%
+PUs_start <- PUs_start %>%
   mutate(Prob_gain_stability_mean =
            (Prob_gain_stability_landward + Prob_gain_stability_seaward)/2
   )
@@ -18,12 +18,15 @@ PUs <- PUs %>%
 #remove eventual NAs using nearest neighborhood
 
 #Add using nearest neighborhood the missing values
-source("Code/Functions/fRemove_NANearestNeighbourg_IUCN.R")
+source("Code/Functions/f_remove_NAs_nearestneighborhood.R")
 
-PUs <- PUs %>%
-  fNN_IUCN("Prob_gain_stability_landward") %>%
-  fNN_IUCN("Prob_gain_stability_seaward") %>%
-  fNN_IUCN("Prob_gain_stability_mean")
+PUs <- PUs_start %>%
+  fNN_NAs("Prob_gain_stability_landward") %>%
+  fNN_NAs("Prob_gain_stability_seaward") %>%
+  fNN_NAs("Prob_gain_stability_mean")
+
+diffdf::diffdf(tibble(PUs_start),
+               tibble(PUs))
 
 #ncores <- detectCores() - 2
 

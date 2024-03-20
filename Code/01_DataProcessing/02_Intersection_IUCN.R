@@ -43,10 +43,10 @@ PUs_IUCN <- PUs %>%
   dplyr::select("ID", "n_intersections",
                 starts_with("Sp_"))
 
-#Add using nearest neighborhood the missing values
-source("Code/Functions/fRemove_NANearestNeighbourg_IUCN.R")
+#Add using nearest neighborhood for the planning units that don't intersect
+source("Code/Functions/f_remove_zeros_nearestneighborhood_IUCN.R")
 
-PUs_IUCN <- fNN_IUCN(PUs_IUCN, "n_intersections") %>%
+PUs_IUCN <- fNN_zeros_IUCN(PUs_IUCN, "n_intersections") %>%
   st_drop_geometry() %>%
   left_join(PUs, by = "ID") %>%
   mutate(across(starts_with("Sp_"),

@@ -1,46 +1,98 @@
 #Author: Alvise Dabalà
 #Date: 18/03/2024
 
-pacman::p_load(tidyverse, sf)
+pacman::p_load(tidyverse, sf, parallel, furrr, purrr)
 
-prct <- 0.3
-CC_direction <- "mean"
+ncores <- detectCores() - 2
+
+plan(multisession, workers = ncores)
 
 solution <- readRDS(paste0("Results/RDS/prioritisation/01_prioritisation/solution_prioritisation.rds"))
 
-solution_cc <- readRDS(paste0("Results/RDS/prioritisation/02_prioritisation_CC/",
-                              CC_direction, "/solution_",
-                              as.character(prct), "_", CC_direction, ".rds"))
+kd_plots <- future_map(seq(0.05, 0.3, by = 0.05),
+                       function(prct) {
+                         CC_direction <- "mean"
 
-source("Code/Functions/f_create_kdplot.r")
+                         solution_cc <- readRDS(paste0("Results/RDS/prioritisation/02_prioritisation_CC/",
+                                                       CC_direction, "/solution_",
+                                                       as.character(prct), "_", CC_direction, ".rds"))
 
-#mean climate risk climate-naïve
-solution %>%
-  as_tibble() %>%
-  group_by(solution_1) %>%
-  summarise(mean_exposure = weighted.mean(Prob_gain_stability_mean, area_km2))
+                         #mean climate risk climate-naïve
+                         solution %>%
+                           st_drop_geometry() %>%
+                           as_tibble() %>%
+                           group_by(solution_1) %>%
+                           summarise(weighted_mean_exposure = weighted.mean(Prob_gain_stability_mean, area_km2),
+                                     mean_exposure = mean(Prob_gain_stability_mean))
 
-selected_cn <- solution %>%
-  filter(solution_1 == 1) %>%
-  as_tibble()
+                         selected_cn <- solution %>%
+                           st_drop_geometry() %>%
+                           filter(solution_1 == 1) %>%
+                           mutate(type = "Climate-naïve") %>%
+                           mutate(weighted_mean_exposure = weighted.mean(Prob_gain_stability_mean, area_km2)) %>%
+                           as_tibble()
 
-kd_plot_cn <- ggplot() +
-  geom_density(data = selected_cn, aes(x = Prob_gain_stability_mean)) +
-  ylim(c(0, 0.03)) +
-  theme_bw()
+                         #mean climate risk climate-smart
+                         solution_cc %>%
+                           st_drop_geometry() %>%
+                           as_tibble() %>%
+                           group_by(solution_1) %>%
+                           summarise(weighted_mean_exposure = weighted.mean(Prob_gain_stability_mean, area_km2),
+                                     mean_exposure = mean(Prob_gain_stability_mean))
 
-#mean climate risk climate-smart
-solution_cc %>%
-  as_tibble() %>%
-  group_by(solution_1) %>%
-  summarise(mean_exposure = weighted.mean(Prob_gain_stability_mean, area_km2))
+                         selected_cs <- solution_cc %>%
+                           st_drop_geometry() %>%
+                           filter(solution_1 == 1) %>%
+                           mutate(type = "Climate-smart") %>%
+                           mutate(weighted_mean_exposure = weighted.mean(Prob_gain_stability_mean, area_km2)) %>%
+                           as_tibble()
 
-selected_cs <- solution_cc %>%
-  filter(solution_1 == 1) %>%
-  as_tibble()
+                         #kernel density plot for comparison
+                         PUs <- solution %>%
+                           st_drop_geometry() %>%
+                           mutate(type = "All PUs") %>%
+                           mutate(weighted_mean_exposure = weighted.mean(Prob_gain_stability_mean, area_km2)) %>%
+                           as_tibble()
 
-kd_plot_cs <- ggplot() +
-  geom_density(data = selected_cs, aes(x = Prob_gain_stability_mean)) +
-  ylim(c(0, 0.03)) +
-  theme_bw()
+                         selected <- rbind(selected_cn, selected_cs, PUs)
 
+                         total_area <- PUs %>%
+                           summarise(sum(area_km2)) %>%
+                           as.numeric()
+
+                         kd_plot <- ggplot(data = selected) +
+                           geom_density(aes(x = Prob_gain_stability_mean, weight = area_km2/total_area,
+                                            colour = type, fill = type),
+                                        alpha = 0.2) +
+                           geom_vline(aes(xintercept = weighted_mean_exposure, colour = type), linetype = "dashed",
+                                      linewidth = 0.5) +
+                           scale_fill_manual(values = c("#CECECE", "#26AFD1", "#0F0247"),
+                                             name = "") +
+                           scale_colour_manual(values = c("#CECECE", "#26AFD1", "#0F0247"),
+                                               name = "") +
+                           scale_x_continuous(limits = c(0, 100), expand = c(0, 0)) +
+                           scale_y_continuous(limits = c(0, 0.03), expand = c(0, 0)) +
+                           xlab("Mean probability of gain stability") +
+                           ylab("Density") +
+                           theme_bw()
+
+                         dir.create("Figures/03_CC_exposure/", recursive = TRUE)
+                         ggsave(plot = kd_plot, paste0("Figures/03_CC_exposure/kdplot_exposure",
+                                                            CC_direction, "_", prct, ".pdf"),
+                                dpi = 300, width = 12, height = 12, units = "cm")
+                       })
+
+plan(sequential)
+
+#Description of the figures
+writeLines("The figures show a kernel density plot of the weighted exposure of the selected planning units (and the whole planning units)
+to climate change
+
+'mean' means that I am using a mean value of landward and seaward change in the prioritisation.
+
+The value reported is the percentage used as a tradeoff to select climate-priority areas for each conservation feature (more on the method 'climate-priority areas' in Buenafe et al. 2023 - https://doi.org/10.1002/eap.2852).
+")
+
+rm(list = ls(all.names = TRUE)) #will clear all objects includes hidden objects.
+gc() #free up memrory and report the memory usage.
+.rs.restartR()

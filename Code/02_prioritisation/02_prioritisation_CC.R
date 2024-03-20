@@ -27,12 +27,18 @@ future_map(seq(0.05, 0.3, by = 0.05),
 
              solution <- solve(prioritizr_problem)
 
+             metrics <- prioritizr::eval_target_coverage_summary(prioritizr_problem, solution[, "solution_1"])
+
              dir.create(paste0("Results/RDS/prioritisation/02_prioritisation_CC/",
                                CC_direction), recursive = T)
 
              saveRDS(solution, paste0("Results/RDS/prioritisation/02_prioritisation_CC/",
                                       CC_direction, "/solution_",
                                       as.character(prct), "_", CC_direction, ".rds"))
+
+             saveRDS(metrics, paste0("Results/RDS/prioritisation/02_prioritisation_CC/",
+                                     CC_direction, "/metrics_",
+                                     as.character(prct), "_", CC_direction, ".rds"))
            })
 
 plan(sequential)

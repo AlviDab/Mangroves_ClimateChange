@@ -34,4 +34,6 @@ future_map(seq(0.05, 0.3, by = 0.05),
              #percentage difference
              diff <- area_cs$area_km2[2] - area_cn$area_km2[2]
              diff/area_cn$area_km2[2]*100
+
+             barplot_area <- area_cn
            })
