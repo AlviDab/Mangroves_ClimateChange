@@ -1,7 +1,7 @@
 #Author: Alvise Dabalà
 #Date: 18/03/2024
 
-pacman::p_load(tidyverse, sf, MoMAColors)
+pacman::p_load(tidyverse, sf, parallel, furrr, purrr)
 
 ncores <- detectCores() - 2
 
