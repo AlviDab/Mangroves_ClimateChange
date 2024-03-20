@@ -14,7 +14,7 @@ f_find_priority <- function(PUs, col_name, prct_priority) {
                     all_of(feature_name)) %>%
       st_drop_geometry() %>%
       filter(.data[[feature_name]] > 0) %>%
-      arrange(.data[[col_name]], .data[[feature_name]]) %>%
+      arrange(-.data[[col_name]], .data[[feature_name]]) %>%
       mutate(cumulative_area = cumsum(.data[[feature_name]]))
 
     Tot_area_feature <- PUs_CC %>%
