@@ -22,14 +22,16 @@ kd_plots <- future_map(seq(0.05, 0.3, by = 0.05),
                            st_drop_geometry() %>%
                            as_tibble() %>%
                            group_by(solution_1) %>%
-                           summarise(weighted_mean_exposure = weighted.mean(Prob_gain_stability_mean, area_km2),
+                           summarise(weighted_mean_exposure = weighted.mean(Prob_gain_stability_mean,
+                                                                            area_km2),
                                      mean_exposure = mean(Prob_gain_stability_mean))
 
                          selected_cn <- solution %>%
                            st_drop_geometry() %>%
                            filter(solution_1 == 1) %>%
                            mutate(type = "Climate-naïve") %>%
-                           mutate(weighted_mean_exposure = weighted.mean(Prob_gain_stability_mean, area_km2)) %>%
+                           mutate(weighted_mean_exposure = weighted.mean(Prob_gain_stability_mean,
+                                                                         area_km2)) %>%
                            as_tibble()
 
                          #mean climate risk climate-smart
@@ -37,21 +39,24 @@ kd_plots <- future_map(seq(0.05, 0.3, by = 0.05),
                            st_drop_geometry() %>%
                            as_tibble() %>%
                            group_by(solution_1) %>%
-                           summarise(weighted_mean_exposure = weighted.mean(Prob_gain_stability_mean, area_km2),
+                           summarise(weighted_mean_exposure = weighted.mean(Prob_gain_stability_mean,
+                                                                            area_km2),
                                      mean_exposure = mean(Prob_gain_stability_mean))
 
                          selected_cs <- solution_cc %>%
                            st_drop_geometry() %>%
                            filter(solution_1 == 1) %>%
                            mutate(type = "Climate-smart") %>%
-                           mutate(weighted_mean_exposure = weighted.mean(Prob_gain_stability_mean, area_km2)) %>%
+                           mutate(weighted_mean_exposure = weighted.mean(Prob_gain_stability_mean,
+                                                                         area_km2)) %>%
                            as_tibble()
 
                          #kernel density plot for comparison
                          PUs <- solution %>%
                            st_drop_geometry() %>%
                            mutate(type = "All PUs") %>%
-                           mutate(weighted_mean_exposure = weighted.mean(Prob_gain_stability_mean, area_km2)) %>%
+                           mutate(weighted_mean_exposure = weighted.mean(Prob_gain_stability_mean,
+                                                                         area_km2)) %>%
                            as_tibble()
 
                          selected <- rbind(selected_cn, selected_cs, PUs)
@@ -61,10 +66,13 @@ kd_plots <- future_map(seq(0.05, 0.3, by = 0.05),
                            as.numeric()
 
                          kd_plot <- ggplot(data = selected) +
-                           geom_density(aes(x = Prob_gain_stability_mean, weight = area_km2/total_area,
+                           geom_density(aes(x = Prob_gain_stability_mean,
+                                            weight = area_km2/total_area,
                                             colour = type, fill = type),
                                         alpha = 0.2) +
-                           geom_vline(aes(xintercept = weighted_mean_exposure, colour = type), linetype = "dashed",
+                           geom_vline(aes(xintercept = weighted_mean_exposure,
+                                          colour = type),
+                                      linetype = "dashed",
                                       linewidth = 0.5) +
                            scale_fill_manual(values = c("#CECECE", "#26AFD1", "#0F0247"),
                                              name = "") +
@@ -76,10 +84,14 @@ kd_plots <- future_map(seq(0.05, 0.3, by = 0.05),
                            ylab("Density") +
                            theme_bw()
 
-                         dir.create("Figures/03_CC_exposure/", recursive = TRUE)
+                         dir.create("Figures/03_CC_exposure/RDS", recursive = TRUE)
+
                          ggsave(plot = kd_plot, paste0("Figures/03_CC_exposure/kdplot_exposure",
                                                             CC_direction, "_", prct, ".pdf"),
                                 dpi = 300, width = 12, height = 12, units = "cm")
+
+                         saveRDS(kd_plot, paste0("Figures/01_map_differences/RDS/kdplot_exposure",
+                                                 CC_direction, "_", prct, ".rds"))
                        })
 
 plan(sequential)

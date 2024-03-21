@@ -38,7 +38,7 @@ int_biotyp <- function(BioTyp) {
             dplyr::select(all_of(BioTyp)))
 
 
-  sp_BioTyp_Delta <- sp_BioTyp %>%
+  sp_BioTyp %>%
     mutate(across(starts_with("Sp"), ~replace(.,
                                               (. > 0),
                                               .data[[BioTyp]][(. > 0)] %>%

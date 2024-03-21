@@ -1,7 +1,7 @@
 #Author: Alvise Dabalà
 #Date: 20/02/2024
 
-pacman::p_load(tidyverse, sf, prioritizr)
+pacman::p_load(tidyverse, sf, prioritizr, parallel, furrr, purrr)
 
 ncores <- detectCores() - 2
 

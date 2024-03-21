@@ -3,7 +3,7 @@
 
 pacman::p_load(tidyverse, sf, prioritizr)
 
-PUs <- readRDS("Results/RDS/PUs_04_mangroves_cc_IUCN_split_by_MEOW_and_biotyp.rds")
+PUs <- readRDS("Results/RDS/prioritisation_input/PUs_05_mangroves_cc_IUCN_split_by_MEOW_and_biotyp_priority_0.05_mean.rds")
 PUs_features_split_targets <- readRDS("Results/RDS/PUs_05_features_split_targets.rds")
 
 prioritizr_problem <- problem(PUs,

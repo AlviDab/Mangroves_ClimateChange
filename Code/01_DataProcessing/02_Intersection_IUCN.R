@@ -13,8 +13,6 @@ IUCN_mangroves <- st_read("Data/IUCN_Distribution_Mangroves/MANGROVES.shp") %>%
   st_transform(moll_proj) %>%
   st_make_valid()
 
-tictoc::toc()
-
 `%!in%` = Negate(`%in%`)
 
 IUCN_mangroves <- IUCN_mangroves %>%
@@ -28,6 +26,8 @@ species_names <- IUCN_mangroves$sci_name
 PUs_IUCN_index <- PUs %>%
   st_intersects(IUCN_mangroves, sparse = FALSE) %>%
   as_tibble()
+
+tictoc::toc()
 
 names(PUs_IUCN_index) <- species_names
 

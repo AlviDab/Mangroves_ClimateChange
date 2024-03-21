@@ -24,8 +24,8 @@ future_map(seq(0.05, 0.3, by = 0.05),
              source("Code/Functions/f_create_worldmap.r")
              world_map <- f_worldmap()
 
-             sol <- solution %>%
-               mutate(solution_2 = solution_cc$solution_1) %>%
+             sol <- solution_cc %>%
+               mutate(solution_2 = solution$solution_1) %>%
                mutate(overlap = case_when(
                  solution_1 == 1 & solution_2 == 1 ~ "Both plans",
                  solution_1 == 0 & solution_2 == 1 ~ "Only climate-naïve",
@@ -41,10 +41,10 @@ future_map(seq(0.05, 0.3, by = 0.05),
                geom_sf(data = sol,
                        aes(fill = overlap,
                            colour = priority),
-                       linewidth = 0.001) +
-               scale_fill_manual(values = c("#F58300", "#CECECE", "#26AFD1", "#0F0247"),
+                       linewidth = 0.01) +
+               scale_fill_manual(values = c("#F58300", "#CECECE", "#0F0247", "#26AFD1"),
                                  name = "") +
-               scale_colour_manual(values = c("transparent", "black"),
+               scale_colour_manual(values = c("transparent", "red"),
                                    labels = c("Not climate-priority areas",
                                               "Climate-priority areas"),
                                    name = "") +
@@ -53,10 +53,12 @@ future_map(seq(0.05, 0.3, by = 0.05),
                theme(panel.grid.major = element_line(colour = "transparent")) +
                coord_sf(datum = NA)
 
-             dir.create("Figures/01_map_differences/", recursive = TRUE)
+             dir.create("Figures/01_map_differences/RDS", recursive = TRUE)
+
              ggsave(plot = plot_overlap, paste0("Figures/01_map_differences/overlap_",
                                                 CC_direction, "_", prct, ".pdf"),
                     dpi = 300, width = 30, height = 12, units = "cm")
+
              saveRDS(plot_overlap, paste0("Figures/01_map_differences/RDS/overlap_",
                                                 CC_direction, "_", prct, ".rds"))
            })
