@@ -7,91 +7,98 @@ ncores <- detectCores() - 2
 
 plan(multisession, workers = ncores)
 
-solution <- readRDS(paste0("Results/RDS/prioritisation/01_prioritisation/solution_prioritisation.rds"))
-
 kd_plots <- future_map(seq(0.05, 0.3, by = 0.05),
                        function(prct) {
                          CC_direction <- "mean"
 
-                         solution_cc <- readRDS(paste0("Results/RDS/prioritisation/02_prioritisation_CC/",
-                                                       CC_direction, "/solution_",
-                                                       as.character(prct), "_", CC_direction, ".rds"))
+                         map(c("MEOW_and_biotyp", "biotyp"), function(split_group) {
 
-                         #mean climate risk climate-naïve
-                         solution %>%
-                           st_drop_geometry() %>%
-                           as_tibble() %>%
-                           group_by(solution_1) %>%
-                           summarise(weighted_mean_exposure = weighted.mean(Prob_gain_stability_mean,
-                                                                            area_km2),
-                                     mean_exposure = mean(Prob_gain_stability_mean))
+                           solution <- readRDS(paste0("Results/RDS/prioritisation/01_prioritisation/",
+                                                      split_group,"/solution_prioritisation.rds"))
 
-                         selected_cn <- solution %>%
-                           st_drop_geometry() %>%
-                           filter(solution_1 == 1) %>%
-                           mutate(type = "Climate-naïve") %>%
-                           mutate(weighted_mean_exposure = weighted.mean(Prob_gain_stability_mean,
-                                                                         area_km2)) %>%
-                           as_tibble()
+                           solution_cc <- readRDS(paste0("Results/RDS/prioritisation/02_prioritisation_CC/",
+                                                         split_group, "/",
+                                                         CC_direction, "/solution_",
+                                                         as.character(prct), "_", CC_direction, ".rds"))
 
-                         #mean climate risk climate-smart
-                         solution_cc %>%
-                           st_drop_geometry() %>%
-                           as_tibble() %>%
-                           group_by(solution_1) %>%
-                           summarise(weighted_mean_exposure = weighted.mean(Prob_gain_stability_mean,
-                                                                            area_km2),
-                                     mean_exposure = mean(Prob_gain_stability_mean))
+                           #mean climate risk climate-naïve
+                           solution %>%
+                             st_drop_geometry() %>%
+                             as_tibble() %>%
+                             group_by(solution_1) %>%
+                             summarise(weighted_mean_exposure = weighted.mean(Prob_gain_stability_mean,
+                                                                              area_km2),
+                                       mean_exposure = mean(Prob_gain_stability_mean))
 
-                         selected_cs <- solution_cc %>%
-                           st_drop_geometry() %>%
-                           filter(solution_1 == 1) %>%
-                           mutate(type = "Climate-smart") %>%
-                           mutate(weighted_mean_exposure = weighted.mean(Prob_gain_stability_mean,
-                                                                         area_km2)) %>%
-                           as_tibble()
+                           selected_cn <- solution %>%
+                             st_drop_geometry() %>%
+                             filter(solution_1 == 1) %>%
+                             mutate(type = "Climate-naïve") %>%
+                             mutate(weighted_mean_exposure = weighted.mean(Prob_gain_stability_mean,
+                                                                           area_km2)) %>%
+                             as_tibble()
 
-                         #kernel density plot for comparison
-                         PUs <- solution %>%
-                           st_drop_geometry() %>%
-                           mutate(type = "All PUs") %>%
-                           mutate(weighted_mean_exposure = weighted.mean(Prob_gain_stability_mean,
-                                                                         area_km2)) %>%
-                           as_tibble()
+                           #mean climate risk climate-smart
+                           solution_cc %>%
+                             st_drop_geometry() %>%
+                             as_tibble() %>%
+                             group_by(solution_1) %>%
+                             summarise(weighted_mean_exposure = weighted.mean(Prob_gain_stability_mean,
+                                                                              area_km2),
+                                       mean_exposure = mean(Prob_gain_stability_mean))
 
-                         selected <- rbind(selected_cn, selected_cs, PUs)
+                           selected_cs <- solution_cc %>%
+                             st_drop_geometry() %>%
+                             filter(solution_1 == 1) %>%
+                             mutate(type = "Climate-smart") %>%
+                             mutate(weighted_mean_exposure = weighted.mean(Prob_gain_stability_mean,
+                                                                           area_km2)) %>%
+                             as_tibble()
 
-                         total_area <- PUs %>%
-                           summarise(sum(area_km2)) %>%
-                           as.numeric()
+                           #kernel density plot for comparison
+                           PUs <- solution %>%
+                             st_drop_geometry() %>%
+                             mutate(type = "All PUs") %>%
+                             mutate(weighted_mean_exposure = weighted.mean(Prob_gain_stability_mean,
+                                                                           area_km2)) %>%
+                             as_tibble()
 
-                         kd_plot <- ggplot(data = selected) +
-                           geom_density(aes(x = Prob_gain_stability_mean,
-                                            weight = area_km2/total_area,
-                                            colour = type, fill = type),
-                                        alpha = 0.2) +
-                           geom_vline(aes(xintercept = weighted_mean_exposure,
-                                          colour = type),
-                                      linetype = "dashed",
-                                      linewidth = 0.5) +
-                           scale_fill_manual(values = c("#CECECE", "#26AFD1", "#0F0247"),
-                                             name = "") +
-                           scale_colour_manual(values = c("#CECECE", "#26AFD1", "#0F0247"),
+                           selected <- rbind(selected_cn, selected_cs, PUs)
+
+                           total_area <- PUs %>%
+                             summarise(sum(area_km2)) %>%
+                             as.numeric()
+
+                           kd_plot <- ggplot(data = selected) +
+                             geom_density(aes(x = Prob_gain_stability_mean,
+                                              weight = area_km2/total_area,
+                                              colour = type, fill = type),
+                                          alpha = 0.2) +
+                             geom_vline(aes(xintercept = weighted_mean_exposure,
+                                            colour = type),
+                                        linetype = "dashed",
+                                        linewidth = 0.5) +
+                             scale_fill_manual(values = c("#CECECE", "#26AFD1", "#0F0247"),
                                                name = "") +
-                           scale_x_continuous(limits = c(0, 100), expand = c(0, 0)) +
-                           scale_y_continuous(limits = c(0, 0.03), expand = c(0, 0)) +
-                           xlab("Mean probability of gain stability") +
-                           ylab("Density") +
-                           theme_bw()
+                             scale_colour_manual(values = c("#CECECE", "#26AFD1", "#0F0247"),
+                                                 name = "") +
+                             scale_x_continuous(limits = c(0, 100), expand = c(0, 0)) +
+                             scale_y_continuous(limits = c(0, 0.03), expand = c(0, 0)) +
+                             xlab("Mean probability of gain stability") +
+                             ylab("Density") +
+                             theme_bw()
 
-                         dir.create("Figures/03_CC_exposure/RDS", recursive = TRUE)
+                           dir.create(paste0("Figures/03_CC_exposure/", split_group, "/RDS"), recursive = TRUE)
 
-                         ggsave(plot = kd_plot, paste0("Figures/03_CC_exposure/kdplot_exposure",
-                                                            CC_direction, "_", prct, ".pdf"),
-                                dpi = 300, width = 12, height = 12, units = "cm")
+                           ggsave(plot = kd_plot, paste0("Figures/03_CC_exposure/",
+                                                         split_group, "/kdplot_exposure",
+                                                         CC_direction, "_", prct, ".pdf"),
+                                  dpi = 300, width = 12, height = 12, units = "cm")
 
-                         saveRDS(kd_plot, paste0("Figures/01_map_differences/RDS/kdplot_exposure",
-                                                 CC_direction, "_", prct, ".rds"))
+                           saveRDS(kd_plot, paste0("Figures/03_CC_exposure/", split_group,
+                                                   "/RDS/kdplot_exposure",
+                                                   CC_direction, "_", prct, ".rds"))
+                         })
                        })
 
 plan(sequential)

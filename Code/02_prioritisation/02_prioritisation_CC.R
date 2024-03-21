@@ -10,35 +10,46 @@ plan(multisession, workers = ncores)
 future_map(seq(0.05, 0.3, by = 0.05),
            .options = furrr_options(seed = TRUE),
            function(prct) {
+
              CC_direction <- "mean"
 
-             PUs <- readRDS(paste0("Results/RDS/prioritisation_input/PUs_05_mangroves_cc_IUCN_split_by_MEOW_and_biotyp_priority_",
-                                   prct, "_", CC_direction, ".rds"))
+             map(c("MEOW_and_", ""), function(file_name) {
 
-             PUs_features_split_targets <- readRDS("Results/RDS/PUs_05_features_split_targets.rds")
+               PUs <- readRDS(paste0("Results/RDS/prioritisation_input/PUs_05_mangroves_cc_IUCN_split_by_",
+                                     file_name, "biotyp_priority_",
+                                     prct, "_", CC_direction, ".rds"))
 
-             prioritizr_problem <- problem(PUs,
-                                           PUs_features_split_targets$feature,
-                                           cost_column = "area_km2") %>%
-               add_relative_targets(PUs_features_split_targets$targets) %>%
-               add_locked_in_constraints(PUs$priority) %>%
-               add_min_set_objective() %>%
-               add_gurobi_solver()
+               PUs_features_split_targets <- readRDS(paste0("Results/RDS/PUs_05_features_split_targets_by_",
+                                                            file_name, "biotyp.rds"))
 
-             solution <- solve(prioritizr_problem)
+               new_file_name <- ifelse(file_name == "MEOW_and_", "MEOW_and_biotyp", "biotyp")
 
-             metrics <- prioritizr::eval_target_coverage_summary(prioritizr_problem, solution[, "solution_1"])
+               prioritizr_problem <- problem(PUs,
+                                             PUs_features_split_targets$feature,
+                                             cost_column = "area_km2") %>%
+                 add_relative_targets(PUs_features_split_targets$targets) %>%
+                 add_locked_in_constraints(PUs$priority) %>%
+                 add_min_set_objective() %>%
+                 add_gurobi_solver()
 
-             dir.create(paste0("Results/RDS/prioritisation/02_prioritisation_CC/",
-                               CC_direction), recursive = T)
+               solution <- solve(prioritizr_problem)
 
-             saveRDS(solution, paste0("Results/RDS/prioritisation/02_prioritisation_CC/",
-                                      CC_direction, "/solution_",
-                                      as.character(prct), "_", CC_direction, ".rds"))
+               metrics <- prioritizr::eval_target_coverage_summary(prioritizr_problem, solution[, "solution_1"])
 
-             saveRDS(metrics, paste0("Results/RDS/prioritisation/02_prioritisation_CC/",
-                                     CC_direction, "/metrics_",
-                                     as.character(prct), "_", CC_direction, ".rds"))
+               dir.create(paste0("Results/RDS/prioritisation/02_prioritisation_CC/",
+                                 new_file_name, "/",
+                                 CC_direction), recursive = T)
+
+               saveRDS(solution, paste0("Results/RDS/prioritisation/02_prioritisation_CC/",
+                                        new_file_name, "/",
+                                        CC_direction, "/solution_",
+                                        as.character(prct), "_", CC_direction, ".rds"))
+
+               saveRDS(metrics, paste0("Results/RDS/prioritisation/02_prioritisation_CC/",
+                                       new_file_name, "/",
+                                       CC_direction, "/metrics_",
+                                       as.character(prct), "_", CC_direction, ".rds"))
+             })
            })
 
 plan(sequential)

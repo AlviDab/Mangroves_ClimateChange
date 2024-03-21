@@ -11,63 +11,76 @@ future_map(seq(0.05, 0.3, by = 0.05),
            function(prct) {
              CC_direction <- "mean"
 
-             solution <- readRDS(paste0("Results/RDS/prioritisation/01_prioritisation/solution_prioritisation.rds"))
+             map(c("MEOW_and_biotyp", "biotyp"), function(split_group) {
 
-             solution_cc <- readRDS(paste0("Results/RDS/prioritisation/02_prioritisation_CC/",
-                                           CC_direction, "/solution_",
-                                           as.character(prct), "_", CC_direction, ".rds"))
+               solution <- readRDS(paste0("Results/RDS/prioritisation/01_prioritisation/",
+                                          split_group,"/solution_prioritisation.rds"))
 
-             #area climate-naïve
-             area_cn <- solution %>%
-               st_drop_geometry() %>%
-               as_tibble() %>%
-               group_by(solution_1) %>%
-               summarise(area_km2 = sum(area_km2)) %>%
-               mutate(prct_area = area_km2/sum(area_km2)*100) %>%
-               mutate(type = "Climate-naïve")
+               solution_cc <- readRDS(paste0("Results/RDS/prioritisation/02_prioritisation_CC/",
+                                             split_group, "/",
+                                             CC_direction, "/solution_",
+                                             as.character(prct), "_", CC_direction, ".rds"))
 
-             #area climate-smart
-             area_cs <- solution_cc %>%
-               st_drop_geometry() %>%
-               as_tibble() %>%
-               group_by(solution_1) %>%
-               summarise(area_km2 = sum(area_km2)) %>%
-               mutate(prct_area = area_km2/sum(area_km2)*100) %>%
-               mutate(type = "Climate-smart")
 
-             #total area
-             total_area <- area_cs %>%
-               summarise(sum(area_km2)) %>%
-               as.numeric()
+               #area climate-naïve
+               area_cn <- solution %>%
+                 st_drop_geometry() %>%
+                 as_tibble() %>%
+                 group_by(solution_1) %>%
+                 summarise(area_km2 = sum(area_km2)) %>%
+                 mutate(prct_area = area_km2/sum(area_km2)*100) %>%
+                 mutate(type = "Climate-naïve")
 
-             #percentage difference
-             diff <- area_cs$area_km2[2] - area_cn$area_km2[2]
-             diff/area_cn$area_km2[2]*100
+               #area climate-smart
+               area_cs <- solution_cc %>%
+                 st_drop_geometry() %>%
+                 as_tibble() %>%
+                 group_by(solution_1) %>%
+                 summarise(area_km2 = sum(area_km2)) %>%
+                 mutate(prct_area = area_km2/sum(area_km2)*100) %>%
+                 mutate(type = "Climate-smart")
 
-             area <- rbind(area_cn, area_cs) %>%
-               filter(solution_1 == 1)
+               #total area
+               total_area <- area_cs %>%
+                 summarise(sum(area_km2)) %>%
+                 as.numeric()
 
-             barplot_area <- ggplot(data = area) +
-               geom_bar(aes(y = type, x = area_km2, fill = type), stat = "identity") +
-               scale_fill_manual(values = c("#0F0247", "#26AFD1"),
-                                 name = "") +
-               geom_text(aes(label = scales::percent(area_km2/total_area,
-                                                     accuracy = 0.01),
-                             y = type, x = area_km2),
-                         colour = "white",
-                         vjust = 0, hjust = 1) +
-               theme_classic() +
-               xlab(expression("Area km"^2)) +
-               ylab("") +
-               theme(legend.position = "none") +
-               scale_x_continuous(limits = c(0, max(area$area_km2)*1.1), expand = c(0, 0))
+               #percentage difference
+               diff <- area_cs$area_km2[2] - area_cn$area_km2[2]
+               diff/area_cn$area_km2[2]*100
 
-             dir.create("Figures/02_area/RDS", recursive = TRUE)
+               area <- rbind(area_cn, area_cs) %>%
+                 filter(solution_1 == 1)
 
-             ggsave(plot = barplot_area, paste0("Figures/02_area/barplot_area",
-                                                CC_direction, "_", prct, ".pdf"),
-                    dpi = 300, width = 12, height = 6, units = "cm")
+               barplot_area <- ggplot(data = area) +
+                 geom_bar(aes(y = type, x = area_km2, fill = type), stat = "identity") +
+                 scale_fill_manual(values = c("#0F0247", "#26AFD1"),
+                                   name = "") +
+                 geom_text(aes(label = scales::percent(area_km2/total_area,
+                                                       accuracy = 0.01),
+                               y = type, x = area_km2),
+                           colour = "white",
+                           vjust = 0, hjust = 1) +
+                 theme_classic() +
+                 xlab(expression("Area km"^2)) +
+                 ylab("") +
+                 theme(legend.position = "none") +
+                 scale_x_continuous(limits = c(0, max(area$area_km2)*1.1), expand = c(0, 0))
 
-             saveRDS(barplot_area, paste0("Figures/02_area/RDS/barplot_area",
-                                          CC_direction, "_", prct, ".rds"))
+               dir.create(paste0("Figures/02_area/",
+                                 split_group, "/RDS"), recursive = TRUE)
+
+               ggsave(plot = barplot_area, paste0("Figures/02_area/",
+                                                  split_group, "/barplot_area",
+                                                  CC_direction, "_", prct, ".pdf"),
+                      dpi = 300, width = 12, height = 6, units = "cm")
+
+               saveRDS(barplot_area, paste0("Figures/02_area/",
+                                            split_group, "/RDS/barplot_area",
+                                            CC_direction, "_", prct, ".rds"))
+             })
            })
+
+rm(list = ls(all.names = TRUE)) #will clear all objects includes hidden objects.
+gc() #free up memrory and report the memory usage.
+.rs.restartR()

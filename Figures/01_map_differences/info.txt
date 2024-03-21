@@ -8,7 +8,7 @@ In the figures:
 
 # Fill
 - both plans → the planning unit was selected in both climate-smart and climate-naive plans;
-- only climate-smart →planning unit was selected only in the climate-smart plan;
+- only climate-smart → planning unit was selected only in the climate-smart plan;
 - only climate-naive → planning unit was selected only in the climate-naive plan;
 - not selected → the planning units was never selected.
 
