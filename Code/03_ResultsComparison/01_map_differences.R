@@ -48,13 +48,19 @@ future_map(seq(0.05, 0.3, by = 0.05),
                          linewidth = 0.01) +
                  scale_fill_manual(values = c("#F58300", "#CECECE", "#0F0247", "#26AFD1"),
                                    name = "") +
-                 scale_colour_manual(values = c("transparent", "red"),
+                 scale_colour_manual(values = c("transparent", "black"),
                                      labels = c("Not climate-priority areas",
                                                 "Climate-priority areas"),
                                      name = "") +
                  geom_sf(data = dat, fill = NA) +
-                 theme_minimal() +
-                 theme(panel.grid.major = element_line(colour = "transparent")) +
+                 theme_minimal(base_size = 7) +
+                 theme(panel.grid.major = element_line(colour = "transparent"),
+                       panel.background = element_blank(),
+                       legend.position = "top",
+                       legend.box = "vertical",
+                       legend.key.size = unit(0.3, "cm")) +
+                 scale_x_continuous(expand = c(0, 0)) +
+                 scale_y_continuous(expand = c(0, 0)) +
                  coord_sf(datum = NA)
 
                dir.create(paste0("Figures/01_map_differences/", split_group, "/RDS"), recursive = TRUE)
@@ -62,7 +68,7 @@ future_map(seq(0.05, 0.3, by = 0.05),
                ggsave(plot = plot_overlap, paste0("Figures/01_map_differences/",
                                                   split_group,"/overlap_",
                                                   CC_direction, "_", prct, ".pdf"),
-                      dpi = 300, width = 30, height = 12, units = "cm")
+                      dpi = 300, width = 18, height = 11, units = "cm")
 
                saveRDS(plot_overlap, paste0("Figures/01_map_differences/",
                                             split_group, "/RDS/overlap_",

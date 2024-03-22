@@ -76,17 +76,24 @@ kd_plots <- future_map(seq(0.05, 0.3, by = 0.05),
                                           alpha = 0.2) +
                              geom_vline(aes(xintercept = weighted_mean_exposure,
                                             colour = type),
-                                        linetype = "dashed",
-                                        linewidth = 0.5) +
-                             scale_fill_manual(values = c("#CECECE", "#26AFD1", "#0F0247"),
+                                        #linetype = "dashed",
+                                        #linewidth = 0.3
+                                        ) +
+                             scale_fill_manual(values = c("#CECECE", "#0F0247", "#26AFD1"),
                                                name = "") +
-                             scale_colour_manual(values = c("#CECECE", "#26AFD1", "#0F0247"),
+                             scale_colour_manual(values = c("#CECECE", "#0F0247", "#26AFD1"),
                                                  name = "") +
                              scale_x_continuous(limits = c(0, 100), expand = c(0, 0)) +
                              scale_y_continuous(limits = c(0, 0.03), expand = c(0, 0)) +
                              xlab("Mean probability of gain stability") +
                              ylab("Density") +
-                             theme_bw()
+                             theme_bw(base_size = 7) +
+                             theme(panel.background = element_blank(),
+                                   text = element_text(size = 8),
+                                   axis.text = element_text(size = 7),
+                                   legend.position = "top",
+                                   legend.key.size = unit(0.3, "cm"),
+                                   plot.margin = margin(r = 0.5, unit = "cm"))
 
                            dir.create(paste0("Figures/03_CC_exposure/", split_group, "/RDS"), recursive = TRUE)
 
