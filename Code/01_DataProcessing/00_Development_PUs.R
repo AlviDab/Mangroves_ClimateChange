@@ -27,11 +27,19 @@ bb <- sf::st_read("Data/gmw_v3_2020/vector/gmw_v3_2020_vec.shp") %>%
 bb["ymin"] <- floor(bb["ymin"]) # Round the limits or they won't form a complete boundary
 bb["ymax"] = ceiling(bb["ymax"])
 
-
 bndry <- spatialplanr::splnr_get_boundary(bb, res = 1) # Get a boundary
 
 # Get the PUs for the broader bounding box
-PUs <- spatialgridr::get_grid(bndry, option = "sf_hex", projection_crs = moll_proj, resolution = 27000) %>%
+PUs <- spatialgridr::get_grid(bndry, option = "sf_hex",
+                              projection_crs = moll_proj,
+                              resolution = 27000) %>%
+  sf::st_sf() %>%
+  dplyr::mutate(cellID = dplyr::row_number())
+
+# Get the larger PUs for the visualisation
+PUs_large <- spatialgridr::get_grid(bndry, option = "sf_hex",
+                              projection_crs = moll_proj,
+                              resolution = 270000) %>%
   sf::st_sf() %>%
   dplyr::mutate(cellID = dplyr::row_number())
 
@@ -44,7 +52,11 @@ ggsave("Figures/00_bbox_PUs.pdf", gg)
 overlap <- sf::st_intersects(PUs, gmw) %>%
   lengths() > 0
 
+overlap_large <- sf::st_intersects(PUs_large, gmw) %>%
+  lengths() > 0
+
 PUs <- PUs[overlap,]
+PUs_large <- PUs_large[overlap_large,]
 
 # Lets check it's working ok
 gg <- ggplot() +
@@ -68,6 +80,8 @@ PUs <- PUs %>%
 
 saveRDS(PUs, file = "Results/RDS/00_PUs_mollweide.rds")
 st_write(PUs, "Results/gpkg/00_PUs_mollweide.gpkg")
+
+saveRDS(PUs_large, file = "Results/RDS/00_PUs_large_mollweide.rds")
 
 rm(list = ls(all.names = TRUE)) #will clear all objects includes hidden objects.
 gc() #free up memrory and report the memory usage.
