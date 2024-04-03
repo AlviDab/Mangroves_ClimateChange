@@ -34,6 +34,8 @@ future_map(seq(0.05, 0.3, by = 0.05),
 
                solution <- solve(prioritizr_problem)
 
+               replacement_score <- eval_replacement_importance(prioritizr_problem, solution[, "solution_1"])
+
                metrics <- prioritizr::eval_target_coverage_summary(prioritizr_problem, solution[, "solution_1"])
 
                dir.create(paste0("Results/RDS/prioritisation/02_prioritisation_CC/",
@@ -43,6 +45,11 @@ future_map(seq(0.05, 0.3, by = 0.05),
                saveRDS(solution, paste0("Results/RDS/prioritisation/02_prioritisation_CC/",
                                         new_file_name, "/",
                                         CC_direction, "/solution_",
+                                        as.character(prct), "_", CC_direction, ".rds"))
+
+               saveRDS(replacement_score, paste0("Results/RDS/prioritisation/02_prioritisation_CC/",
+                                        new_file_name, "/",
+                                        CC_direction, "/replacement_score_",
                                         as.character(prct), "_", CC_direction, ".rds"))
 
                saveRDS(metrics, paste0("Results/RDS/prioritisation/02_prioritisation_CC/",

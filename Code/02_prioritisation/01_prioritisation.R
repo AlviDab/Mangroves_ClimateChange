@@ -22,6 +22,8 @@ map(c("MEOW_and_", ""), function(file_name) {
 
   solution <- solve(prioritizr_problem)
 
+  replacement_score <- eval_replacement_importance(prioritizr_problem, solution[, "solution_1"])
+
   metrics <- prioritizr::eval_target_coverage_summary(prioritizr_problem, solution[, "solution_1"])
 
   dir.create(paste0("Results/RDS/prioritisation/01_prioritisation/", new_file_name), recursive = T)
@@ -29,6 +31,10 @@ map(c("MEOW_and_", ""), function(file_name) {
   saveRDS(solution, paste0("Results/RDS/prioritisation/01_prioritisation/",
                            new_file_name,
                            "/solution_prioritisation.rds"))
+
+  saveRDS(replacement_score, paste0("Results/RDS/prioritisation/01_prioritisation/",
+                                    new_file_name,
+                                    "/replacement_score.rds"))
 
   saveRDS(metrics, paste0("Results/RDS/prioritisation/01_prioritisation/",
                           new_file_name,
