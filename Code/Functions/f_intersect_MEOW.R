@@ -14,7 +14,7 @@ f_int_MEOW <- function(PUs, type = "ECOREGION") {
     st_nearest_feature(MEOW)
 
   PUs <- PUs %>%
-    mutate(!!sym(type) := provinces[intersection, type] %>%
+    cbind(provinces[intersection, type] %>%
              st_drop_geometry())
 
   return(PUs)
