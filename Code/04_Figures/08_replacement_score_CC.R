@@ -1,5 +1,5 @@
 #Author: Alvise Dabalà
-#Date: 18/03/2024
+#Date: 04/04/2024
 
 pacman::p_load(tidyverse, sf, parallel, furrr, purrr, ggnewscale)
 
@@ -26,7 +26,7 @@ map(seq(0.05, 0.3, by = 0.05),
           mutate(type = as.factor(type))
 
         replacement_score <- replacement_score %>%
-          filter(!is.infinite(rc))
+          filter(rc == 0)
 
         plot_replacement_score <- ggplot() +
           geom_sf(data = world_map, fill = "grey60",
