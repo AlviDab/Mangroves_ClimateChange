@@ -28,8 +28,8 @@ plot_layer <- map(c("MEOW_and_biotyp", "biotyp"), function(split_group) {
                                              as.character(prct), "_", CC_direction, ".rds"))
 
                name_split_group <- ifelse(split_group == "biotyp",
-                                          "Splitted by biophysical typology",
-                                          "Splitted by biophysical typology and marine ecoregion")
+                                          "Split by biophysical typology",
+                                          "Split by biophysical typology and marine ecoregion")
 
                plot_layer <- solution_cc %>%
                  # f_int_MEOW(type = "PROVINCE") %>%
@@ -43,7 +43,7 @@ plot_layer <- map(c("MEOW_and_biotyp", "biotyp"), function(split_group) {
                  group_by(MEOW) %>%
                  summarise(across(ends_with(c("0", "1")), ~sum(., na.rm = TRUE))) %>%
                  mutate(perc_sel_area = tot_area_1/(tot_area_1 + tot_area_0),
-                        res_var = round(cc_exp_1 - cc_exp_0), 3) %>%
+                        res_var = round((cc_exp_1 - cc_exp_0), 3)) %>%
                  f_int_continents() %>%
                  mutate(prct = prct,
                         split_group = name_split_group) %>%
@@ -65,15 +65,15 @@ plot <- ggplot(data = plot_layer,
   geom_point(aes(fill = continent, size = tot_area_1), alpha = 0.8,
              shape = 21,
              stroke = NA) +
-  scale_fill_moma_d("Smith") +
+  scale_fill_moma_d("Smith", name = "") +
   geom_vline(data = plot_layer_mean, aes(xintercept = w_mean_res_var),
              linetype = 2, linewidth = 0.5) +
   geom_vline(xintercept = 0, linewidth = 0.5) +
-  ylab("Percental area selected") +
-  xlab("Resilience variation") +
+  ylab("Percentage of the area selected") +
+  xlab(expression("log"[10]*"(resilience variation)")) +
   theme_bw() +
   theme(legend.position = "top",
-        legend.title = element_blank(),
+        legend.title = element_text(size = 11, face = "bold"),
         panel.grid.major = element_line(colour = "transparent"),
         panel.background = element_blank(),
         legend.key.size = unit(0.5, "cm"),
@@ -81,17 +81,19 @@ plot <- ggplot(data = plot_layer,
         axis.title = element_text(size = 9),
         legend.text = element_text(size = 9),
         legend.box = 'vertical') +
-  guides(fill = guide_legend(override.aes = list(size = 3))) +
+  scale_size_continuous(name = "Mangrove area selected in the climate-smart solution (km²)") +
+  guides(fill = guide_legend(override.aes = list(size = 3)),
+         size = guide_legend(title.position = "top")) +
   facet_grid(prct ~ split_group)
 
-dir.create(paste0("Figures/09_plot_area_resilience/by_ecoregion/RDS"), recursive = TRUE)
+dir.create(paste0("Figures/09_plot_area_resilience/mean/RDS"), recursive = TRUE)
 
-ggsave(plot = plot, paste0("Figures/09_plot_area_resilience/by_ecoregion/area_resilience_",
-                           CC_direction, ".pdf"),
+ggsave(plot = plot, paste0("Figures/09_plot_area_resilience/", CC_direction, "/area_resilience_",
+                           CC_direction, "_by_ecoregion", ".pdf"),
        dpi = 300, width = 18, height = 25, units = "cm")
 
-saveRDS(plot, paste0("Figures/09_plot_area_resilience/by_ecoregion/RDS/area_resilience_",
-                     CC_direction, ".rds"))
+saveRDS(plot, paste0("Figures/09_plot_area_resilience/", CC_direction, "/RDS/area_resilience_",
+                     CC_direction, "_by_ecoregion", ".rds"))
 
 plan(sequential)
 
