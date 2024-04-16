@@ -32,15 +32,15 @@ plot_layer <- map(c("MEOW_and_biotyp", "biotyp"), function(split_group) {
                                           "Split by biophysical typology and marine ecoregion")
 
                plot_layer <- solution_cc %>%
-                 # f_int_MEOW(type = "PROVINCE") %>%
+                 f_int_MEOW(type = "PROVINCE") %>%
                  left_join(PUs_MEOW %>%
                              as_tibble() %>%
                              dplyr::select(MEOW, ID), by = "ID") %>%
-                 group_by(MEOW, solution_1) %>%
+                 group_by(PROVINCE, solution_1) %>%
                  summarise(tot_area = sum(area_km2),
                            cc_exp = weighted.mean(Prob_gain_stability_mean, area_km2)) %>%
                  pivot_wider(names_from = "solution_1", values_from = c("tot_area", "cc_exp")) %>%
-                 group_by(MEOW) %>%
+                 group_by(PROVINCE) %>%
                  summarise(across(ends_with(c("0", "1")), ~sum(., na.rm = TRUE))) %>%
                  mutate(perc_sel_area = tot_area_1/(tot_area_1 + tot_area_0),
                         res_var = round((cc_exp_1 - cc_exp_0), 3)) %>%
@@ -89,11 +89,11 @@ plot <- ggplot(data = plot_layer,
 dir.create(paste0("Figures/09_plot_area_resilience/mean/RDS"), recursive = TRUE)
 
 ggsave(plot = plot, paste0("Figures/09_plot_area_resilience/", CC_direction, "/area_resilience_",
-                           CC_direction, "_by_ecoregion", ".pdf"),
+                           CC_direction, "_by_province", ".pdf"),
        dpi = 300, width = 18, height = 25, units = "cm")
 
 saveRDS(plot, paste0("Figures/09_plot_area_resilience/", CC_direction, "/RDS/area_resilience_",
-                     CC_direction, "_by_ecoregion", ".rds"))
+                     CC_direction, "_by_province", ".rds"))
 
 plan(sequential)
 
