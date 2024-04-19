@@ -2,11 +2,14 @@
 #Date: 23/02/2024
 
 f_find_priority <- function(PUs, col_name, prct_priority) {
+
+  #Find names of all features
   names_features <- PUs %>%
     dplyr::select(starts_with("Sp_")) %>%
     st_drop_geometry() %>%
     names()
 
+  #Function to find the priority areas for each feature
   find_priority <- function(feature_name) {
     PUs_CC <- PUs %>%
       dplyr::select(ID,
@@ -24,8 +27,11 @@ f_find_priority <- function(PUs, col_name, prct_priority) {
     PUs_CC <- PUs_CC %>%
       mutate(priority = case_when(cumulative_area < Tot_area_feature*prct_priority ~ TRUE,
                                   .default = FALSE)) %>%
+      mutate(areas_to_avoid = case_when(cumulative_area > Tot_area_feature*(1-prct_priority) ~ TRUE,
+                                        .default = FALSE)) %>%
       dplyr::select(ID,
-                    priority)
+                    priority,
+                    areas_to_avoid)
 
     PUs_priority <- PUs %>%
       dplyr::select(ID) %>%
@@ -52,4 +58,5 @@ f_find_priority <- function(PUs, col_name, prct_priority) {
 
   PUs <- PUs %>%
     add_column(priority)
+
 }
