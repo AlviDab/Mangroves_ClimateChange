@@ -32,15 +32,15 @@ plot_layer <- map(c("MEOW_and_biotyp", "biotyp"), function(split_group) {
                                           "Split by biophysical typology and marine ecoregion")
 
                plot_layer <- solution_cc %>%
-                 f_int_MEOW(type = "PROVINCE") %>%
+                 #f_int_MEOW(type = "PROVINCE") %>%
                  left_join(PUs_MEOW %>%
                              as_tibble() %>%
                              dplyr::select(MEOW, ID), by = "ID") %>%
-                 group_by(PROVINCE, solution_1) %>%
+                 group_by(MEOW, solution_1) %>%
                  summarise(tot_area = sum(area_km2),
                            cc_exp = weighted.mean(Prob_gain_stability_mean, area_km2)) %>%
                  pivot_wider(names_from = "solution_1", values_from = c("tot_area", "cc_exp")) %>%
-                 group_by(PROVINCE) %>%
+                 group_by(MEOW) %>%
                  summarise(across(ends_with(c("0", "1")), ~sum(., na.rm = TRUE))) %>%
                  mutate(perc_sel_area = tot_area_1/(tot_area_1 + tot_area_0),
                         res_var = round((cc_exp_1 - cc_exp_0), 3)) %>%
@@ -58,7 +58,8 @@ plot_layer <- map(c("MEOW_and_biotyp", "biotyp"), function(split_group) {
 
 plot_layer_mean <- plot_layer %>%
   group_by(prct, split_group) %>%
-  summarise(w_mean_res_var = weighted.mean(log_res_var, tot_area_1)) #Weighted mean of the resilience using the area of mangrove selected
+  summarise(w_mean_res_var = weighted.mean(log_res_var, tot_area_1),
+            perc_selected_area = sum(tot_area_1)/sum(tot_area_1 + tot_area_0)) #Weighted mean of the resilience using the area of mangrove selected
 
 plot <- ggplot(data = plot_layer,
                aes(x = log_res_var, y = perc_sel_area)) +
@@ -67,8 +68,10 @@ plot <- ggplot(data = plot_layer,
              stroke = NA) +
   scale_fill_moma_d("Smith", name = "") +
   geom_vline(data = plot_layer_mean, aes(xintercept = w_mean_res_var),
-             linetype = 2, linewidth = 0.5) +
-  geom_vline(xintercept = 0, linewidth = 0.5) +
+             linetype = 2, linewidth = 0.4) +
+  geom_vline(xintercept = 0, linewidth = 0.4) +
+  geom_hline(data = plot_layer_mean, aes(yintercept = perc_selected_area),
+             linetype = 2, linewidth = 0.4) +
   ylab("Percentage of the area selected") +
   xlab(expression("log"[10]*"(resilience variation)")) +
   theme_bw() +
@@ -89,11 +92,28 @@ plot <- ggplot(data = plot_layer,
 dir.create(paste0("Figures/09_plot_area_resilience/mean/RDS"), recursive = TRUE)
 
 ggsave(plot = plot, paste0("Figures/09_plot_area_resilience/", CC_direction, "/area_resilience_",
-                           CC_direction, "_by_province", ".pdf"),
+                           CC_direction, "_by_ecoregion", ".pdf"),
        dpi = 300, width = 18, height = 25, units = "cm")
 
 saveRDS(plot, paste0("Figures/09_plot_area_resilience/", CC_direction, "/RDS/area_resilience_",
-                     CC_direction, "_by_province", ".rds"))
+                     CC_direction, "_by_ecoregion", ".rds"))
+
+#Description of the figures
+writeLines("Comparison of the different outcomes of the climate-smart prioritisations against the climate-naive prioritisation.
+
+Each point represent a different ecoregion/province. The size of the point is the km² of mangrove area selected in the climate-smart solution.
+
+The y-axis represent the percentage of mangrove area selected by the climate-smart prioritisation.
+
+The x-axis represent the difference in the climate resilience between the climate-smart and climate-naive. The value of resilience for each ecoregion/province is the area weighted mean of the resilience of the mangrove areas selected in the prioritisation.
+The x-axis values are in logarithmic scale. For the negative values of resilience, we scaled the absolute value to logarithmic and then inverted the resulting value.
+
+In the boxes on the right side of the figures are reported the thresholds used for the selection of the climate-priority areas of the climate-smart prioritisation.
+
+The vertical dashed line show the area weighted mean value of resilience variation between the climate-smart and the climate-naive prioritisation.
+
+The points that show a percentage of area selected equal to zero present different resilience variation values. These are just the opposite of the resilience value of the areas selected in the climate-naive prioritisation as there is no selection of areas in that ecoregion/province in the climate-smart prioritisation."
+           , paste0("Figures/09_plot_area_resilience/", CC_direction, "/info.txt"))
 
 plan(sequential)
 
