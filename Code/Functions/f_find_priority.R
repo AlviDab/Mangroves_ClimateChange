@@ -1,7 +1,7 @@
 #Author: Alvise Dabalà
 #Date: 23/02/2024
 
-f_find_priority <- function(PUs, col_name, prct_priority) {
+f_find_priority <- function(PUs, col_name, prct, features) {
 
   #Find names of all features
   names_features <- PUs %>%
@@ -24,10 +24,15 @@ f_find_priority <- function(PUs, col_name, prct_priority) {
       summarise(sum(.data[[feature_name]])) %>%
       as.numeric()
 
+    Target_feature <- features %>%
+      filter(feature == feature_name) %>%
+      dplyr::select(targets) %>%
+      as.numeric()
+
     PUs_CC <- PUs_CC %>%
-      mutate(priority = case_when(cumulative_area < Tot_area_feature*prct_priority ~ TRUE,
+      mutate(priority = case_when(cumulative_area < Tot_area_feature*(prct*Target_feature) ~ TRUE,
                                   .default = FALSE)) %>%
-      mutate(areas_to_avoid = case_when(cumulative_area > Tot_area_feature*(1-prct_priority) ~ TRUE,
+      mutate(areas_to_avoid = case_when(cumulative_area > Tot_area_feature*(1-(prct*Target_feature)) ~ TRUE,
                                         .default = FALSE)) %>%
       dplyr::select(ID,
                     priority,

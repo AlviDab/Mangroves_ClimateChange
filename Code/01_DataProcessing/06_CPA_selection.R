@@ -8,7 +8,13 @@ map(c("PUs_04_mangroves_cc_IUCN_split_by_MEOW_and_biotyp",
 
         PUs <- readRDS(paste0("Results/RDS/", file_name, ".rds"))
 
+        split <- sub(".*_by", "by", file_name)
         new_file_name <- sub(".*_m", "m", file_name)
+
+        features <- paste0("Results/RDS/PUs_05_features_split_targets_",
+                           split,
+                           ".rds") %>%
+          readRDS()
 
         source("Code/Functions/f_find_priority.r")
 
@@ -43,7 +49,8 @@ map(c("PUs_04_mangroves_cc_IUCN_split_by_MEOW_and_biotyp",
                 function(CC_direction) {
                   PUs_CC <- f_find_priority(PUs,
                                             paste0("Prob_gain_stability_", CC_direction),
-                                            prct)
+                                            prct,
+                                            features)
 
                   saveRDS(PUs_CC,
                           paste0("Results/RDS/prioritisation_input/PUs_05_",
