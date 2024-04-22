@@ -42,7 +42,7 @@ f_find_priority <- function(PUs, col_name, prct, features) {
       dplyr::select(ID) %>%
       left_join(PUs_CC, by = "ID") %>%
       arrange(ID) %>%
-      dplyr::select(priority) %>%
+      dplyr::select(priority, areas_to_avoid) %>%
       st_drop_geometry()
   }
 
@@ -51,17 +51,26 @@ f_find_priority <- function(PUs, col_name, prct, features) {
   plan(multisession, workers = ncores)
 
   priority <- future_map(names_features, find_priority,
-                         .options = furrr_options(seed = TRUE))
+                         .options = furrr_options(seed = TRUE)) %>%
+    bind_cols()
 
   plan(sequential)
 
-  priority <- priority %>%
-    bind_cols() %>%
+  priority_areas <- priority %>%
+    dplyr::select(contains("priority")) %>%
     reframe(priority = rowSums(., na.rm = TRUE)) %>%
     mutate(priority = case_when(priority > 0 ~ TRUE,
                                 .default = FALSE))
 
-  PUs <- PUs %>%
-    add_column(priority)
+  areas_to_avoid <- priority %>%
+    dplyr::select(contains("areas_to_avoid")) %>%
+    reframe(areas_to_avoid = rowSums(., na.rm = TRUE)) %>%
+    mutate(areas_to_avoid = case_when(areas_to_avoid > 0 ~ TRUE,
+                                .default = FALSE))
 
+  PUs <- PUs %>%
+    add_column(priority_areas) %>%
+    add_column(areas_to_avoid)
+
+  return(PUs)
 }
