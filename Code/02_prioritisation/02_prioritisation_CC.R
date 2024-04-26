@@ -11,51 +11,55 @@ future_map(seq(0.05, 0.3, by = 0.05),
            .options = furrr_options(seed = TRUE),
            function(prct) {
 
-             CC_direction <- "mean"
+             map(c("landward", "seaward",
+                   "mean"), function(CC_direction) {
 
-             map(c("MEOW_and_", ""), function(file_name) {
+               map(c("MEOW_and_", ""), function(file_name) {
 
-               PUs <- readRDS(paste0("Results/RDS/prioritisation_input/PUs_05_mangroves_cc_IUCN_split_by_",
-                                     file_name, "biotyp_priority_",
-                                     prct, "_", CC_direction, ".rds"))
+                 PUs <- readRDS(paste0("Results/RDS/prioritisation_input/PUs_05_mangroves_cc_IUCN_split_by_",
+                                       file_name, "biotyp_priority_",
+                                       prct, "_", CC_direction, ".rds"))
 
-               PUs_features_split_targets <- readRDS(paste0("Results/RDS/PUs_05_features_split_targets_by_",
-                                                            file_name, "biotyp.rds"))
+                 PUs_features_split_targets <- readRDS(paste0("Results/RDS/PUs_05_features_split_targets_by_",
+                                                              file_name, "biotyp.rds"))
 
-               new_file_name <- ifelse(file_name == "MEOW_and_", "MEOW_and_biotyp", "biotyp")
+                 new_file_name <- ifelse(file_name == "MEOW_and_", "MEOW_and_biotyp", "biotyp")
 
-               prioritizr_problem <- problem(PUs,
-                                             PUs_features_split_targets$feature,
-                                             cost_column = "area_km2") %>%
-                 add_relative_targets(PUs_features_split_targets$targets) %>%
-                 add_locked_in_constraints(PUs$priority) %>%
-                 add_min_set_objective() %>%
-                 add_gurobi_solver()
+                 prioritizr_problem <- problem(PUs,
+                                               PUs_features_split_targets$feature,
+                                               cost_column = "area_km2") %>%
+                   add_relative_targets(PUs_features_split_targets$targets) %>%
+                   add_locked_in_constraints(PUs$priority) %>%
+                   add_min_set_objective() %>%
+                   add_gurobi_solver()
 
-               solution <- solve(prioritizr_problem)
+                 solution <- solve(prioritizr_problem)
 
-               replacement_score <- eval_replacement_importance(prioritizr_problem, solution[, "solution_1"])
+                 # replacement_score <- eval_replacement_importance(prioritizr_problem,
+                 #                                                  solution[, "solution_1"])
 
-               metrics <- prioritizr::eval_target_coverage_summary(prioritizr_problem, solution[, "solution_1"])
+                 metrics <- prioritizr::eval_target_coverage_summary(prioritizr_problem,
+                                                                     solution[, "solution_1"])
 
-               dir.create(paste0("Results/RDS/prioritisation/02_prioritisation_CC/",
-                                 new_file_name, "/",
-                                 CC_direction), recursive = T)
+                 dir.create(paste0("Results/RDS/prioritisation/02_prioritisation_CC/",
+                                   new_file_name, "/",
+                                   CC_direction), recursive = T)
 
-               saveRDS(solution, paste0("Results/RDS/prioritisation/02_prioritisation_CC/",
-                                        new_file_name, "/",
-                                        CC_direction, "/solution_",
-                                        as.character(prct), "_", CC_direction, ".rds"))
+                 saveRDS(solution, paste0("Results/RDS/prioritisation/02_prioritisation_CC/",
+                                          new_file_name, "/",
+                                          CC_direction, "/solution_",
+                                          as.character(prct), "_", CC_direction, ".rds"))
 
-               saveRDS(replacement_score, paste0("Results/RDS/prioritisation/02_prioritisation_CC/",
-                                        new_file_name, "/",
-                                        CC_direction, "/replacement_score_",
-                                        as.character(prct), "_", CC_direction, ".rds"))
+                 # saveRDS(replacement_score, paste0("Results/RDS/prioritisation/02_prioritisation_CC/",
+                 #                                   new_file_name, "/",
+                 #                                   CC_direction, "/replacement_score_",
+                 #                                   as.character(prct), "_", CC_direction, ".rds"))
 
-               saveRDS(metrics, paste0("Results/RDS/prioritisation/02_prioritisation_CC/",
-                                       new_file_name, "/",
-                                       CC_direction, "/metrics_",
-                                       as.character(prct), "_", CC_direction, ".rds"))
+                 saveRDS(metrics, paste0("Results/RDS/prioritisation/02_prioritisation_CC/",
+                                         new_file_name, "/",
+                                         CC_direction, "/metrics_",
+                                         as.character(prct), "_", CC_direction, ".rds"))
+               })
              })
            })
 

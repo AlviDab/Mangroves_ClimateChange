@@ -32,17 +32,14 @@ f_find_priority <- function(PUs, col_name, prct, features) {
     PUs_CC <- PUs_CC %>%
       mutate(priority = case_when(cumulative_area < Tot_area_feature*(prct*Target_feature) ~ TRUE,
                                   .default = FALSE)) %>%
-      mutate(areas_to_avoid = case_when(cumulative_area > Tot_area_feature*(1-(prct*Target_feature)) ~ TRUE,
-                                        .default = FALSE)) %>%
       dplyr::select(ID,
-                    priority,
-                    areas_to_avoid)
+                    priority)
 
     PUs_priority <- PUs %>%
       dplyr::select(ID) %>%
       left_join(PUs_CC, by = "ID") %>%
       arrange(ID) %>%
-      dplyr::select(priority, areas_to_avoid) %>%
+      dplyr::select(priority) %>%
       st_drop_geometry()
   }
 
@@ -62,15 +59,8 @@ f_find_priority <- function(PUs, col_name, prct, features) {
     mutate(priority = case_when(priority > 0 ~ TRUE,
                                 .default = FALSE))
 
-  areas_to_avoid <- priority %>%
-    dplyr::select(contains("areas_to_avoid")) %>%
-    reframe(areas_to_avoid = rowSums(., na.rm = TRUE)) %>%
-    mutate(areas_to_avoid = case_when(areas_to_avoid > 0 ~ TRUE,
-                                .default = FALSE))
-
   PUs <- PUs %>%
-    add_column(priority_areas) %>%
-    add_column(areas_to_avoid)
+    add_column(priority_areas)
 
   return(PUs)
 }

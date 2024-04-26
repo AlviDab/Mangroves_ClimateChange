@@ -3,15 +3,16 @@
 
 pacman::p_load(tidyverse, sf, MoMAColors, purrr, furrr, parallel)
 
-split_group <- "biotyp"
-CC_direction <- "mean"
-prct <- 0.3
-
 source("Code/Functions/f_intersect_continents.r")
 source("Code/Functions/f_intersect_MEOW.r")
 
 CC_direction <- "mean"
+
 PUs_MEOW <- readRDS("Results/RDS/PUs_03_mangroves_biotyp_cc_IUCN_MEOW.rds")
+
+ncores <- detectCores() - 2
+
+plan(multisession, workers = ncores)
 
 plot_layer <- map(c("MEOW_and_biotyp", "biotyp"), function(split_group) {
 
@@ -47,7 +48,7 @@ plot_layer <- map(c("MEOW_and_biotyp", "biotyp"), function(split_group) {
                  f_int_continents() %>%
                  mutate(prct = prct,
                         split_group = name_split_group) %>%
-                 mutate(log_res_var = case_when( #make a log transformation simmetrical respect 0
+                 mutate(log_res_var = case_when( #make a log transformation symmetrical respect 0
                    res_var > 0 ~ log10(res_var),
                    res_var < 0 ~ -log10(abs(res_var)),
                    .default = 0
