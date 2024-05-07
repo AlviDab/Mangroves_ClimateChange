@@ -5,7 +5,7 @@ pacman::p_load(tidyverse, sf, parallel, furrr, purrr)
 
 options(future.globals.maxSize = 750*1024^2)
 
-map(c(#"PUs_04_mangroves_cc_IUCN_split_by_MEOW_and_biotyp",
+map(c("PUs_04_mangroves_cc_IUCN_split_by_MEOW_and_biotyp",
       "PUs_04a_mangroves_cc_IUCN_split_by_biotyp"
       ), function(file_name) {
 
