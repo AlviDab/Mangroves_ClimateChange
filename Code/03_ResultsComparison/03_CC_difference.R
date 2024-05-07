@@ -1,7 +1,7 @@
 #Author: Alvise Dabalà
 #Date: 18/03/2024
 
-pacman::p_load(tidyverse, sf, parallel, furrr, purrr)
+pacman::p_load(tidyverse, sf, parallel, furrr, purrr, openxlsx)
 
 ncores <- detectCores() - 2
 
@@ -26,14 +26,6 @@ future_map(seq(0.05, 0.3, by = 0.05),
                        col_name <- paste0("Prob_gain_stability_", CC_direction)
 
                        #mean climate risk climate-naïve
-                       solution %>%
-                         st_drop_geometry() %>%
-                         as_tibble() %>%
-                         group_by(solution_1) %>%
-                         summarise(weighted_mean_exposure = weighted.mean(!!sym(col_name),
-                                                                          area_km2),
-                                   mean_exposure = mean(!!sym(col_name)))
-
                        selected_cn <- solution %>%
                          st_drop_geometry() %>%
                          filter(solution_1 == 1) %>%
@@ -43,14 +35,6 @@ future_map(seq(0.05, 0.3, by = 0.05),
                          as_tibble()
 
                        #mean climate risk climate-smart
-                       solution_cc %>%
-                         st_drop_geometry() %>%
-                         as_tibble() %>%
-                         group_by(solution_1) %>%
-                         summarise(weighted_mean_exposure = weighted.mean(!!sym(col_name),
-                                                                          area_km2),
-                                   mean_exposure = mean(!!sym(col_name)))
-
                        selected_cs <- solution_cc %>%
                          st_drop_geometry() %>%
                          filter(solution_1 == 1) %>%
@@ -76,7 +60,7 @@ future_map(seq(0.05, 0.3, by = 0.05),
 
                        d <- density(PUs[, col_name] %>%
                                       unlist(),
-                                      weights = ((PUs$area_km2)/total_area))
+                                    weights = ((PUs$area_km2)/total_area))
 
                        kd_plot <- ggplot(data = selected) +
                          geom_density(aes(x = !!sym(col_name),
@@ -114,6 +98,17 @@ future_map(seq(0.05, 0.3, by = 0.05),
                        saveRDS(kd_plot, paste0("Figures/03_CC_exposure/", split_group,
                                                "/RDS/kdplot_exposure_",
                                                CC_direction, "_", prct, ".rds"))
+
+                       selected <- selected %>%
+                         group_by(type) %>%
+                         summarise(weighted_mean_exposure = first(weighted_mean_exposure)) %>%
+                         mutate(prct_increase_comparison_all_PUs = (weighted_mean_exposure - weighted_mean_exposure[1])/weighted_mean_exposure[1]*100) %>%
+                         mutate(prct_increase_comparison_climate_naïve = (weighted_mean_exposure - weighted_mean_exposure[2])/weighted_mean_exposure[2]*100)
+
+                       write.xlsx(selected %>%
+                                    st_drop_geometry(), paste0("Figures/03_CC_exposure/",
+                                                               split_group, "/kdplot_exposure_",
+                                                               CC_direction, "_", prct, ".xlsx"))
                      })
                    })
            })

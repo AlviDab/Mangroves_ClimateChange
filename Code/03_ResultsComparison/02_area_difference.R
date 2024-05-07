@@ -49,7 +49,15 @@ future_map(seq(0.05, 0.3, by = 0.05),
 
                        #percentage difference
                        diff <- area_cs$area_km2[2] - area_cn$area_km2[2]
-                       diff/area_cn$area_km2[2]*100
+
+
+                       dir.create(paste0("Figures/02_area/",
+                                         split_group, "/RDS"), recursive = TRUE)
+
+                       writeLines(paste0("Percentage increase in total area climate-smart prioritisation compared to climate naive = ", as.character(diff/area_cn$area_km2[2]*100), "%"),
+                                   paste0("Figures/02_area/",
+                                          split_group, "/barplot_area_",
+                                          CC_direction, "_", prct, "_prct_increase_area.txt"))
 
                        area <- rbind(area_cn, area_cs) %>%
                          filter(solution_1 == 1)
@@ -72,9 +80,6 @@ future_map(seq(0.05, 0.3, by = 0.05),
                                text = element_text(size = 8),
                                axis.text = element_text(size = 7)) +
                          scale_x_continuous(limits = c(0, max(area$area_km2)*1.1), expand = c(0, 0))
-
-                       dir.create(paste0("Figures/02_area/",
-                                         split_group, "/RDS"), recursive = TRUE)
 
                        ggsave(plot = barplot_area, paste0("Figures/02_area/",
                                                           split_group, "/barplot_area_",

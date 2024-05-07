@@ -1,7 +1,7 @@
 #Author: Alvise Dabalà
 #Date: 08/04/2024
 
-pacman::p_load(tidyverse, sf, MoMAColors, purrr, furrr, parallel)
+pacman::p_load(tidyverse, sf, MoMAColors, purrr, furrr, parallel, openxlsx)
 
 source("Code/Functions/f_intersect_continents.r")
 source("Code/Functions/f_intersect_MEOW.r")
@@ -93,11 +93,19 @@ plot <- ggplot(data = plot_layer,
 dir.create(paste0("Figures/09_plot_area_resilience/mean/RDS"), recursive = TRUE)
 
 ggsave(plot = plot, paste0("Figures/09_plot_area_resilience/", CC_direction, "/area_resilience_",
-                           CC_direction, "_by_ecoregion", ".pdf"),
+                           CC_direction, "_by_ecoregion.pdf"),
        dpi = 300, width = 18, height = 25, units = "cm")
 
 saveRDS(plot, paste0("Figures/09_plot_area_resilience/", CC_direction, "/RDS/area_resilience_",
-                     CC_direction, "_by_ecoregion", ".rds"))
+                     CC_direction, "_by_ecoregion.rds"))
+
+write.xlsx(plot_layer %>%
+             st_drop_geometry(), paste0("Figures/09_plot_area_resilience/", CC_direction, "/area_resilience_",
+                                        CC_direction, "_by_ecoregion.xlsx"))
+
+write.xlsx(plot_layer_mean %>%
+             st_drop_geometry(), paste0("Figures/09_plot_area_resilience/", CC_direction, "/area_resilience_",
+                                        CC_direction, "_by_ecoregion_mean.xlsx"))
 
 #Description of the figures
 writeLines("Comparison of the different outcomes of the climate-smart prioritisations against the climate-naive prioritisation.
