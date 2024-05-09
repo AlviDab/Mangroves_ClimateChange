@@ -43,6 +43,14 @@ future_map(seq(0.05, 0.3, by = 0.05),
                                                                        area_km2)) %>%
                          as_tibble()
 
+                       #Add values from column Prob_gain_stability_mean to the dataframe that are missing it
+                       if("Prob_gain_stability_mean" %in% names(selected_cs) == FALSE) {
+                         selected_cs <- selected_cs %>%
+                           left_join(solution %>%
+                                       dplyr::select(ID, Prob_gain_stability_mean) %>%
+                                       st_drop_geometry(), by = "ID")
+                       }
+
                        #kernel density plot for comparison
                        PUs <- solution %>%
                          st_drop_geometry() %>%
