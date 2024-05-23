@@ -1,0 +1,6 @@
+Cohen's Kappa 0.05 thresholds = 0.655960074162659
+Cohen's Kappa 0.1 thresholds = 0.632940196628596
+Cohen's Kappa 0.15 thresholds = 0.584684058635753
+Cohen's Kappa 0.2 thresholds = 0.543434144166194
+Cohen's Kappa 0.25 thresholds = 0.53033653667631
+Cohen's Kappa 0.3 thresholds = 0.494554111812384

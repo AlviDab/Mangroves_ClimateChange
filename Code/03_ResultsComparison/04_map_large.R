@@ -7,13 +7,13 @@ ncores <- detectCores() - 2
 
 plan(multisession, workers = ncores)
 
-map(c("noCC", "mean"), function(CC_direction) {
+map(c("noCC", "landward", "seaward", "mean"), function(CC_direction) {
 
   if(CC_direction == "noCC") {
     prct_seq <- 0
-    } else {
-      prct_seq <- c(seq(0.05, 0.3, by = 0.05))
-      }
+  } else {
+    prct_seq <- c(seq(0.05, 0.3, by = 0.05))
+  }
 
   future_map(prct_seq,
              .options = furrr_options(seed = TRUE),
@@ -94,8 +94,8 @@ map(c("noCC", "mean"), function(CC_direction) {
                         dpi = 300, width = 18, height = 11, units = "cm")
 
                  saveRDS(plot_map, paste0("Figures/04_map_large/",
-                                              split_group, "/RDS/map_",
-                                              CC_direction, "_", prct, ".rds"))
+                                          split_group, "/RDS/map_",
+                                          CC_direction, "_", prct, ".rds"))
                })
              })
 })

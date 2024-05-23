@@ -1,17 +1,18 @@
 #Author: Alvise Dabalà
 #Date: 08/04/2024
 
-pacman::p_load(tidyverse, sf, MoMAColors, purrr, furrr, parallel)
-
-split_group <- "biotyp"
-CC_direction <- "mean"
-prct <- 0.3
+pacman::p_load(tidyverse, sf, MoMAColors, purrr, furrr, parallel, openxlsx)
 
 source("Code/Functions/f_intersect_continents.r")
 source("Code/Functions/f_intersect_MEOW.r")
 
 CC_direction <- "mean"
+
 PUs_MEOW <- readRDS("Results/RDS/PUs_03_mangroves_biotyp_cc_IUCN_MEOW.rds")
+
+ncores <- detectCores() - 2
+
+plan(multisession, workers = ncores)
 
 plot_layer <- map(c("MEOW_and_biotyp", "biotyp"), function(split_group) {
 
@@ -47,7 +48,7 @@ plot_layer <- map(c("MEOW_and_biotyp", "biotyp"), function(split_group) {
                  f_int_continents() %>%
                  mutate(prct = prct,
                         split_group = name_split_group) %>%
-                 mutate(log_res_var = case_when( #make a log transformation simmetrical respect 0
+                 mutate(log_res_var = case_when( #make a log transformation symmetrical respect 0
                    res_var > 0 ~ log10(res_var),
                    res_var < 0 ~ -log10(abs(res_var)),
                    .default = 0
@@ -55,6 +56,27 @@ plot_layer <- map(c("MEOW_and_biotyp", "biotyp"), function(split_group) {
              })
 }) %>%
   bind_rows()
+
+zero_high_selection <- plot_layer %>%
+  st_drop_geometry() %>%
+  mutate(zero_area = (perc_sel_area == 0),
+         high_selection = (perc_sel_area >= 0.75)) %>%
+  group_by(prct, split_group) %>%
+  summarise(num_zero_area = sum(zero_area),
+            num_high_selection = sum(high_selection))
+
+write.xlsx(zero_high_selection, paste0("Figures/09_plot_area_resilience/",
+                                       CC_direction,
+                                       "/zero_or_high_selection_areas.xlsx"))
+
+sd_prct_sel_area <- plot_layer %>%
+  st_drop_geometry() %>%
+  group_by(prct, split_group) %>%
+  summarise(perc_sel_area_sd = sd(perc_sel_area))
+
+write.xlsx(sd_prct_sel_area, paste0("Figures/09_plot_area_resilience/",
+                                    CC_direction,
+                                    "/percentage_area_selected_standard_deviation.xlsx"))
 
 plot_layer_mean <- plot_layer %>%
   group_by(prct, split_group) %>%
@@ -92,11 +114,19 @@ plot <- ggplot(data = plot_layer,
 dir.create(paste0("Figures/09_plot_area_resilience/mean/RDS"), recursive = TRUE)
 
 ggsave(plot = plot, paste0("Figures/09_plot_area_resilience/", CC_direction, "/area_resilience_",
-                           CC_direction, "_by_ecoregion", ".pdf"),
+                           CC_direction, "_by_ecoregion.pdf"),
        dpi = 300, width = 18, height = 25, units = "cm")
 
 saveRDS(plot, paste0("Figures/09_plot_area_resilience/", CC_direction, "/RDS/area_resilience_",
-                     CC_direction, "_by_ecoregion", ".rds"))
+                     CC_direction, "_by_ecoregion.rds"))
+
+write.xlsx(plot_layer %>%
+             st_drop_geometry(), paste0("Figures/09_plot_area_resilience/", CC_direction, "/area_resilience_",
+                                        CC_direction, "_by_ecoregion.xlsx"))
+
+write.xlsx(plot_layer_mean %>%
+             st_drop_geometry(), paste0("Figures/09_plot_area_resilience/", CC_direction, "/area_resilience_",
+                                        CC_direction, "_by_ecoregion_mean.xlsx"))
 
 #Description of the figures
 writeLines("Comparison of the different outcomes of the climate-smart prioritisations against the climate-naive prioritisation.

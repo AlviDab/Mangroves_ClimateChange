@@ -11,69 +11,71 @@ future_map(seq(0.05, 0.3, by = 0.05),
            .options = furrr_options(seed = TRUE),
            function(prct) {
 
-             CC_direction <- "mean"
+             map(c("landward", "seaward",
+                   "mean"), function(CC_direction) {
 
-             map(c("MEOW_and_biotyp", "biotyp"), function(split_group) {
+                     map(c("MEOW_and_biotyp", "biotyp"), function(split_group) {
 
-               solution <- readRDS(paste0("Results/RDS/prioritisation/01_prioritisation/",
-                                          split_group,"/solution_prioritisation.rds"))
+                       solution <- readRDS(paste0("Results/RDS/prioritisation/01_prioritisation/",
+                                                  split_group,"/solution_prioritisation.rds"))
 
-               solution_cc <- readRDS(paste0("Results/RDS/prioritisation/02_prioritisation_CC/",
-                                             split_group, "/",
-                                             CC_direction, "/solution_",
-                                             as.character(prct), "_", CC_direction, ".rds"))
+                       solution_cc <- readRDS(paste0("Results/RDS/prioritisation/02_prioritisation_CC/",
+                                                     split_group, "/",
+                                                     CC_direction, "/solution_",
+                                                     as.character(prct), "_", CC_direction, ".rds"))
 
-               dat <- spatialplanr::splnr_get_boundary(Limits = "Global")
+                       dat <- spatialplanr::splnr_get_boundary(Limits = "Global")
 
-               source("Code/Functions/f_create_worldmap.r")
-               world_map <- f_worldmap()
+                       source("Code/Functions/f_create_worldmap.r")
+                       world_map <- f_worldmap()
 
-               sol <- solution_cc %>%
-                 mutate(solution_2 = solution$solution_1) %>%
-                 mutate(overlap = case_when(
-                   solution_1 == 1 & solution_2 == 1 ~ "Both plans",
-                   solution_1 == 0 & solution_2 == 1 ~ "Only climate-naïve",
-                   solution_1 == 1 & solution_2 == 0 ~ "Only climate-smart",
-                   solution_1 == 0 & solution_2 == 0 ~ "Not selected",
-                   .default = NA
-                 ))
+                       sol <- solution_cc %>%
+                         mutate(solution_2 = solution$solution_1) %>%
+                         mutate(overlap = case_when(
+                           solution_1 == 1 & solution_2 == 1 ~ "Both plans",
+                           solution_1 == 0 & solution_2 == 1 ~ "Only climate-naïve",
+                           solution_1 == 1 & solution_2 == 0 ~ "Only climate-smart",
+                           solution_1 == 0 & solution_2 == 0 ~ "Not selected",
+                           .default = NA
+                         ))
 
-               plot_overlap <- ggplot() +
-                 geom_sf(data = world_map, fill = "grey60",
-                         colour = "grey60",
-                         linewidth = 0.001) +
-                 geom_sf(data = sol,
-                         aes(fill = overlap,
-                             colour = priority),
-                         linewidth = 0.01) +
-                 scale_fill_manual(values = c("#F58300", "#CECECE", "#0F0247", "#26AFD1"),
-                                   name = "") +
-                 scale_colour_manual(values = c("transparent", "black"),
-                                     labels = c("Not climate-priority areas",
-                                                "Climate-priority areas"),
-                                     name = "") +
-                 geom_sf(data = dat, fill = NA) +
-                 theme_minimal(base_size = 7) +
-                 theme(panel.grid.major = element_line(colour = "transparent"),
-                       panel.background = element_blank(),
-                       legend.position = "top",
-                       legend.box = "vertical",
-                       legend.key.size = unit(0.3, "cm")) +
-                 scale_x_continuous(expand = c(0, 0)) +
-                 scale_y_continuous(expand = c(0, 0)) +
-                 coord_sf(datum = NA)
+                       plot_overlap <- ggplot() +
+                         geom_sf(data = world_map, fill = "grey60",
+                                 colour = "grey60",
+                                 linewidth = 0.001) +
+                         geom_sf(data = sol,
+                                 aes(fill = overlap,
+                                     colour = priority),
+                                 linewidth = 0.01) +
+                         scale_fill_manual(values = c("#F58300", "#CECECE", "#0F0247", "#26AFD1"),
+                                           name = "") +
+                         scale_colour_manual(values = c("transparent", "black"),
+                                             labels = c("Not climate-priority areas",
+                                                        "Climate-priority areas"),
+                                             name = "") +
+                         geom_sf(data = dat, fill = NA) +
+                         theme_minimal(base_size = 7) +
+                         theme(panel.grid.major = element_line(colour = "transparent"),
+                               panel.background = element_blank(),
+                               legend.position = "top",
+                               legend.box = "vertical",
+                               legend.key.size = unit(0.3, "cm")) +
+                         scale_x_continuous(expand = c(0, 0)) +
+                         scale_y_continuous(expand = c(0, 0)) +
+                         coord_sf(datum = NA)
 
-               dir.create(paste0("Figures/01_map_differences/", split_group, "/RDS"), recursive = TRUE)
+                       dir.create(paste0("Figures/01_map_differences/", split_group, "/RDS"), recursive = TRUE)
 
-               ggsave(plot = plot_overlap, paste0("Figures/01_map_differences/",
-                                                  split_group,"/overlap_",
-                                                  CC_direction, "_", prct, ".pdf"),
-                      dpi = 300, width = 18, height = 11, units = "cm")
+                       ggsave(plot = plot_overlap, paste0("Figures/01_map_differences/",
+                                                          split_group,"/overlap_",
+                                                          CC_direction, "_", prct, ".pdf"),
+                              dpi = 300, width = 18, height = 11, units = "cm")
 
-               saveRDS(plot_overlap, paste0("Figures/01_map_differences/",
-                                            split_group, "/RDS/overlap_",
-                                            CC_direction, "_", prct, ".rds"))
-             })
+                       saveRDS(plot_overlap, paste0("Figures/01_map_differences/",
+                                                    split_group, "/RDS/overlap_",
+                                                    CC_direction, "_", prct, ".rds"))
+                     })
+                   })
            })
 
 plan(sequential)
