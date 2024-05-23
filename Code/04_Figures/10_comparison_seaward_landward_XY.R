@@ -15,6 +15,7 @@ solution_cc <- future_map(seq(0.05, 0.3, by = 0.05),
 
                             source("Code/Functions/f_intersect_MEOW.r")
                             source("Code/Functions/f_intersect_continents.r")
+                            source("Code/Functions/f_intersect_countries.r")
 
                             PUs_MEOW <- readRDS("Results/RDS/PUs_03_mangroves_biotyp_cc_IUCN_MEOW.rds")
 
@@ -29,12 +30,9 @@ solution_cc <- future_map(seq(0.05, 0.3, by = 0.05),
                                                              as.character(prct), "_landward.rds")) %>%
                               mutate(type = "landward")
 
-                            name_split_group <- ifelse(split_group == "biotyp",
-                                                       "Split by biophysical typology",
-                                                       "Split by biophysical typology and marine ecoregion")
-
                             solution_cc <- solution_cc_sw %>%
                               rbind(solution_cc_lw) %>%
+                              f_int_countries() %>%
                               f_int_MEOW(type = "PROVINCE") %>%
                               group_by(PROVINCE, solution_1, type) %>%
                               summarise(tot_area = sum(area_km2),
@@ -59,10 +57,22 @@ solution_cc <- future_map(seq(0.05, 0.3, by = 0.05),
                           }) %>%
   bind_rows()
 
+plan(sequential)
+
+#Solve the problem with French Guiana in Europe
+
+## CHECK IF THERE ARE ANY OTHER FRENCH COLONIES
+solution_cc_long <- solution_cc %>%
+  pivot_longer(c(seaward, landward)) #%>%
+  # mutate(country = case_when(country == "France" ~ "French Guiana",
+  #                            .default = country),
+  #        continent = case_when(continent == "Europe" ~ "America",
+  #                              .default = continent))
+
 plot_sw_lw <- ggplot() +
-  geom_col(data = solution_cc, aes(y = perc_difference,
-                                   x = PROVINCE,
-                                   fill = perc_difference > 0),
+  geom_col(data = solution_cc_long, aes(y = value,
+                                        x = PROVINCE,
+                                        fill = name),
            position = "dodge",
            width = 0.5) +
   facet_grid(prct ~ continent, scales = 'free', space = "free_x") +
@@ -76,7 +86,7 @@ plot_sw_lw <- ggplot() +
         axis.title = element_text(size = 9),
         legend.text = element_text(size = 9),
         legend.box = 'vertical') +
-  ylab("Additional percentage of area selected") +
+  ylab("Percentage of mangrove area selected") +
   xlab("") +
   scale_fill_manual(values = c("#f18f01",
                                "#006e90"),
@@ -84,13 +94,16 @@ plot_sw_lw <- ggplot() +
                                "seaward")) +
   scale_x_discrete(guide = guide_axis(angle = 45)) +
   ylim(c(0, 1)) +
-  scale_y_continuous(expand = c(0, 0), limits = c(-0.6, 0.6), labels = abs)
+  scale_y_continuous(expand = c(0, 0), limits = c(0, 1.1))
 
-dir.create(paste0("Figures/10_plot_comparison_area_lw_sw/RDS"), recursive = TRUE)
+dir.create(paste0("Figures/10_plot_comparison_area_lw_sw/",
+                  split_group, "/RDS"), recursive = TRUE)
 
-ggsave(paste0("Figures/10_plot_comparison_area_lw_sw/plot_comparison_area_lw_sw_",
-              split_group, ".pdf"),
+ggsave(paste0("Figures/10_plot_comparison_area_lw_sw/",
+              split_group, "/plot_comparison_area_lw_sw_",
+              split_group, "_province.pdf"),
        dpi = 300, width = 18, height = 25, units = "cm")
 
-saveRDS(plot_sw_lw, paste0("Figures/10_plot_comparison_area_lw_sw/RDS/plot_comparison_area_lw_sw_",
-                     split_group, ".rds"))
+saveRDS(plot_sw_lw, paste0("Figures/10_plot_comparison_area_lw_sw/",
+                           split_group, "/RDS/plot_comparison_area_lw_sw_",
+                     split_group, "_province.rds"))

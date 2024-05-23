@@ -57,6 +57,27 @@ plot_layer <- map(c("MEOW_and_biotyp", "biotyp"), function(split_group) {
 }) %>%
   bind_rows()
 
+zero_high_selection <- plot_layer %>%
+  st_drop_geometry() %>%
+  mutate(zero_area = (perc_sel_area == 0),
+         high_selection = (perc_sel_area >= 0.75)) %>%
+  group_by(prct, split_group) %>%
+  summarise(num_zero_area = sum(zero_area),
+            num_high_selection = sum(high_selection))
+
+write.xlsx(zero_high_selection, paste0("Figures/09_plot_area_resilience/",
+                                       CC_direction,
+                                       "/zero_or_high_selection_areas.xlsx"))
+
+sd_prct_sel_area <- plot_layer %>%
+  st_drop_geometry() %>%
+  group_by(prct, split_group) %>%
+  summarise(perc_sel_area_sd = sd(perc_sel_area))
+
+write.xlsx(sd_prct_sel_area, paste0("Figures/09_plot_area_resilience/",
+                                    CC_direction,
+                                    "/percentage_area_selected_standard_deviation.xlsx"))
+
 plot_layer_mean <- plot_layer %>%
   group_by(prct, split_group) %>%
   summarise(w_mean_res_var = weighted.mean(log_res_var, tot_area_1),
