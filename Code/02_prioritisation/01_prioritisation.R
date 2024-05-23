@@ -3,9 +3,9 @@
 
 pacman::p_load(tidyverse, sf, prioritizr)
 
-map(c("MEOW_and_", ""), function(file_name) {
+map(c("country_and_", ""), function(file_name) {
 
-  PUs <- readRDS(paste0("Results/RDS/prioritisation_input/PUs_05_mangroves_cc_IUCN_split_by_",
+  PUs <- readRDS(paste0("Results/RDS/prioritisation_input/Country/PUs_05_mangroves_cc_IUCN_split_by_",
                         file_name, "biotyp_priority_0.05_mean.rds"))
 
   PUs_features_split_targets <- readRDS(paste0("Results/RDS/PUs_05_features_split_targets_by_",
@@ -22,21 +22,21 @@ map(c("MEOW_and_", ""), function(file_name) {
 
   solution <- solve(prioritizr_problem)
 
-  replacement_score <- eval_replacement_importance(prioritizr_problem, solution[, "solution_1"])
+  #replacement_score <- eval_replacement_importance(prioritizr_problem, solution[, "solution_1"])
 
   metrics <- prioritizr::eval_target_coverage_summary(prioritizr_problem, solution[, "solution_1"])
 
-  dir.create(paste0("Results/RDS/prioritisation/01_prioritisation/", new_file_name), recursive = T)
+  dir.create(paste0("Results/RDS/prioritisation/Country/01_prioritisation/", new_file_name), recursive = T)
 
-  saveRDS(solution, paste0("Results/RDS/prioritisation/01_prioritisation/",
+  saveRDS(solution, paste0("Results/RDS/prioritisation/Country/01_prioritisation/",
                            new_file_name,
                            "/solution_prioritisation.rds"))
 
-  saveRDS(replacement_score, paste0("Results/RDS/prioritisation/01_prioritisation/",
-                                    new_file_name,
-                                    "/replacement_score.rds"))
+  # saveRDS(replacement_score, paste0("Results/RDS/prioritisation/Country/01_prioritisation/",
+  #                                   new_file_name,
+  #                                   "/replacement_score.rds"))
 
-  saveRDS(metrics, paste0("Results/RDS/prioritisation/01_prioritisation/",
+  saveRDS(metrics, paste0("Results/RDS/prioritisation/Country/01_prioritisation/",
                           new_file_name,
                           "/metrics.rds"))
 })
