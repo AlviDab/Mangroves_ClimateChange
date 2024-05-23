@@ -5,7 +5,7 @@ pacman::p_load(tidyverse, sf, parallel, furrr, purrr)
 
 options(future.globals.maxSize = 750*1024^2)
 
-map(c("PUs_04_mangroves_cc_IUCN_split_by_MEOW_and_biotyp",
+map(c("PUs_04_mangroves_cc_IUCN_split_by_country_and_biotyp",
       "PUs_04a_mangroves_cc_IUCN_split_by_biotyp"
       ), function(file_name) {
 
@@ -21,7 +21,7 @@ map(c("PUs_04_mangroves_cc_IUCN_split_by_MEOW_and_biotyp",
 
         source("Code/Functions/f_find_priority.r")
 
-        dir.create("Results/RDS/prioritisation_input/")
+        dir.create("Results/RDS/prioritisation_input/Country")
 
         #add mean probability of gain stability
         PUs <- PUs %>%
@@ -39,12 +39,12 @@ map(c("PUs_04_mangroves_cc_IUCN_split_by_MEOW_and_biotyp",
           fNN_NAs("Prob_gain_stability_seaward") %>%
           fNN_NAs("Prob_gain_stability_mean")
 
-        #ncores <- detectCores() - 2
+        ncores <- detectCores() - 2
 
-        #plan(multisession, workers = ncores)
+        plan(multisession, workers = ncores)
 
-        map(seq(0.05, 0.3, by = 0.05),
-            #.options = furrr_options(seed = TRUE),
+        future_map(seq(0.05, 0.3, by = 0.05),
+            .options = furrr_options(seed = TRUE),
             function(prct) {
               map(c("landward", "seaward", "mean"
                 ),
@@ -56,7 +56,7 @@ map(c("PUs_04_mangroves_cc_IUCN_split_by_MEOW_and_biotyp",
                                             features)
 
                   saveRDS(PUs_CC,
-                          paste0("Results/RDS/prioritisation_input/PUs_05_",
+                          paste0("Results/RDS/prioritisation_input/Country/PUs_05_",
                           new_file_name,
                           "_priority_",
                                  prct, "_", CC_direction, ".rds")
@@ -65,7 +65,7 @@ map(c("PUs_04_mangroves_cc_IUCN_split_by_MEOW_and_biotyp",
             })
       })
 
-#plan(sequential)
+plan(sequential)
 
 rm(list = ls(all.names = TRUE)) #will clear all objects includes hidden objects.
 gc() #free up memrory and report the memory usage.

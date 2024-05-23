@@ -61,7 +61,7 @@ plan(sequential)
 
 #Solve the problem with French Guiana in Europe
 
-## CHECK IF THERE ARE ANY OTHER FRENCH COLONIES
+## CHECK IF THERE ARE ANY OTHER FRENCH
 solution_cc_long <- solution_cc %>%
   pivot_longer(c(seaward, landward)) #%>%
   # mutate(country = case_when(country == "France" ~ "French Guiana",

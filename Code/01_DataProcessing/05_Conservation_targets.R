@@ -48,7 +48,7 @@ PUs_features_targets <- PUs_features %>%
 
 saveRDS(PUs_features_targets, "Results/RDS/PUs_05_features_targets.rds")
 
-map(c("PUs_04_mangroves_cc_IUCN_split_by_MEOW_and_biotyp",
+map(c("PUs_04_mangroves_cc_IUCN_split_by_country_and_biotyp",
       "PUs_04a_mangroves_cc_IUCN_split_by_biotyp"), function(file_name) {
 
         PUs <- readRDS(paste0("Results/RDS/", file_name, ".rds"))
