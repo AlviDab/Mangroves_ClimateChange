@@ -13,12 +13,12 @@ future_map(seq(0.05, 0.3, by = 0.05),
              map(c("landward", "seaward",
                    "mean"), function(CC_direction) {
 
-                     map(c("MEOW_and_biotyp", "biotyp"), function(split_group) {
+                     map(c("country_and_biotyp", "biotyp"), function(split_group) {
 
-                       solution <- readRDS(paste0("Results/RDS/prioritisation/01_prioritisation/",
+                       solution <- readRDS(paste0("Results/RDS/prioritisation/Country/01_prioritisation/",
                                                   split_group,"/solution_prioritisation.rds"))
 
-                       solution_cc <- readRDS(paste0("Results/RDS/prioritisation/02_prioritisation_CC/",
+                       solution_cc <- readRDS(paste0("Results/RDS/prioritisation/Country/02_prioritisation_CC/",
                                                      split_group, "/",
                                                      CC_direction, "/solution_",
                                                      as.character(prct), "_", CC_direction, ".rds"))
@@ -51,11 +51,11 @@ future_map(seq(0.05, 0.3, by = 0.05),
                        diff <- area_cs$area_km2[2] - area_cn$area_km2[2]
 
 
-                       dir.create(paste0("Figures/02_area/",
+                       dir.create(paste0("Figures/Country/02_area/",
                                          split_group, "/RDS"), recursive = TRUE)
 
                        writeLines(paste0("Percentage increase in total area climate-smart prioritisation compared to climate naive = ", as.character(diff/area_cn$area_km2[2]*100), "%"),
-                                   paste0("Figures/02_area/",
+                                   paste0("Figures/Country/02_area/",
                                           split_group, "/barplot_area_",
                                           CC_direction, "_", prct, "_prct_increase_area.txt"))
 
@@ -81,12 +81,12 @@ future_map(seq(0.05, 0.3, by = 0.05),
                                axis.text = element_text(size = 7)) +
                          scale_x_continuous(limits = c(0, max(area$area_km2)*1.1), expand = c(0, 0))
 
-                       ggsave(plot = barplot_area, paste0("Figures/02_area/",
+                       ggsave(plot = barplot_area, paste0("Figures/Country/02_area/",
                                                           split_group, "/barplot_area_",
                                                           CC_direction, "_", prct, ".pdf"),
                               dpi = 300, width = 12, height = 8, units = "cm")
 
-                       saveRDS(barplot_area, paste0("Figures/02_area/",
+                       saveRDS(barplot_area, paste0("Figures/Country/02_area/",
                                                     split_group, "/RDS/barplot_area_",
                                                     CC_direction, "_", prct, ".rds"))
                      })

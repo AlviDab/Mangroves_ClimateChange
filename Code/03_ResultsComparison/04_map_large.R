@@ -7,6 +7,11 @@ ncores <- detectCores() - 2
 
 plan(multisession, workers = ncores)
 
+source("Code/Functions/f_create_worldmap.r")
+world_map <- f_worldmap()
+
+PUs_large <- readRDS(file = "Results/RDS/00_PUs_large_mollweide.rds")
+
 map(c("noCC", "landward", "seaward", "mean"), function(CC_direction) {
 
   if(CC_direction == "noCC") {
@@ -19,22 +24,17 @@ map(c("noCC", "landward", "seaward", "mean"), function(CC_direction) {
              .options = furrr_options(seed = TRUE),
              function(prct) {
 
-               map(c("MEOW_and_biotyp", "biotyp"), function(split_group) {
+               map(c("country_and_biotyp", "biotyp"), function(split_group) {
 
-                 if(CC_direction == "noCC") {solution <- readRDS(paste0("Results/RDS/prioritisation/01_prioritisation/",
+                 if(CC_direction == "noCC") {solution <- readRDS(paste0("Results/RDS/prioritisation/Country/01_prioritisation/",
                                                                         split_group,"/solution_prioritisation.rds"))
 
-                 } else {solution <- readRDS(paste0("Results/RDS/prioritisation/02_prioritisation_CC/",
+                 } else {solution <- readRDS(paste0("Results/RDS/prioritisation/Country/02_prioritisation_CC/",
                                                     split_group, "/",
                                                     CC_direction, "/solution_",
                                                     as.character(prct), "_", CC_direction, ".rds"))}
 
                  dat <- spatialplanr::splnr_get_boundary(Limits = "Global")
-
-                 source("Code/Functions/f_create_worldmap.r")
-                 world_map <- f_worldmap()
-
-                 PUs_large <- readRDS(file = "Results/RDS/00_PUs_large_mollweide.rds")
 
                  intersection <- PUs_large %>%
                    st_intersects(st_centroid(solution)) %>%
@@ -49,7 +49,21 @@ map(c("noCC", "landward", "seaward", "mean"), function(CC_direction) {
                              unlist()) %>%
                      select(!c(ID, cellID)) %>%
                      mutate(nPUs = nrow(.)) %>%
-                     summarise(across(!contains("Sp") & where(is.numeric), ~mean(.x)))
+                     summarise(across(!contains("Sp") & !contains("km2") & where(is.numeric), ~mean(.x)),
+                               across(contains("km2") & where(is.numeric), ~sum(.x)))
+
+                   selected_mangrove_area <- solution %>%
+                     slice(intersection[intersection_index] %>%
+                             unlist()) %>%
+                     st_drop_geometry %>%
+                     filter(solution_1 == 1) %>%
+                     summarise(selected_MangroveArea_km2 = sum(MangroveArea_km2)) %>%
+                     dplyr::select(selected_MangroveArea_km2)
+
+                   if(nrow(selected_mangrove_area) > 0) {
+                     mean_selected_solution <- mean_selected_solution %>%
+                       add_column(selected_mangrove_area)
+                   }
 
                    PUs_large <- PUs_large %>%
                      slice(intersection_index) %>%
@@ -59,52 +73,56 @@ map(c("noCC", "landward", "seaward", "mean"), function(CC_direction) {
                    return(PUs_large)
 
                  }) %>%
-                   bind_rows()
+                     bind_rows()
 
-                 plot_map <- ggplot() +
-                   geom_sf(data = world_map, fill = "grey60",
-                           colour = "grey60",
-                           linewidth = 0.001) +
-                   geom_sf(data = large_sol,
-                           aes(fill = solution_1),
-                           colour = "black",
-                           linewidth = 0.01) +
-                   scale_fill_viridis_c(option = "D") +
-                   guides(fill = guide_colourbar(barwidth = 10,
-                                                 barheight = 0.5,
-                                                 title.position = "top",
-                                                 title = "Percentage of selection (%)",
-                                                 ticks.colour = "black")) +
-                   geom_sf(data = dat, fill = NA) +
-                   theme_minimal(base_size = 7) +
-                   theme(panel.grid.major = element_line(colour = "transparent"),
-                         panel.background = element_blank(),
-                         legend.position = "top",
-                         legend.box = "vertical",
-                         legend.key.size = unit(0.3, "cm")) +
-                   scale_x_continuous(expand = c(0, 0)) +
-                   scale_y_continuous(expand = c(0, 0)) +
-                   coord_sf(datum = NA)
+                   saveRDS(large_sol, paste0("Figures/Country/04_map_large/",
+                                             split_group, "/RDS/large_PUs_sol_",
+                                             CC_direction, "_", prct, ".rds"))
 
-                 dir.create(paste0("Figures/04_map_large/", split_group, "/RDS"), recursive = TRUE)
+                   plot_map <- ggplot() +
+                     geom_sf(data = world_map, fill = "grey60",
+                             colour = "grey60",
+                             linewidth = 0.001) +
+                     geom_sf(data = large_sol,
+                             aes(fill = solution_1),
+                             colour = "black",
+                             linewidth = 0.01) +
+                     scale_fill_viridis_c(option = "D") +
+                     guides(fill = guide_colourbar(barwidth = 10,
+                                                   barheight = 0.5,
+                                                   title.position = "top",
+                                                   title = "Percentage of selection (%)",
+                                                   ticks.colour = "black")) +
+                     geom_sf(data = dat, fill = NA) +
+                     theme_minimal(base_size = 7) +
+                     theme(panel.grid.major = element_line(colour = "transparent"),
+                           panel.background = element_blank(),
+                           legend.position = "top",
+                           legend.box = "vertical",
+                           legend.key.size = unit(0.3, "cm")) +
+                     scale_x_continuous(expand = c(0, 0)) +
+                     scale_y_continuous(expand = c(0, 0)) +
+                     coord_sf(datum = NA)
 
-                 ggsave(plot = plot_map, paste0("Figures/04_map_large/",
-                                                split_group,"/map_",
-                                                CC_direction, "_", prct, ".pdf"),
-                        dpi = 300, width = 18, height = 11, units = "cm")
+                   dir.create(paste0("Figures/Country/04_map_large/", split_group, "/RDS"), recursive = TRUE)
 
-                 saveRDS(plot_map, paste0("Figures/04_map_large/",
-                                          split_group, "/RDS/map_",
-                                          CC_direction, "_", prct, ".rds"))
+                   ggsave(plot = plot_map, paste0("Figures/Country/04_map_large/",
+                                                  split_group,"/map_",
+                                                  CC_direction, "_", prct, ".pdf"),
+                          dpi = 300, width = 18, height = 11, units = "cm")
+
+                   saveRDS(plot_map, paste0("Figures/Country/04_map_large/",
+                                            split_group, "/RDS/map_",
+                                            CC_direction, "_", prct, ".rds"))
                })
              })
 })
 
-plan(sequential)
+  plan(sequential)
 
-#Description of the figures
-writeLines("")
+  #Description of the figures
+  writeLines("")
 
-rm(list = ls(all.names = TRUE)) #will clear all objects includes hidden objects.
-gc() #free up memrory and report the memory usage.
-.rs.restartR()
+  rm(list = ls(all.names = TRUE)) #will clear all objects includes hidden objects.
+  gc() #free up memrory and report the memory usage.
+  .rs.restartR()

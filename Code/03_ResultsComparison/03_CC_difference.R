@@ -13,12 +13,12 @@ future_map(seq(0.05, 0.3, by = 0.05),
              map(c("landward", "seaward",
                    "mean"), function(CC_direction) {
 
-                     map(c("MEOW_and_biotyp", "biotyp"), function(split_group) {
+                     map(c("country_and_biotyp", "biotyp"), function(split_group) {
 
-                       solution <- readRDS(paste0("Results/RDS/prioritisation/01_prioritisation/",
+                       solution <- readRDS(paste0("Results/RDS/prioritisation/Country/01_prioritisation/",
                                                   split_group,"/solution_prioritisation.rds"))
 
-                       solution_cc <- readRDS(paste0("Results/RDS/prioritisation/02_prioritisation_CC/",
+                       solution_cc <- readRDS(paste0("Results/RDS/prioritisation/Country/02_prioritisation_CC/",
                                                      split_group, "/",
                                                      CC_direction, "/solution_",
                                                      as.character(prct), "_", CC_direction, ".rds"))
@@ -96,14 +96,14 @@ future_map(seq(0.05, 0.3, by = 0.05),
                                legend.key.size = unit(0.3, "cm"),
                                plot.margin = margin(r = 0.5, unit = "cm"))
 
-                       dir.create(paste0("Figures/03_CC_exposure/", split_group, "/RDS"), recursive = TRUE)
+                       dir.create(paste0("Figures/Country/03_CC_exposure/", split_group, "/RDS"), recursive = TRUE)
 
-                       ggsave(plot = kd_plot, paste0("Figures/03_CC_exposure/",
+                       ggsave(plot = kd_plot, paste0("Figures/Country/03_CC_exposure/",
                                                      split_group, "/kdplot_exposure_",
                                                      CC_direction, "_", prct, ".pdf"),
                               dpi = 300, width = 12, height = 12, units = "cm")
 
-                       saveRDS(kd_plot, paste0("Figures/03_CC_exposure/", split_group,
+                       saveRDS(kd_plot, paste0("Figures/Country/03_CC_exposure/", split_group,
                                                "/RDS/kdplot_exposure_",
                                                CC_direction, "_", prct, ".rds"))
 
@@ -114,7 +114,7 @@ future_map(seq(0.05, 0.3, by = 0.05),
                          mutate(prct_increase_comparison_climate_naïve = (weighted_mean_exposure - weighted_mean_exposure[2])/weighted_mean_exposure[2]*100)
 
                        write.xlsx(selected %>%
-                                    st_drop_geometry(), paste0("Figures/03_CC_exposure/",
+                                    st_drop_geometry(), paste0("Figures/Country/03_CC_exposure/",
                                                                split_group, "/kdplot_exposure_",
                                                                CC_direction, "_", prct, ".xlsx"))
                      })
@@ -129,8 +129,8 @@ to climate change
 
 'mean' means that I am using a mean value of landward and seaward change in the prioritisation.
 
-The value reported is the percentage used as a tradeoff to select climate-priority areas for each conservation feature (more on the method 'climate-priority areas' in Buenafe et al. 2023 - https://doi.org/10.1002/eap.2852).
-")
+The value reported is the percentage used as a tradeoff to select climate-priority areas for each conservation feature (more on the method 'climate-priority areas' in Buenafe et al. 2023 - https://doi.org/10.1002/eap.2852).",
+           "Figures/Country/03_CC_exposure/info.txt")
 
 rm(list = ls(all.names = TRUE)) #will clear all objects includes hidden objects.
 gc() #free up memrory and report the memory usage.

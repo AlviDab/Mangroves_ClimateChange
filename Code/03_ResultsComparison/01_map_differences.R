@@ -14,12 +14,12 @@ future_map(seq(0.05, 0.3, by = 0.05),
              map(c("landward", "seaward",
                    "mean"), function(CC_direction) {
 
-                     map(c("MEOW_and_biotyp", "biotyp"), function(split_group) {
+                     map(c("country_and_biotyp", "biotyp"), function(split_group) {
 
-                       solution <- readRDS(paste0("Results/RDS/prioritisation/01_prioritisation/",
+                       solution <- readRDS(paste0("Results/RDS/prioritisation/Country/01_prioritisation/",
                                                   split_group,"/solution_prioritisation.rds"))
 
-                       solution_cc <- readRDS(paste0("Results/RDS/prioritisation/02_prioritisation_CC/",
+                       solution_cc <- readRDS(paste0("Results/RDS/prioritisation/Country/02_prioritisation_CC/",
                                                      split_group, "/",
                                                      CC_direction, "/solution_",
                                                      as.character(prct), "_", CC_direction, ".rds"))
@@ -64,14 +64,14 @@ future_map(seq(0.05, 0.3, by = 0.05),
                          scale_y_continuous(expand = c(0, 0)) +
                          coord_sf(datum = NA)
 
-                       dir.create(paste0("Figures/01_map_differences/", split_group, "/RDS"), recursive = TRUE)
+                       dir.create(paste0("Figures/Country/01_map_differences/", split_group, "/RDS"), recursive = TRUE)
 
-                       ggsave(plot = plot_overlap, paste0("Figures/01_map_differences/",
+                       ggsave(plot = plot_overlap, paste0("Figures/Country/01_map_differences/",
                                                           split_group,"/overlap_",
                                                           CC_direction, "_", prct, ".pdf"),
                               dpi = 300, width = 18, height = 11, units = "cm")
 
-                       saveRDS(plot_overlap, paste0("Figures/01_map_differences/",
+                       saveRDS(plot_overlap, paste0("Figures/Country/01_map_differences/",
                                                     split_group, "/RDS/overlap_",
                                                     CC_direction, "_", prct, ".rds"))
                      })
@@ -98,7 +98,7 @@ In the figures:
 # Border of the planning unit
 - black: planning unit locked-in as climate-priority area
 - transparent: planning unit not locked-in",
-           "Figures/01_map_differences/info.txt")
+           "Figures/Country/01_map_differences/info.txt")
 
 rm(list = ls(all.names = TRUE)) #will clear all objects includes hidden objects.
 gc() #free up memrory and report the memory usage.

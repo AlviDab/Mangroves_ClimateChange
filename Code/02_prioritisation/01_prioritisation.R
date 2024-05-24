@@ -11,7 +11,7 @@ map(c("country_and_", ""), function(file_name) {
   PUs_features_split_targets <- readRDS(paste0("Results/RDS/PUs_05_features_split_targets_by_",
                                                file_name, "biotyp.rds"))
 
-  new_file_name <- ifelse(file_name == "MEOW_and_", "MEOW_and_biotyp", "biotyp")
+  new_file_name <- ifelse(file_name == "country_and_", "country_and_biotyp", "biotyp")
 
   prioritizr_problem <- problem(PUs,
                                 PUs_features_split_targets$feature,
