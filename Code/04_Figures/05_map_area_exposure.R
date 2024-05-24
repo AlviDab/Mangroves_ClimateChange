@@ -14,17 +14,17 @@ map(seq(0.05, 0.3, by = 0.05),
              map(c("landward", "seaward",
                    "mean"), function(CC_direction) {
 
-                     map(c("MEOW_and_biotyp", "biotyp"), function(split_group) {
+                     map(c("country_and_biotyp", "biotyp"), function(split_group) {
 
-                       plot_overlap <- readRDS(paste0("Figures/01_map_differences/",
+                       plot_overlap <- readRDS(paste0("Figures/Country/01_map_differences/",
                                                       split_group, "/RDS/overlap_",
                                                       CC_direction, "_", prct, ".rds"))
 
-                       barplot_area <- readRDS(paste0("Figures/02_area/",
+                       barplot_area <- readRDS(paste0("Figures/Country/02_area/",
                                                       split_group, "/RDS/barplot_area_",
                                                       CC_direction, "_", prct, ".rds"))
 
-                       kd_plot <- readRDS(paste0("Figures/03_CC_exposure/", split_group,
+                       kd_plot <- readRDS(paste0("Figures/Country/03_CC_exposure/", split_group,
                                                  "/RDS/kdplot_exposure_",
                                                  CC_direction, "_", prct, ".rds"))
 
@@ -38,11 +38,11 @@ map(seq(0.05, 0.3, by = 0.05),
                                        barplot_area) +
                          plot_layout(design = layout)
 
-                       dir.create(paste0("Figures/publication_figures/",
+                       dir.create(paste0("Figures/Country/05_map_area_exposure/",
                                          split_group), recursive = TRUE)
 
-                       ggsave(plot = figure_01, paste0("Figures/publication_figures/",
-                                                       split_group,"/01_map_area_exposure_",
+                       ggsave(plot = figure_01, paste0("Figures/Country/05_map_area_exposure/",
+                                                       split_group,"/map_area_exposure_",
                                                        CC_direction, "_", prct, ".pdf"),
                               dpi = 300, width = 18, height = 18, units = "cm")
                      })

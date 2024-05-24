@@ -12,11 +12,11 @@ dat <- spatialplanr::splnr_get_boundary(Limits = "Global")
 source("Code/Functions/f_create_worldmap.r")
 world_map <- f_worldmap()
 
-future_map(c("MEOW_and_biotyp", "biotyp"),
+future_map(c("country_and_biotyp", "biotyp"),
            .options = furrr_options(seed = TRUE),
            function(file_name) {
 
-             replacement_score <- readRDS(paste0("Results/RDS/prioritisation/01_prioritisation/",
+             replacement_score <- readRDS(paste0("Results/RDS/prioritisation/Country/01_prioritisation/",
                                                  file_name,
                                                  "/replacement_score.rds"))
 
@@ -66,13 +66,13 @@ future_map(c("MEOW_and_biotyp", "biotyp"),
                scale_y_continuous(expand = c(0, 0)) +
                coord_sf(datum = NA)
 
-             dir.create(paste0("Figures/08_replacement_score/no_CC/", file_name, "/RDS"), recursive = TRUE)
+             dir.create(paste0("Figures/Country/07_replacement_score/no_CC/", file_name, "/RDS"), recursive = TRUE)
 
-             ggsave(plot = plot_replacement_score, paste0("Figures/08_replacement_score/no_CC/",
+             ggsave(plot = plot_replacement_score, paste0("Figures/Country/07_replacement_score/no_CC/",
                                                           file_name, "/replacement_score", ".pdf"),
                     dpi = 300, width = 18, height = 11, units = "cm")
 
-             saveRDS(plot_replacement_score, paste0("Figures/08_replacement_score/no_CC/",
+             saveRDS(plot_replacement_score, paste0("Figures/Country/07_replacement_score/no_CC/",
                                                     file_name, "/RDS/replacement_score", ".rds"))
            })
 
@@ -82,7 +82,7 @@ plan(sequential)
 writeLines("In the CC folder there are the replacement score maps for the climate-smart prioritisation and in the no_CC those for the climate-naive.
 
 In the 'biotyp' folder are all the results for prioritisations that include conservation features not split by ecoregion.
-Viceversa in 'MEOW_and_biotyp' the conservation features were split by ecoregion.
+Viceversa in 'country_and_biotyp' the conservation features were split by ecoregion.
 
 The value reported in the name of each file is the percentage used as a tradeoff to select climate-priority areas for each conservation feature (more on the method 'climate-priority areas' in Buenafe et al. 2023 - https://doi.org/10.1002/eap.2852).
 

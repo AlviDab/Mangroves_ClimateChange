@@ -4,26 +4,30 @@
 pacman::p_load(tidyverse, sf, MoMAColors, purrr, furrr, parallel, openxlsx)
 
 source("Code/Functions/f_intersect_continents.r")
-source("Code/Functions/f_intersect_MEOW.r")
+source("Code/Functions/f_intersect_countries.R")
 
 CC_direction <- "mean"
 
-PUs_MEOW <- readRDS("Results/RDS/PUs_03_mangroves_biotyp_cc_IUCN_MEOW.rds")
+PUs <- readRDS("Results/RDS/PUs_03_mangroves_biotyp_cc_IUCN_MEOW.rds") %>%
+  f_int_countries() %>%
+  mutate(country = case_when(country == "France" ~ "French Guiana",
+                             .default = country) %>%
+           gsub(" ", "_", .))
 
 ncores <- detectCores() - 2
 
 plan(multisession, workers = ncores)
 
-plot_layer <- map(c("MEOW_and_biotyp", "biotyp"), function(split_group) {
+plot_layer <- map(c("country_and_biotyp", "biotyp"), function(split_group) {
 
-  solution <- readRDS(paste0("Results/RDS/prioritisation/01_prioritisation/",
+  solution <- readRDS(paste0("Results/RDS/prioritisation/Country/01_prioritisation/",
                              split_group,"/solution_prioritisation.rds"))
 
   future_map(seq(0.05, 0.3, by = 0.05),
              .options = furrr_options(seed = TRUE),
              function(prct) {
 
-               solution_cc <- readRDS(paste0("Results/RDS/prioritisation/02_prioritisation_CC/",
+               solution_cc <- readRDS(paste0("Results/RDS/prioritisation/Country/02_prioritisation_CC/",
                                              split_group, "/",
                                              CC_direction, "/solution_",
                                              as.character(prct), "_", CC_direction, ".rds"))
@@ -33,19 +37,21 @@ plot_layer <- map(c("MEOW_and_biotyp", "biotyp"), function(split_group) {
                                           "Split by biophysical typology and marine ecoregion")
 
                plot_layer <- solution_cc %>%
-                 #f_int_MEOW(type = "PROVINCE") %>%
-                 left_join(PUs_MEOW %>%
+                 left_join(PUs %>%
                              as_tibble() %>%
-                             dplyr::select(MEOW, ID), by = "ID") %>%
-                 group_by(MEOW, solution_1) %>%
+                             dplyr::select(country, ID), by = "ID") %>%
+                 group_by(country, solution_1) %>%
                  summarise(tot_area = sum(area_km2),
                            cc_exp = weighted.mean(Prob_gain_stability_mean, area_km2)) %>%
                  pivot_wider(names_from = "solution_1", values_from = c("tot_area", "cc_exp")) %>%
-                 group_by(MEOW) %>%
+                 group_by(country) %>%
                  summarise(across(ends_with(c("0", "1")), ~sum(., na.rm = TRUE))) %>%
-                 mutate(perc_sel_area = tot_area_1/(tot_area_1 + tot_area_0),
+                 mutate(perc_sel_area = tot_area_1/(tot_area_1 + tot_area_0)*100,
                         res_var = round((cc_exp_1 - cc_exp_0), 3)) %>%
                  f_int_continents() %>%
+                 mutate(continent = case_when(grepl("America", continent) ~ "America",
+                                              continent == "Europe" ~ "America",
+                                              .default = continent)) %>%
                  mutate(prct = prct,
                         split_group = name_split_group) %>%
                  mutate(log_res_var = case_when( #make a log transformation symmetrical respect 0
@@ -60,12 +66,14 @@ plot_layer <- map(c("MEOW_and_biotyp", "biotyp"), function(split_group) {
 zero_high_selection <- plot_layer %>%
   st_drop_geometry() %>%
   mutate(zero_area = (perc_sel_area == 0),
-         high_selection = (perc_sel_area >= 0.75)) %>%
+         mid_selection = (perc_sel_area >= 50),
+         high_selection = (perc_sel_area >= 75)) %>%
   group_by(prct, split_group) %>%
   summarise(num_zero_area = sum(zero_area),
+            num_mid_selection = sum(mid_selection),
             num_high_selection = sum(high_selection))
 
-write.xlsx(zero_high_selection, paste0("Figures/09_plot_area_resilience/",
+write.xlsx(zero_high_selection, paste0("Figures/Country/08_plot_area_resilience/",
                                        CC_direction,
                                        "/zero_or_high_selection_areas.xlsx"))
 
@@ -74,14 +82,14 @@ sd_prct_sel_area <- plot_layer %>%
   group_by(prct, split_group) %>%
   summarise(perc_sel_area_sd = sd(perc_sel_area))
 
-write.xlsx(sd_prct_sel_area, paste0("Figures/09_plot_area_resilience/",
+write.xlsx(sd_prct_sel_area, paste0("Figures/Country/08_plot_area_resilience/",
                                     CC_direction,
                                     "/percentage_area_selected_standard_deviation.xlsx"))
 
 plot_layer_mean <- plot_layer %>%
   group_by(prct, split_group) %>%
   summarise(w_mean_res_var = weighted.mean(log_res_var, tot_area_1),
-            perc_selected_area = sum(tot_area_1)/sum(tot_area_1 + tot_area_0)) #Weighted mean of the resilience using the area of mangrove selected
+            perc_selected_area = sum(tot_area_1)/sum(tot_area_1 + tot_area_0)*100) #Weighted mean of the resilience using the area of mangrove selected
 
 plot <- ggplot(data = plot_layer,
                aes(x = log_res_var, y = perc_sel_area)) +
@@ -91,7 +99,6 @@ plot <- ggplot(data = plot_layer,
   scale_fill_moma_d("Smith", name = "") +
   geom_vline(data = plot_layer_mean, aes(xintercept = w_mean_res_var),
              linetype = 2, linewidth = 0.4) +
-  geom_vline(xintercept = 0, linewidth = 0.4) +
   geom_hline(data = plot_layer_mean, aes(yintercept = perc_selected_area),
              linetype = 2, linewidth = 0.4) +
   ylab("Percentage of the area selected") +
@@ -111,21 +118,21 @@ plot <- ggplot(data = plot_layer,
          size = guide_legend(title.position = "top")) +
   facet_grid(prct ~ split_group)
 
-dir.create(paste0("Figures/09_plot_area_resilience/mean/RDS"), recursive = TRUE)
+dir.create(paste0("Figures/Country/08_plot_area_resilience/mean/RDS"), recursive = TRUE)
 
-ggsave(plot = plot, paste0("Figures/09_plot_area_resilience/", CC_direction, "/area_resilience_",
+ggsave(plot = plot, paste0("Figures/Country/08_plot_area_resilience/", CC_direction, "/area_resilience_",
                            CC_direction, "_by_ecoregion.pdf"),
        dpi = 300, width = 18, height = 25, units = "cm")
 
-saveRDS(plot, paste0("Figures/09_plot_area_resilience/", CC_direction, "/RDS/area_resilience_",
+saveRDS(plot, paste0("Figures/Country/08_plot_area_resilience/", CC_direction, "/RDS/area_resilience_",
                      CC_direction, "_by_ecoregion.rds"))
 
 write.xlsx(plot_layer %>%
-             st_drop_geometry(), paste0("Figures/09_plot_area_resilience/", CC_direction, "/area_resilience_",
+             st_drop_geometry(), paste0("Figures/Country/08_plot_area_resilience/", CC_direction, "/area_resilience_",
                                         CC_direction, "_by_ecoregion.xlsx"))
 
 write.xlsx(plot_layer_mean %>%
-             st_drop_geometry(), paste0("Figures/09_plot_area_resilience/", CC_direction, "/area_resilience_",
+             st_drop_geometry(), paste0("Figures/Country/08_plot_area_resilience/", CC_direction, "/area_resilience_",
                                         CC_direction, "_by_ecoregion_mean.xlsx"))
 
 #Description of the figures
@@ -143,7 +150,7 @@ In the boxes on the right side of the figures are reported the thresholds used f
 The vertical dashed line show the area weighted mean value of resilience variation between the climate-smart and the climate-naive prioritisation.
 
 The points that show a percentage of area selected equal to zero present different resilience variation values. These are just the opposite of the resilience value of the areas selected in the climate-naive prioritisation as there is no selection of areas in that ecoregion/province in the climate-smart prioritisation."
-           , paste0("Figures/09_plot_area_resilience/", CC_direction, "/info.txt"))
+           , paste0("Figures/Country/08_plot_area_resilience/", CC_direction, "/info.txt"))
 
 plan(sequential)
 

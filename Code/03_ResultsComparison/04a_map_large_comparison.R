@@ -50,7 +50,7 @@ map(c("landward", "seaward", "mean"), function(CC_direction) {
                    guides(fill = guide_colourbar(barwidth = 10,
                                                  barheight = 0.5,
                                                  title.position = "top",
-                                                 title = "Comparison percentage of mangroves selected (%)",
+                                                 title = "Difference in the proportion of mangroves selected",
                                                  ticks.colour = "black")) +
                    geom_sf(data = dat, fill = NA) +
                    theme_minimal(base_size = 7) +

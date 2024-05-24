@@ -13,12 +13,12 @@ future_map(seq(0.05, 0.3, by = 0.05),
 
              CC_direction <- "mean"
 
-             map(c("MEOW_and_biotyp", "biotyp"), function(split_group) {
+             map(c("Country_and_biotyp", "biotyp"), function(split_group) {
 
-               solution <- readRDS(paste0("Results/RDS/prioritisation/01_prioritisation/",
+               solution <- readRDS(paste0("Results/RDS/prioritisation/Country/01_prioritisation/",
                                           split_group,"/solution_prioritisation.rds"))
 
-               solution_cc <- readRDS(paste0("Results/RDS/prioritisation/02_prioritisation_CC/",
+               solution_cc <- readRDS(paste0("Results/RDS/prioritisation/Country/02_prioritisation_CC/",
                                              split_group, "/",
                                              CC_direction, "/solution_",
                                              as.character(prct), "_", CC_direction, ".rds"))
@@ -56,9 +56,9 @@ future_map(seq(0.05, 0.3, by = 0.05),
                  tmap::tm_shape(priority_sol) +
                  tm_borders(col = "black")
 
-               dir.create(paste0("Figures/interactive_maps/", split_group), recursive = TRUE)
+               dir.create(paste0("Figures/Country/interactive_maps/", split_group), recursive = TRUE)
 
-               tmap::tmap_save(tm = interactive_map, paste0("Figures/interactive_maps/",
+               tmap::tmap_save(tm = interactive_map, paste0("Figures/Country/interactive_maps/",
                                                             split_group,"/overlap_",
                                                             CC_direction, "_", prct, ".html"))
              })

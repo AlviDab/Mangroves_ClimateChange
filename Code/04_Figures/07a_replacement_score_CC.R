@@ -13,9 +13,9 @@ map(seq(0.05, 0.3, by = 0.05),
 
       CC_direction <- "mean"
 
-      map(c("MEOW_and_biotyp", "biotyp"), function(file_name) {
+      map(c("country_and_biotyp", "biotyp"), function(file_name) {
 
-        replacement_score <- readRDS(paste0("Results/RDS/prioritisation/02_prioritisation_CC/",
+        replacement_score <- readRDS(paste0("Results/RDS/prioritisation/Country/02_prioritisation_CC/",
                                             file_name, "/",
                                             CC_direction, "/replacement_score_",
                                             as.character(prct), "_", CC_direction, ".rds"))
@@ -66,16 +66,16 @@ map(seq(0.05, 0.3, by = 0.05),
           scale_y_continuous(expand = c(0, 0)) +
           coord_sf(datum = NA)
 
-        dir.create(paste0("Figures/08_replacement_score/CC/", file_name,"/",
+        dir.create(paste0("Figures/Country/07_replacement_score/CC/", file_name,"/",
                           CC_direction, "/RDS"), recursive = TRUE)
 
-        ggsave(plot = plot_replacement_score, paste0("Figures/08_replacement_score/CC/",
+        ggsave(plot = plot_replacement_score, paste0("Figures/Country/07_replacement_score/CC/",
                                                      file_name, "/",
                                                      CC_direction, "/replacement_score_",
                                                      as.character(prct), "_", CC_direction, ".pdf"),
                dpi = 300, width = 18, height = 11, units = "cm")
 
-        saveRDS(plot_replacement_score, paste0("Figures/08_replacement_score/CC/",
+        saveRDS(plot_replacement_score, paste0("Figures/Country/07_replacement_score/CC/",
                                                file_name, "/",
                                                CC_direction, "/RDS/replacement_score_",
                                                as.character(prct), "_", CC_direction, ".rds"))

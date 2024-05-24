@@ -3,7 +3,7 @@
 
 pacman::p_load(tidyverse, sf, furrr)
 
-PUs <- readRDS("Results/RDS/prioritisation/02_prioritisation_CC/MEOW_and_biotyp/mean/solution_0.05_mean.rds")
+PUs <- readRDS("Results/RDS/prioritisation/Country/02_prioritisation_CC/country_and_biotyp/mean/solution_0.05_mean.rds")
 
 dat <- spatialplanr::splnr_get_boundary(Limits = "Global")
 
@@ -36,9 +36,9 @@ plot_map <- ggplot() +
   scale_y_continuous(expand = c(0, 0)) +
   coord_sf(datum = NA)
 
-dir.create(paste0("Figures/06_PUs_mangrove_area/RDS"), recursive = TRUE)
+dir.create(paste0("Figures/Country/Layers/02_PUs_mangrove_area/RDS"), recursive = TRUE)
 
-ggsave(plot = plot_map, paste0("Figures/06_PUs_mangrove_area/PUs_mangrove_area.pdf"),
+ggsave(plot = plot_map, paste0("Figures/Country/Layers/02_PUs_mangrove_area/PUs_mangrove_area.pdf"),
        dpi = 300, width = 18, height = 11, units = "cm")
 
-saveRDS(plot_map, paste0("Figures/06_PUs_mangrove_area/RDS/PUs_mangrove_area.rds"))
+saveRDS(plot_map, paste0("Figures/Country/Layers/02_PUs_mangrove_area/RDS/PUs_mangrove_area.rds"))

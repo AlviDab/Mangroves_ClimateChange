@@ -5,7 +5,7 @@ pacman::p_load(tidyverse, sf, parallel, furrr, purrr)
 
 CC_direction <- "mean"
 
-PUs <- readRDS(paste0("Results/RDS/prioritisation/02_prioritisation_CC/MEOW_and_biotyp/",
+PUs <- readRDS(paste0("Results/RDS/prioritisation/Country/02_prioritisation_CC/country_and_biotyp/",
                       CC_direction, "/solution_0.05_", CC_direction, ".rds"))
 
 ncores <- detectCores() - 2
@@ -46,13 +46,13 @@ future_map(c("mean", "landward", "seaward"),
                scale_y_continuous(expand = c(0, 0)) +
                coord_sf(datum = NA)
 
-             dir.create(paste0("Figures/05_PUs_CC/RDS"), recursive = TRUE)
+             dir.create(paste0("Figures/Country/Layers/01_PUs_CC/RDS"), recursive = TRUE)
 
-             ggsave(plot = plot_map, paste0("Figures/05_PUs_CC/PUs_CC_",
+             ggsave(plot = plot_map, paste0("Figures/Country/Layers/01_PUs_CC/PUs_CC_",
                                             CC_direction, ".pdf"),
                     dpi = 300, width = 18, height = 11, units = "cm")
 
-             saveRDS(plot_map, paste0("Figures/05_PUs_CC/RDS/PUs_CC_",
+             saveRDS(plot_map, paste0("Figures/Country/Layers/01_PUs_CC/RDS/PUs_CC_",
                                       CC_direction, ".rds"))
            })
 
