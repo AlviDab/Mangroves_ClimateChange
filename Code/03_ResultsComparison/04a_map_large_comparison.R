@@ -42,13 +42,10 @@ map(c("landward", "seaward", "mean"), function(CC_direction) {
                    geom_sf(data = world_map, fill = "grey60",
                            colour = "grey60",
                            linewidth = 0.001) +
-                   geom_sf(data = comparison_solution_centroid,
-                           shape = 21,
-                           aes(fill = diff_perc_selection_CC_noCC,
-                               size = MangroveArea_km2),
-                           alpha = 1,
-                           colour = scales::alpha("black", 0.3)
-                           lwd = 0.001) +
+                   geom_sf(data = comparison_solution,
+                           aes(fill = diff_perc_selection_CC_noCC),
+                           colour = "black",
+                           lwd = 0.0001) +
                    scale_fill_gradient2(low = "#8c1e36", mid = "#f2f8ca", high = "#406fa2") +
                    guides(fill = guide_colourbar(barwidth = 10,
                                                  barheight = 0.5,
@@ -64,7 +61,7 @@ map(c("landward", "seaward", "mean"), function(CC_direction) {
                          legend.key.size = unit(0.3, "cm")) +
                    scale_x_continuous(expand = c(0, 0)) +
                    scale_y_continuous(expand = c(0, 0)) +
-                   scale_size_continuous(range = c(0.01, 2)) +#, breaks = c(0.5, 1, 1.5, 2, 2.5, 3, 3.5)) +
+                   scale_alpha_continuous(range = c(0.8, 1)) +
                    coord_sf(datum = NA)
 
                  dir.create(paste0("Figures/Country/04a_map_large_comparison/", split_group, "/RDS"), recursive = TRUE)
