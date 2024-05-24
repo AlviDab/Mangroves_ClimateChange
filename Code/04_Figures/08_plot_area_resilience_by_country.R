@@ -34,7 +34,7 @@ plot_layer <- map(c("country_and_biotyp", "biotyp"), function(split_group) {
 
                name_split_group <- ifelse(split_group == "biotyp",
                                           "Split by biophysical typology",
-                                          "Split by biophysical typology and marine ecoregion")
+                                          "Split by biophysical typology and marine country")
 
                plot_layer <- solution_cc %>%
                  left_join(PUs %>%
@@ -121,35 +121,35 @@ plot <- ggplot(data = plot_layer,
 dir.create(paste0("Figures/Country/08_plot_area_resilience/mean/RDS"), recursive = TRUE)
 
 ggsave(plot = plot, paste0("Figures/Country/08_plot_area_resilience/", CC_direction, "/area_resilience_",
-                           CC_direction, "_by_ecoregion.pdf"),
+                           CC_direction, "_by_country.pdf"),
        dpi = 300, width = 18, height = 25, units = "cm")
 
 saveRDS(plot, paste0("Figures/Country/08_plot_area_resilience/", CC_direction, "/RDS/area_resilience_",
-                     CC_direction, "_by_ecoregion.rds"))
+                     CC_direction, "_by_country.rds"))
 
 write.xlsx(plot_layer %>%
              st_drop_geometry(), paste0("Figures/Country/08_plot_area_resilience/", CC_direction, "/area_resilience_",
-                                        CC_direction, "_by_ecoregion.xlsx"))
+                                        CC_direction, "_by_country.xlsx"))
 
 write.xlsx(plot_layer_mean %>%
              st_drop_geometry(), paste0("Figures/Country/08_plot_area_resilience/", CC_direction, "/area_resilience_",
-                                        CC_direction, "_by_ecoregion_mean.xlsx"))
+                                        CC_direction, "_by_country_mean.xlsx"))
 
 #Description of the figures
 writeLines("Comparison of the different outcomes of the climate-smart prioritisations against the climate-naive prioritisation.
 
-Each point represent a different ecoregion/province. The size of the point is the km² of mangrove area selected in the climate-smart solution.
+Each point represent a different country/province. The size of the point is the km² of mangrove area selected in the climate-smart solution.
 
 The y-axis represent the percentage of mangrove area selected by the climate-smart prioritisation.
 
-The x-axis represent the difference in the climate resilience between the climate-smart and climate-naive. The value of resilience for each ecoregion/province is the area weighted mean of the resilience of the mangrove areas selected in the prioritisation.
+The x-axis represent the difference in the climate resilience between the climate-smart and climate-naive. The value of resilience for each country/province is the area weighted mean of the resilience of the mangrove areas selected in the prioritisation.
 The x-axis values are in logarithmic scale. For the negative values of resilience, we scaled the absolute value to logarithmic and then inverted the resulting value.
 
 In the boxes on the right side of the figures are reported the thresholds used for the selection of the climate-priority areas of the climate-smart prioritisation.
 
 The vertical dashed line show the area weighted mean value of resilience variation between the climate-smart and the climate-naive prioritisation.
 
-The points that show a percentage of area selected equal to zero present different resilience variation values. These are just the opposite of the resilience value of the areas selected in the climate-naive prioritisation as there is no selection of areas in that ecoregion/province in the climate-smart prioritisation."
+The points that show a percentage of area selected equal to zero present different resilience variation values. These are just the opposite of the resilience value of the areas selected in the climate-naive prioritisation as there is no selection of areas in that country/province in the climate-smart prioritisation."
            , paste0("Figures/Country/08_plot_area_resilience/", CC_direction, "/info.txt"))
 
 plan(sequential)
