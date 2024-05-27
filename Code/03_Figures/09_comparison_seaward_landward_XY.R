@@ -19,13 +19,12 @@ solution_cc <- future_map(seq(0.05, 0.3, by = 0.05),
 
                             PUs_MEOW <- readRDS("Results/RDS/PUs_03_mangroves_biotyp_cc_IUCN_MEOW.rds")
 
-
-                            solution_cc_sw <- readRDS(paste0("Results/RDS/prioritisation/02_prioritisation_CC/",
+                            solution_cc_sw <- readRDS(paste0("Results/RDS/prioritisation/Country/02_prioritisation_CC/",
                                                              split_group, "/seaward/solution_",
                                                              as.character(prct), "_seaward.rds")) %>%
                               mutate(type = "seaward")
 
-                            solution_cc_lw <- readRDS(paste0("Results/RDS/prioritisation/02_prioritisation_CC/",
+                            solution_cc_lw <- readRDS(paste0("Results/RDS/prioritisation/Country/02_prioritisation_CC/",
                                                              split_group, "/landward/solution_",
                                                              as.character(prct), "_landward.rds")) %>%
                               mutate(type = "landward")
@@ -96,14 +95,14 @@ plot_sw_lw <- ggplot() +
   ylim(c(0, 1)) +
   scale_y_continuous(expand = c(0, 0), limits = c(0, 1.1))
 
-dir.create(paste0("Figures/10_plot_comparison_area_lw_sw/",
+dir.create(paste0("Figures/Country/09_plot_comparison_area_lw_sw/",
                   split_group, "/RDS"), recursive = TRUE)
 
-ggsave(paste0("Figures/10_plot_comparison_area_lw_sw/",
+ggsave(paste0("Figures/Country/09_plot_comparison_area_lw_sw/",
               split_group, "/plot_comparison_area_lw_sw_",
               split_group, "_province.pdf"),
        dpi = 300, width = 18, height = 25, units = "cm")
 
-saveRDS(plot_sw_lw, paste0("Figures/10_plot_comparison_area_lw_sw/",
+saveRDS(plot_sw_lw, paste0("Figures/Country/09_plot_comparison_area_lw_sw/",
                            split_group, "/RDS/plot_comparison_area_lw_sw_",
                      split_group, "_province.rds"))
