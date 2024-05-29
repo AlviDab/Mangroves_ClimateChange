@@ -57,16 +57,18 @@ plot_data <- resilience_priorities %>%
   rbind(resilience_WDPA_I_VI) %>%
   rbind(resilience_WDPA_I_IV) %>%
   mutate(category = case_when(category == "WDPA_all" ~ "All PAs",
-                                              category == "WDPA_I_VI" ~ "Category I-VI",
-                                              category == "WDPA_I_IV" ~ "Category I-IV",
-                                              .default = "Selected priorities"))
+                              category == "WDPA_I_VI" ~ "Category I-VI",
+                              category == "WDPA_I_IV" ~ "Category I-IV",
+                              .default = "Selected priorities"))
 
-plot_violin <- ggplot(data = plot_data) +
-  geom_violin(aes(x = category,
-                  y = Prob_gain_stability_mean,
-                  weight = MangroveArea_km2)) +
-  geom_point(aes(x = category,
-                 y = weighted_mean_exposure)) +
+plot_density <- ggplot(data = plot_data) +
+  geom_density(aes(colour = category,
+                   fill = category,
+                   x = Prob_gain_stability_mean,
+                   weight = MangroveArea_km2),
+               alpha = 0.2) +
+  geom_vline(aes(xintercept = weighted_mean_exposure,
+                 colour = category)) +
   #scale_fill_manual(values = c('#ffba49', '#20a39e')) +
   theme_bw() +
   theme(legend.position = "top",
@@ -79,13 +81,14 @@ plot_violin <- ggplot(data = plot_data) +
         legend.text = element_text(size = 9),
         legend.box = 'vertical') +
   ylab("Area weighted resilience") +
-  xlab(expression("")) +
-  scale_y_continuous(expand = c(0, 0), limits = c(0, 105))
+  xlab(expression(""))  +
+  scale_y_continuous(expand = c(0, 0), limits = c(0, 0.05)) +
+  scale_x_continuous(expand = c(0, 0), limits = c(0, 100))
 
 dir.create(paste0("Figures/Country/10_overlap_WDPA/",
                   split_group, "/RDS/"), recursive = TRUE)
 
-saveRDS(plot_violin, paste0("Figures/Country/10_overlap_WDPA/",
+saveRDS(plot_density, paste0("Figures/Country/10_overlap_WDPA/",
                              split_group, "/RDS/overlap_WDPA_resilience_",
                              CC_direction, "_", prct, ".rds"))
 
