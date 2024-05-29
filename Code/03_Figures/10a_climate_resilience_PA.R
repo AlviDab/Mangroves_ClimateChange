@@ -19,39 +19,36 @@ solution_cc <- readRDS(paste0("Results/RDS/prioritisation/Country/02_prioritisat
                               as.character(prct), "_", CC_direction, ".rds")) %>%
   f_addcols_WDPA()
 
+resilience_priorities <- solution_cc %>%
+  st_drop_geometry() %>%
+  filter(solution_1 == 1) %>%
+  summarise(w_mean_resilience_priorities = weighted.mean(Prob_gain_stability_mean,
+                                                         MangroveArea_km2))
+
+
 data <- solution_cc %>%
   st_drop_geometry() %>%
-  group_by(solution_1) %>%
-  summarise(w_mean_resilience_WDPA_all_protected = weighted.mean(Prob_gain_stability_mean,
-                                                                 area_mangroves_WDPA_all_km2),
-            w_mean_resilience_WDPA_all_unprotected = weighted.mean(Prob_gain_stability_mean,
-                                                                   MangroveArea_km2 - area_mangroves_WDPA_all_km2),
-            w_mean_resilience_WDPA_I_VI_protected = weighted.mean(Prob_gain_stability_mean,
-                                                                  area_mangroves_WDPA_I_VI_km2),
-            w_mean_resilience_WDPA_I_VI_unprotected = weighted.mean(Prob_gain_stability_mean,
-                                                                    MangroveArea_km2 - area_mangroves_WDPA_I_VI_km2),
-            w_mean_resilience_WDPA_I_IV_protected = weighted.mean(Prob_gain_stability_mean,
-                                                                  area_mangroves_WDPA_I_IV_km2),
-            w_mean_resilience_WDPA_I_IV_unprotected = weighted.mean(Prob_gain_stability_mean,
-                                                                    MangroveArea_km2 - area_mangroves_WDPA_I_IV_km2))
+  summarise(w_mean_resilience_WDPA_all = weighted.mean(Prob_gain_stability_mean,
+                                                       area_mangroves_WDPA_all_km2),
+            w_mean_resilience_WDPA_I_VI = weighted.mean(Prob_gain_stability_mean,
+                                                        area_mangroves_WDPA_I_VI_km2),
+            w_mean_resilience_WDPA_I_IV = weighted.mean(Prob_gain_stability_mean,
+                                                        area_mangroves_WDPA_I_IV_km2),
+            w_mean_resilience_selected_priorities = resilience_priorities$w_mean_resilience_priorities)
 
 plot_data <- data %>%
   rename_with(~ str_remove(., "w_mean_resilience_"), everything()) %>%
-  pivot_longer(!solution_1, names_to = "protected_areas_category", values_to = "w_mean_resilience") %>%
-  mutate(protection = str_extract(protected_areas_category, "[^_]*$"),
-         solution_1 = case_when(solution_1 == 1 ~ "Selected",
-                                .default = "Not selected"),
-         protected_areas_category = str_remove(protected_areas_category, "_[^_]*$"),
-         protected_areas_category = case_when(protected_areas_category == "WDPA_all" ~ "All PAs",
+  pivot_longer(cols = everything(), names_to = "protected_areas_category", values_to = "w_mean_resilience") %>%
+  mutate(protected_areas_category = case_when(protected_areas_category == "WDPA_all" ~ "All PAs",
                                               protected_areas_category == "WDPA_I_VI" ~ "Category I-VI",
-                                              .default = "Category I-IV"))
+                                              protected_areas_category == "WDPA_I_IV" ~ "Category I-IV",
+                                              .default = "Selected priorities"))
 
 plot_overlap <- ggplot(data = plot_data) +
   geom_col(aes(x = protected_areas_category,
-               y = w_mean_resilience,
-               fill = as.factor(solution_1)),
+               y = w_mean_resilience),
            position = "dodge") +
-  scale_fill_manual(values = c('#ffba49', '#20a39e')) +
+  #scale_fill_manual(values = c('#ffba49', '#20a39e')) +
   theme_bw() +
   theme(legend.position = "top",
         legend.title = element_blank(),
@@ -64,8 +61,7 @@ plot_overlap <- ggplot(data = plot_data) +
         legend.box = 'vertical') +
   ylab("Weighted mean resilience") +
   xlab(expression("")) +
-  facet_grid(vars(protection)) +
-  scale_y_continuous(expand = c(0, 0), limits = c(0, 110))
+  scale_y_continuous(expand = c(0, 0), limits = c(0, 50))
 
 dir.create(paste0("Figures/Country/10_overlap_WDPA/",
                   split_group, "/RDS/"), recursive = TRUE)
