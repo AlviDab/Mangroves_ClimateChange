@@ -19,35 +19,54 @@ solution_cc <- readRDS(paste0("Results/RDS/prioritisation/Country/02_prioritisat
                               as.character(prct), "_", CC_direction, ".rds")) %>%
   f_addcols_WDPA()
 
+#Repeat the value for each km² of mangroves selected (we included all the observation > 0.1 km²)
 resilience_priorities <- solution_cc %>%
   st_drop_geometry() %>%
   filter(solution_1 == 1) %>%
-  summarise(w_mean_resilience_priorities = weighted.mean(Prob_gain_stability_mean,
-                                                         MangroveArea_km2))
+  dplyr::select(ID, MangroveArea_km2, Prob_gain_stability_mean) %>%
+  mutate(weighted_mean_exposure = weighted.mean(Prob_gain_stability_mean,
+                                                MangroveArea_km2)) %>%
+  mutate(category = "Selected_priorities")
 
-
-data <- solution_cc %>%
+resilience_WDPA_all <- solution_cc %>%
   st_drop_geometry() %>%
-  summarise(w_mean_resilience_WDPA_all = weighted.mean(Prob_gain_stability_mean,
-                                                       area_mangroves_WDPA_all_km2),
-            w_mean_resilience_WDPA_I_VI = weighted.mean(Prob_gain_stability_mean,
-                                                        area_mangroves_WDPA_I_VI_km2),
-            w_mean_resilience_WDPA_I_IV = weighted.mean(Prob_gain_stability_mean,
-                                                        area_mangroves_WDPA_I_IV_km2),
-            w_mean_resilience_selected_priorities = resilience_priorities$w_mean_resilience_priorities)
+  dplyr::select(ID, area_mangroves_WDPA_all_km2, Prob_gain_stability_mean) %>%
+  rename(MangroveArea_km2 = area_mangroves_WDPA_all_km2) %>%
+  mutate(weighted_mean_exposure = weighted.mean(Prob_gain_stability_mean,
+                                                MangroveArea_km2)) %>%
+  mutate(category = "WDPA_all")
 
-plot_data <- data %>%
-  rename_with(~ str_remove(., "w_mean_resilience_"), everything()) %>%
-  pivot_longer(cols = everything(), names_to = "protected_areas_category", values_to = "w_mean_resilience") %>%
-  mutate(protected_areas_category = case_when(protected_areas_category == "WDPA_all" ~ "All PAs",
-                                              protected_areas_category == "WDPA_I_VI" ~ "Category I-VI",
-                                              protected_areas_category == "WDPA_I_IV" ~ "Category I-IV",
+resilience_WDPA_I_VI <- solution_cc %>%
+  st_drop_geometry() %>%
+  dplyr::select(ID, area_mangroves_WDPA_I_VI_km2, Prob_gain_stability_mean) %>%
+  rename(MangroveArea_km2 = area_mangroves_WDPA_I_VI_km2) %>%
+  mutate(weighted_mean_exposure = weighted.mean(Prob_gain_stability_mean,
+                                                MangroveArea_km2)) %>%
+  mutate(category = "WDPA_I_VI")
+
+resilience_WDPA_I_IV <- solution_cc %>%
+  st_drop_geometry() %>%
+  dplyr::select(ID, area_mangroves_WDPA_I_IV_km2, Prob_gain_stability_mean) %>%
+  rename(MangroveArea_km2 = area_mangroves_WDPA_I_IV_km2) %>%
+  mutate(weighted_mean_exposure = weighted.mean(Prob_gain_stability_mean,
+                                                MangroveArea_km2)) %>%
+  mutate(category = "WDPA_I_IV")
+
+plot_data <- resilience_priorities %>%
+  rbind(resilience_WDPA_all) %>%
+  rbind(resilience_WDPA_I_VI) %>%
+  rbind(resilience_WDPA_I_IV) %>%
+  mutate(category = case_when(category == "WDPA_all" ~ "All PAs",
+                                              category == "WDPA_I_VI" ~ "Category I-VI",
+                                              category == "WDPA_I_IV" ~ "Category I-IV",
                                               .default = "Selected priorities"))
 
-plot_overlap <- ggplot(data = plot_data) +
-  geom_col(aes(x = protected_areas_category,
-               y = w_mean_resilience),
-           position = "dodge") +
+plot_violin <- ggplot(data = plot_data) +
+  geom_violin(aes(x = category,
+                  y = Prob_gain_stability_mean,
+                  weight = MangroveArea_km2)) +
+  geom_point(aes(x = category,
+                 y = weighted_mean_exposure)) +
   #scale_fill_manual(values = c('#ffba49', '#20a39e')) +
   theme_bw() +
   theme(legend.position = "top",
@@ -59,14 +78,14 @@ plot_overlap <- ggplot(data = plot_data) +
         axis.title = element_text(size = 9),
         legend.text = element_text(size = 9),
         legend.box = 'vertical') +
-  ylab("Weighted mean resilience") +
+  ylab("Area weighted resilience") +
   xlab(expression("")) +
-  scale_y_continuous(expand = c(0, 0), limits = c(0, 50))
+  scale_y_continuous(expand = c(0, 0), limits = c(0, 105))
 
 dir.create(paste0("Figures/Country/10_overlap_WDPA/",
                   split_group, "/RDS/"), recursive = TRUE)
 
-saveRDS(plot_overlap, paste0("Figures/Country/10_overlap_WDPA/",
+saveRDS(plot_violin, paste0("Figures/Country/10_overlap_WDPA/",
                              split_group, "/RDS/overlap_WDPA_resilience_",
                              CC_direction, "_", prct, ".rds"))
 
