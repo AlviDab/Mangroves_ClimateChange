@@ -34,6 +34,14 @@ future_map(seq(0.05, 0.3, by = 0.05),
                                                                        area_km2)) %>%
                          as_tibble()
 
+                       #Add values from column Prob_gain_stability_mean to the dataframe that are missing it
+                       if("Prob_gain_stability_mean" %in% names(solution_cc) == FALSE) {
+                         solution_cc <- solution_cc %>%
+                           left_join(solution %>%
+                                       dplyr::select(ID, Prob_gain_stability_mean) %>%
+                                       st_drop_geometry(), by = "ID")
+                       }
+
                        #mean climate risk climate-smart
                        selected_cs <- solution_cc %>%
                          st_drop_geometry() %>%
@@ -42,14 +50,6 @@ future_map(seq(0.05, 0.3, by = 0.05),
                          mutate(weighted_mean_exposure = weighted.mean(!!sym(col_name),
                                                                        area_km2)) %>%
                          as_tibble()
-
-                       #Add values from column Prob_gain_stability_mean to the dataframe that are missing it
-                       if("Prob_gain_stability_mean" %in% names(selected_cs) == FALSE) {
-                         selected_cs <- selected_cs %>%
-                           left_join(solution %>%
-                                       dplyr::select(ID, Prob_gain_stability_mean) %>%
-                                       st_drop_geometry(), by = "ID")
-                       }
 
                        #kernel density plot for comparison
                        PUs <- solution %>%
@@ -86,7 +86,7 @@ future_map(seq(0.05, 0.3, by = 0.05),
                                              name = "") +
                          scale_x_continuous(limits = c(0, 100), expand = c(0, 0)) +
                          scale_y_continuous(limits = c(0, d$y[which.max(d$y)]*1.2), expand = c(0, 0)) +
-                         xlab("Mean area-weighted resilience") +
+                         xlab("Area weighted resilience") +
                          ylab("Density") +
                          theme_bw(base_size = 7) +
                          theme(panel.background = element_blank(),

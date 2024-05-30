@@ -34,7 +34,7 @@ plot_layer <- map(c("country_and_biotyp", "biotyp"), function(split_group) {
 
                name_split_group <- ifelse(split_group == "biotyp",
                                           "Split by biophysical typology",
-                                          "Split by biophysical typology and marine country")
+                                          "Split by biophysical typology and country")
 
                plot_layer <- solution_cc %>%
                  left_join(PUs %>%
