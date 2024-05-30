@@ -1,7 +1,7 @@
 #Author: Alvise Dabalà
 #Date: 28/05/2024
 
-pacman::p_load(tidyverse, sf)
+pacman::p_load(tidyverse, sf, MetBrewer)
 
 source("Code/Functions/f_addcols_WDPA.r")
 
@@ -62,14 +62,17 @@ plot_data <- resilience_priorities %>%
                               .default = "Selected priorities"))
 
 plot_density <- ggplot(data = plot_data) +
-  geom_density(aes(colour = category,
-                   fill = category,
+  geom_density(aes(colour = fct_relevel(category,
+                                        c("All PAs", "Category I-VI", "Category I-IV", "Selected priorities")),
+                   fill = fct_relevel(category,
+                                      c("All PAs", "Category I-VI", "Category I-IV", "Selected priorities")),
                    x = Prob_gain_stability_mean,
                    weight = MangroveArea_km2),
-               alpha = 0.2) +
+               alpha = 0.3) +
   geom_vline(aes(xintercept = weighted_mean_exposure,
                  colour = category)) +
-  #scale_fill_manual(values = c('#ffba49', '#20a39e')) +
+  scale_fill_met_d(name = "Egypt", override.order = TRUE) +
+  scale_colour_met_d(name = "Egypt", override.order = TRUE) +
   theme_bw() +
   theme(legend.position = "top",
         legend.title = element_blank(),
@@ -83,7 +86,7 @@ plot_density <- ggplot(data = plot_data) +
   ylab("Area weighted resilience") +
   xlab(expression(""))  +
   scale_y_continuous(expand = c(0, 0), limits = c(0, 0.05)) +
-  scale_x_continuous(expand = c(0, 0), limits = c(0, 100))
+  scale_x_continuous(expand = c(0, 0), limits = c(0, 100.1))
 
 dir.create(paste0("Figures/Country/10_overlap_WDPA/",
                   split_group, "/RDS/"), recursive = TRUE)

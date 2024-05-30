@@ -1,7 +1,7 @@
 #Author: Alvise Dabalà
 #Date: 28/05/2024
 
-pacman::p_load(tidyverse, sf)
+pacman::p_load(tidyverse, sf, MetBrewer)
 
 source("Code/Functions/f_addcols_WDPA.r")
 
@@ -24,7 +24,6 @@ tot_area_mangroves <- sum(solution_cc$MangroveArea_km2)
 
 data <- solution_cc %>%
   st_drop_geometry() %>%
-  group_by(solution_1) %>%
   summarise(tot_mangroveArea_km2 = sum(MangroveArea_km2),
             area_mangroves_WDPA_all_km2 = sum(area_mangroves_WDPA_all_km2),
             prct_area_mangroves_WDPA_all = sum(area_mangroves_WDPA_all_km2)/tot_mangroveArea_km2,
@@ -34,22 +33,22 @@ data <- solution_cc %>%
             prct_area_mangroves_WDPA_I_IV = sum(area_mangroves_WDPA_I_IV_km2)/tot_mangroveArea_km2)
 
 plot_data <- data %>%
-  dplyr::select(contains(c("prct", "solution_1"))) %>%
+  dplyr::select(contains(c("prct"))) %>%
   rename_with(~ str_remove(., "prct_area_mangroves_"), everything()) %>%
-  pivot_longer(!solution_1, names_to = "protected_areas_category", values_to = "percentage_mangroves_protected") %>%
-  mutate(solution_1 = case_when(solution_1 == 1 ~ "Selected",
-                                .default = "Not selected"),
-         protected_areas_category = case_when(protected_areas_category == "WDPA_all" ~ "All PAs",
+  pivot_longer(everything(), names_to = "protected_areas_category", values_to = "percentage_mangroves_protected") %>%
+  mutate(protected_areas_category = case_when(protected_areas_category == "WDPA_all" ~ "All PAs",
                                               protected_areas_category == "WDPA_I_VI" ~ "Category I-VI",
                                               .default = "Category I-IV"))
 
 
 plot_overlap <- ggplot() +
-  geom_col(data = plot_data, aes(x = protected_areas_category,
+  geom_col(data = plot_data, aes(x = fct_relevel(protected_areas_category,
+                                                 c("All PAs", "Category I-VI", "Category I-IV")),
                                  y = percentage_mangroves_protected*100,
-                                 fill = as.factor(solution_1)),
+                                 fill = protected_areas_category),
+           linewidth = 0.5,
            position = "dodge") +
-  scale_fill_manual(values = c('#ffba49', '#20a39e')) +
+  scale_fill_met_d(name = "Egypt", override.order = TRUE) +
   # geom_hline(aes(yintercept = sum(solution_cc$area_mangroves_WDPA_all_km2)/tot_area_mangroves*100), linetype = 2) +
   # geom_hline(aes(yintercept = sum(solution_cc$area_mangroves_WDPA_I_VI_km2)/tot_area_mangroves*100), linetype = 2) +
   # geom_hline(aes(yintercept = sum(solution_cc$area_mangroves_WDPA_I_IV_km2)/tot_area_mangroves*100), linetype = 2) +
@@ -64,7 +63,7 @@ plot_overlap <- ggplot() +
         legend.text = element_text(size = 9),
         legend.box = 'vertical') +
   ylab("Protected areas coverage (%)") +
-  xlab(expression("")) +
+  xlab("") +
   scale_y_continuous(expand = c(0, 0), limits = c(0, 110))
 
 dir.create(paste0("Figures/Country/10_overlap_WDPA/",
