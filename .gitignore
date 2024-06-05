@@ -164,3 +164,8 @@ Results/RDS/WDPA/all_overlapping_MPAs_ESRI_54009_union.rds
 Results/RDS/WDPA/gmw_intersection_WDPA.rds
 Results/gpkg/PUs_04_mangroves_cc_IUCN_split_by_country_and_biotyp.gpkg
 /Figures/MEOW
+Results/RDS/WDPA/gmw_intersection_WDPA_I_IV_union.rds
+Results/RDS/WDPA/gmw_intersection_WDPA_I_VI_union.rds
+Results/RDS/WDPA/PUs_gmw_WDPA_all_intersection.rds
+Results/RDS/WDPA/PUs_gmw_WDPA_I_IV_intersection.rds
+Results/RDS/WDPA/PUs_gmw_WDPA_I_VI_intersection.rds

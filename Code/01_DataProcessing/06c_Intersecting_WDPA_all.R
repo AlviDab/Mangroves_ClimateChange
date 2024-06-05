@@ -45,34 +45,70 @@ gmw_intersection_WDPA <- sf::st_read("Data/gmw_v3_2020/vector/gmw_v3_2020_vec.sh
 
 saveRDS(gmw_intersection_WDPA, "Results/RDS/WDPA/gmw_intersection_WDPA.rds")
 
+gmw_intersection_WDPA <- readRDS("Results/RDS/WDPA/gmw_intersection_WDPA.rds")
+
 #For all
+gmw_intersection_WDPA_all_union <- gmw_intersection_WDPA %>%
+  st_union()
+
+saveRDS(gmw_intersection_WDPA_all_union, "Results/RDS/WDPA/gmw_intersection_WDPA_all_union.rds")
+
 PUs_gmw_WDPA_all_intersection <- PUs %>%
-  st_intersection(gmw_intersection_WDPA) %>%
+  st_intersection(gmw_intersection_WDPA_all_union %>%
+                    st_cast("POLYGON")) %>%
   mutate(area_mangroves_WDPA_km2 = st_area(.) %>%
            units::set_units(km^2)) %>%
   st_drop_geometry() %>%
   group_by(ID) %>%
   summarise(area_mangroves_WDPA_all_km2 = sum(area_mangroves_WDPA_km2))
 
+saveRDS(PUs_gmw_WDPA_all_intersection, "Results/RDS/WDPA/PUs_gmw_WDPA_all_intersection.rds")
+
+PUs_gmw_WDPA_all_intersection <- readRDS("Results/RDS/WDPA/PUs_gmw_WDPA_all_intersection.rds")
+
+rm(gmw_intersection_WDPA_all_union)
+
 #For I-VI
+gmw_intersection_WDPA_I_VI_union <- gmw_intersection_WDPA %>%
+  filter(IUCN_CAT %in% c("Ia", "Ib", "II", "III", "IV", "V", "VI")) %>%
+  st_union()
+
+saveRDS(gmw_intersection_WDPA_I_VI_union, "Results/RDS/WDPA/gmw_intersection_WDPA_I_VI_union.rds")
+
 PUs_gmw_WDPA_I_VI_intersection <- PUs %>%
-  st_intersection(gmw_intersection_WDPA %>%
-                    filter(IUCN_CAT %in% c("Ia", "Ib", "II", "III", "IV", "V", "VI"))) %>%
+  st_intersection(gmw_intersection_WDPA_I_VI_union %>%
+                    st_cast("POLYGON")) %>%
   mutate(area_mangroves_WDPA_km2 = st_area(.) %>%
            units::set_units(km^2)) %>%
   st_drop_geometry() %>%
   group_by(ID) %>%
   summarise(area_mangroves_WDPA_I_VI_km2 = sum(area_mangroves_WDPA_km2))
 
+saveRDS(PUs_gmw_WDPA_I_VI_intersection, "Results/RDS/WDPA/PUs_gmw_WDPA_I_VI_intersection.rds")
+
+PUs_gmw_WDPA_I_VI_intersection <- readRDS("Results/RDS/WDPA/PUs_gmw_WDPA_I_VI_intersection.rds")
+
+rm(gmw_intersection_WDPA_I_VI_union)
+
 #Also for I-IV (strictly protected)
+gmw_intersection_WDPA_I_IV_union <- gmw_intersection_WDPA %>%
+  filter(IUCN_CAT %in% c("Ia", "Ib", "II", "III", "IV")) %>%
+  st_union()
+
+saveRDS(gmw_intersection_WDPA_I_IV_union, "Results/RDS/WDPA/gmw_intersection_WDPA_I_IV_union.rds")
+
 PUs_gmw_WDPA_I_IV_intersection <- PUs %>%
-  st_intersection(gmw_intersection_WDPA %>%
-                    filter(IUCN_CAT %in% c("Ia", "Ib", "II", "III", "IV"))) %>%
+  st_intersection(gmw_intersection_WDPA_I_IV_union %>%
+                    st_cast("POLYGON")) %>%
   mutate(area_mangroves_WDPA_km2 = st_area(.) %>%
            units::set_units(km^2)) %>%
   st_drop_geometry() %>%
   group_by(ID) %>%
   summarise(area_mangroves_WDPA_I_IV_km2 = sum(area_mangroves_WDPA_km2))
+
+saveRDS(PUs_gmw_WDPA_I_IV_intersection, "Results/RDS/WDPA/PUs_gmw_WDPA_I_IV_intersection.rds")
+
+rm(gmw_intersection_WDPA_I_IV_union)
 
 #Add to the planning units
 PUs <- PUs %>%
