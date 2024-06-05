@@ -83,8 +83,8 @@ plot_density <- ggplot(data = plot_data) +
         axis.title = element_text(size = 9),
         legend.text = element_text(size = 9),
         legend.box = 'vertical') +
-  ylab("Area weighted resilience") +
-  xlab(expression(""))  +
+  ylab("Density") +
+  xlab("Area weighted resilience")  +
   scale_y_continuous(expand = c(0, 0), limits = c(0, 0.05)) +
   scale_x_continuous(expand = c(0, 0), limits = c(0, 100.1))
 
@@ -95,7 +95,9 @@ saveRDS(plot_density, paste0("Figures/Country/10_overlap_WDPA/",
                              split_group, "/RDS/overlap_WDPA_resilience_",
                              CC_direction, "_", prct, ".rds"))
 
+xlsx::write.xlsx(plot_data, paste0("Figures/Country/10_overlap_WDPA/",
+                              split_group, "/overlap_WDPA_resilience_",
+                              CC_direction, "_", prct, ".xlsx"))
 
 rm(list = ls(all.names = TRUE)) #will clear all objects includes hidden objects.
 gc() #free up memrory and report the memory usage.
-.rs.restartR()

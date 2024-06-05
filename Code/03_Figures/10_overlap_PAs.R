@@ -24,55 +24,68 @@ tot_area_mangroves <- sum(solution_cc$MangroveArea_km2)
 
 data <- solution_cc %>%
   st_drop_geometry() %>%
-  summarise(tot_mangroveArea_km2 = sum(MangroveArea_km2),
-            area_mangroves_WDPA_all_km2 = sum(area_mangroves_WDPA_all_km2),
-            prct_area_mangroves_WDPA_all = sum(area_mangroves_WDPA_all_km2)/tot_mangroveArea_km2,
+  group_by(solution_1) %>%
+  summarise(area_mangroves_WDPA_all_km2 = sum(area_mangroves_WDPA_all_km2),
             area_mangroves_WDPA_I_VI_km2 = sum(area_mangroves_WDPA_I_VI_km2),
-            prct_area_mangroves_WDPA_I_VI = sum(area_mangroves_WDPA_I_VI_km2)/tot_mangroveArea_km2,
-            area_mangroves_WDPA_I_IV_km2 = sum(area_mangroves_WDPA_I_IV_km2),
-            prct_area_mangroves_WDPA_I_IV = sum(area_mangroves_WDPA_I_IV_km2)/tot_mangroveArea_km2)
+            area_mangroves_WDPA_I_IV_km2 = sum(area_mangroves_WDPA_I_IV_km2))
 
 plot_data <- data %>%
-  dplyr::select(contains(c("prct"))) %>%
-  rename_with(~ str_remove(., "prct_area_mangroves_"), everything()) %>%
-  pivot_longer(everything(), names_to = "protected_areas_category", values_to = "percentage_mangroves_protected") %>%
-  mutate(protected_areas_category = case_when(protected_areas_category == "WDPA_all" ~ "All PAs",
+  rename_with(~ str_remove(., c("area_mangroves_")), everything()) %>%
+  rename_with(~ str_remove(., c("_km2")), everything()) %>%
+  pivot_longer(!solution_1,
+               names_to = "protected_areas_category",
+               values_to = "area_mangroves_protected") %>%
+  mutate(solution_1 = case_when(solution_1 == 1 ~ "Selected",
+                                .default = "Not selected"),
+         protected_areas_category = case_when(protected_areas_category == "WDPA_all" ~ "All PAs",
                                               protected_areas_category == "WDPA_I_VI" ~ "Category I-VI",
                                               .default = "Category I-IV"))
 
+aggregate_data <- plot_data %>%
+  group_by(protected_areas_category) %>%
+  summarise(area_mangroves_protected = sum(area_mangroves_protected))
 
 plot_overlap <- ggplot() +
-  geom_col(data = plot_data, aes(x = fct_relevel(protected_areas_category,
+  geom_col(data = aggregate_data, aes(x = fct_relevel(protected_areas_category,
                                                  c("All PAs", "Category I-VI", "Category I-IV")),
-                                 y = percentage_mangroves_protected*100,
-                                 fill = protected_areas_category),
+                                 y = (area_mangroves_protected/tot_area_mangroves)*100,
+                                 fill = fct_relevel(protected_areas_category,
+                                                    c("All PAs", "Category I-VI", "Category I-IV"))),
            linewidth = 0.5,
            position = "dodge") +
   scale_fill_met_d(name = "Egypt", override.order = TRUE) +
-  # geom_hline(aes(yintercept = sum(solution_cc$area_mangroves_WDPA_all_km2)/tot_area_mangroves*100), linetype = 2) +
-  # geom_hline(aes(yintercept = sum(solution_cc$area_mangroves_WDPA_I_VI_km2)/tot_area_mangroves*100), linetype = 2) +
-  # geom_hline(aes(yintercept = sum(solution_cc$area_mangroves_WDPA_I_IV_km2)/tot_area_mangroves*100), linetype = 2) +
-  theme_bw() +
-  theme(legend.position = "top",
-        legend.title = element_blank(),
-        panel.grid.major = element_line(colour = "transparent"),
-        panel.background = element_blank(),
-        legend.key.size = unit(0.5, "cm"),
-        axis.text = element_text(size = 7),
-        axis.title = element_text(size = 9),
-        legend.text = element_text(size = 9),
-        legend.box = 'vertical') +
-  ylab("Protected areas coverage (%)") +
-  xlab("") +
-  scale_y_continuous(expand = c(0, 0), limits = c(0, 110))
+  geom_text(data = aggregate_data, aes(label = scales::percent(area_mangroves_protected/tot_area_mangroves,
+                                        accuracy = 0.01),
+                y = (area_mangroves_protected/tot_area_mangroves)*100,
+                x = fct_relevel(protected_areas_category,
+                                c("All PAs", "Category I-VI", "Category I-IV"))),
+                size = 6 * (5/14),
+                colour = "black",
+                vjust = -1, hjust = 0.5) +
+              theme_bw() +
+              theme(legend.position = "top",
+                    legend.title = element_blank(),
+                    panel.grid.major = element_line(colour = "transparent"),
+                    panel.background = element_blank(),
+                    legend.key.size = unit(0.5, "cm"),
+                    axis.text = element_text(size = 7),
+                    axis.title = element_text(size = 9),
+                    legend.text = element_text(size = 9),
+                    legend.box = 'vertical') +
+              ylab("Protected areas coverage (%)") +
+              xlab("") +
+              scale_y_continuous(expand = c(0, 0), limits = c(0, 100))
 
-dir.create(paste0("Figures/Country/10_overlap_WDPA/",
-                  split_group, "/RDS/"), recursive = TRUE)
+            dir.create(paste0("Figures/Country/10_overlap_WDPA/",
+                              split_group, "/RDS/"), recursive = TRUE)
 
-saveRDS(plot_overlap, paste0("Figures/Country/10_overlap_WDPA/",
-                             split_group, "/RDS/overlap_WDPA_area_",
-                             CC_direction, "_", prct, ".rds"))
+            saveRDS(plot_overlap, paste0("Figures/Country/10_overlap_WDPA/",
+                                         split_group, "/RDS/overlap_WDPA_area_",
+                                         CC_direction, "_", prct, ".rds"))
 
-rm(list = ls(all.names = TRUE)) #will clear all objects includes hidden objects.
-gc() #free up memrory and report the memory usage.
-.rs.restartR()
+            xlsx::write.xlsx(data, paste0("Figures/Country/10_overlap_WDPA/",
+                                          split_group, "/overlap_WDPA_area_",
+                                          CC_direction, "_", prct, ".xlsx"))
+
+            rm(list = ls(all.names = TRUE)) #will clear all objects includes hidden objects.
+            gc() #free up memrory and report the memory usage.
