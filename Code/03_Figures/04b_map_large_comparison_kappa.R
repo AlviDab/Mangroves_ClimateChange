@@ -1,7 +1,7 @@
 #Author: Alvise Dabalà
 #Date: 1107/2024
 
-pacman::p_load(tidyverse, sf, parallel, furrr, purrr, biscale)
+pacman::p_load(tidyverse, sf, parallel, furrr, purrr, biscale, pals)
 
 ncores <- detectCores() - 2
 
@@ -110,7 +110,7 @@ map(c("landward", "seaward", "mean"), function(CC_direction) {
                            aes(fill = bi_class),
                            colour = "black",
                            lwd = 0.0001) +
-                   bi_scale_fill(pal = "BlueGold", dim = 3) +
+                   bi_scale_fill(pal = "DkBlue2", dim = 3) +
                    geom_sf(data = dat, fill = NA) +
                    theme_minimal(base_size = 7) +
                    theme(panel.grid.major = element_line(colour = "transparent"),
@@ -121,30 +121,27 @@ map(c("landward", "seaward", "mean"), function(CC_direction) {
                    scale_alpha_continuous(range = c(0.8, 1)) +
                    coord_sf(datum = NA)
 
-                 plot_legend <- bi_legend(pal = "BlueGold",
+                 plot_legend <- bi_legend(pal = "DkBlue2",
                                           dim = 3,
-                                          xlab = "More similar",
+                                          xlab = "Higher similarity",
                                           ylab = "Higher selection",
                                           size = 8,
                                           pad_width = 1.5)
 
                  finalPlot <- cowplot::ggdraw() +
-                   cowplot::draw_plot(plot_legend, 0, .7, .3, .3) +
+                   cowplot::draw_plot(plot_legend, 0.7, 0.8, .3, .3) +
                    cowplot::draw_plot(plot_map, 0, 0, 1, 0.8)
 
-                 ggsave(plot = finalPlot, "final_plot.pdf",
-                        dpi = 300, width = 18, height = 13, units = "cm")
-
-                 dir.create(paste0("Figures/Country/04a_map_large_comparison/",
+                 dir.create(paste0("Figures/Country/04b_map_large_comparison_area_kappa/",
                                    split_group, "/RDS"),
                             recursive = TRUE)
 
-                 ggsave(plot = plot_map, paste0("Figures/Country/04a_map_large_comparison/",
+                 ggsave(plot = finalPlot, paste0("Figures/Country/04b_map_large_comparison_area_kappa/",
                                                 split_group,"/map_",
                                                 CC_direction, "_", prct, ".pdf"),
                         dpi = 300, width = 18, height = 11, units = "cm")
 
-                 saveRDS(plot_map, paste0("Figures/Country/04a_map_large_comparison/",
+                 saveRDS(finalPlot, paste0("Figures/Country/04b_map_large_comparison_area_kappa/",
                                           split_group, "/RDS/map_",
                                           CC_direction, "_", prct, ".rds"))
                })
