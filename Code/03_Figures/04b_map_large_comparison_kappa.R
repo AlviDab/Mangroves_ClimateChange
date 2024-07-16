@@ -1,7 +1,7 @@
 #Author: Alvise Dabalà
 #Date: 1107/2024
 
-pacman::p_load(tidyverse, sf, parallel, furrr, purrr, biscale, pals)
+pacman::p_load(tidyverse, sf, parallel, furrr, purrr, biscale)
 
 ncores <- detectCores() - 2
 
@@ -125,11 +125,11 @@ map(c("landward", "seaward", "mean"), function(CC_direction) {
                                           dim = 3,
                                           xlab = "Higher similarity",
                                           ylab = "Higher selection",
-                                          size = 8,
+                                          size = 7,
                                           pad_width = 1.5)
 
                  finalPlot <- cowplot::ggdraw() +
-                   cowplot::draw_plot(plot_legend, 0.7, 0.8, .3, .3) +
+                   cowplot::draw_plot(plot_legend, 0.75, 0.7, .3, .3) +
                    cowplot::draw_plot(plot_map, 0, 0, 1, 0.8)
 
                  dir.create(paste0("Figures/Country/04b_map_large_comparison_area_kappa/",
