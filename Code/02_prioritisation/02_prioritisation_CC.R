@@ -45,10 +45,19 @@ future_map(seq(0.05, 0.3, by = 0.05),
                                    new_file_name, "/",
                                    CC_direction), recursive = T)
 
+                 dir.create(paste0("Results/gpkg/prioritisation/Country/02_prioritisation_CC/",
+                                   new_file_name, "/",
+                                   CC_direction), recursive = T)
+
                  saveRDS(solution, paste0("Results/RDS/prioritisation/Country/02_prioritisation_CC/",
                                           new_file_name, "/",
                                           CC_direction, "/solution_",
                                           as.character(prct), "_", CC_direction, ".rds"))
+
+                 st_write(solution, paste0("Results/gpkg/prioritisation/Country/02_prioritisation_CC/",
+                                          new_file_name, "/",
+                                          CC_direction, "/solution_",
+                                          as.character(prct), "_", CC_direction, ".gpkg"))
 
                  # saveRDS(replacement_score, paste0("Results/RDS/prioritisation/Country/02_prioritisation_CC/",
                  #                                   new_file_name, "/",

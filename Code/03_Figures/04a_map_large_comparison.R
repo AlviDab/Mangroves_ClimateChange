@@ -35,8 +35,10 @@ map(c("landward", "seaward", "mean"), function(CC_direction) {
                                (solution_noCC$selected_MangroveArea_km2/solution_noCC$MangroveArea_km2)
                              ))
 
-                 comparison_solution_centroid <- comparison_solution %>%
-                   st_centroid(.)
+                 st_write(comparison_solution, paste0("Results/gpkg/prioritisation/Country/03_comparison/",
+                                split_group, "/",
+                                CC_direction, "/Comparison_large_",
+                                as.character(prct), "_", CC_direction, ".gpkg"))
 
                  plot_map <- ggplot() +
                    geom_sf(data = world_map, fill = "grey60",

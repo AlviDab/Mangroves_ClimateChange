@@ -82,6 +82,7 @@ saveRDS(PUs, file = "Results/RDS/00_PUs_mollweide.rds")
 st_write(PUs, "Results/gpkg/00_PUs_mollweide.gpkg")
 
 saveRDS(PUs_large, file = "Results/RDS/00_PUs_large_mollweide.rds")
+st_write(PUs_large, "Results/gpkg/00_PUs_large_mollweide.gpkg")
 
 rm(list = ls(all.names = TRUE)) #will clear all objects includes hidden objects.
 gc() #free up memrory and report the memory usage.

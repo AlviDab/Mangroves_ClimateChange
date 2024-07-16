@@ -33,8 +33,8 @@ plot_layer <- map(c("country_and_biotyp", "biotyp"), function(split_group) {
                                              as.character(prct), "_", CC_direction, ".rds"))
 
                name_split_group <- ifelse(split_group == "biotyp",
-                                          "Split by biophysical typology",
-                                          "Split by biophysical typology and country")
+                                          "Global level",
+                                          "Country level")
 
                plot_layer <- solution_cc %>%
                  left_join(PUs %>%
@@ -55,8 +55,8 @@ plot_layer <- map(c("country_and_biotyp", "biotyp"), function(split_group) {
                  mutate(prct = prct,
                         split_group = name_split_group) %>%
                  mutate(log_res_var = case_when( #make a log transformation symmetrical respect 0
-                   res_var > 0 ~ log10(res_var),
-                   res_var < 0 ~ -log10(abs(res_var)),
+                   res_var > 0 ~ log10(res_var + 1), #removing 1 so that the minimum is zero
+                   res_var < 0 ~ -log10(abs(res_var - 1)), #adding 1 so that the minimum is zero
                    .default = 0
                  ))
              })
@@ -114,6 +114,7 @@ plot <- ggplot(data = plot_layer,
         legend.text = element_text(size = 9),
         legend.box = 'vertical') +
   scale_size_continuous(name = "Mangrove area selected in the climate-smart solution (km²)") +
+  scale_x_continuous(expand = c(0, 0), limits = c(-2.1, 2.1)) +
   guides(fill = guide_legend(override.aes = list(size = 3)),
          size = guide_legend(title.position = "top")) +
   facet_grid(prct ~ split_group)
@@ -156,4 +157,4 @@ plan(sequential)
 
 rm(list = ls(all.names = TRUE)) #will clear all objects includes hidden objects.
 gc() #free up memrory and report the memory usage.
-.rs.restartR()
+#.rs.restartR()

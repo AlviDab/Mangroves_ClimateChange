@@ -3,7 +3,7 @@
 
 pacman::p_load(tidyverse, sf, parallel, furrr, purrr, tmap)
 
-ncores <- detectCores() - 2
+ncores <- detectCores() - 6
 
 plan(multisession, workers = ncores)
 
@@ -56,11 +56,15 @@ future_map(seq(0.05, 0.3, by = 0.05),
                  tmap::tm_shape(priority_sol) +
                  tm_borders(col = "black")
 
-               dir.create(paste0("Figures/Country/interactive_maps/", split_group), recursive = TRUE)
+               dir.create(paste0("Figures/Country/00_interactive_maps/", split_group, "/RDS"), recursive = TRUE)
 
-               tmap::tmap_save(tm = interactive_map, paste0("Figures/Country/interactive_maps/",
+               tmap::tmap_save(tm = interactive_map, paste0("Figures/Country/00_interactive_maps/",
                                                             split_group,"/overlap_",
                                                             CC_direction, "_", prct, ".html"))
+
+               saveRDS(interactive_map, paste0("Figures/Country/00_interactive_maps/",
+                                               split_group,"/RDS/overlap_",
+                                               CC_direction, "_", prct, ".rds"))
              })
            })
 

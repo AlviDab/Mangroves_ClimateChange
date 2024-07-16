@@ -3,7 +3,7 @@
 
 pacman::p_load(tidyverse, sf, furrr)
 
-PUs <- readRDS("Results/RDS/prioritisation/Country/02_prioritisation_CC/country_and_biotyp/mean/solution_0.05_mean.rds")
+PUs <- readRDS("Results/RDS/prioritisation/Country/02_prioritisation_CC/biotyp/mean/solution_0.05_mean.rds")
 
 dat <- spatialplanr::splnr_get_boundary(Limits = "Global")
 
@@ -13,6 +13,10 @@ PUs_bin_feat <- PUs %>%
                            .default = 0))) %>%
   dplyr::select(starts_with("Sp_")) %>%
   mutate(n_features = rowSums(across(!geometry)))
+
+dir.create("Results/gpkg/layers/biotyp", recursive = TRUE)
+st_write(PUs_bin_feat %>%
+           dplyr::select(geometry, n_features), "Results/gpkg/layers/biotyp/n_features.gpkg")
 
 source("Code/Functions/f_create_worldmap.r")
 world_map <- f_worldmap()

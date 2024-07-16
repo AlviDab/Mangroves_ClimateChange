@@ -50,7 +50,6 @@ future_map(seq(0.05, 0.3, by = 0.05),
                        #percentage difference
                        diff <- area_cs$area_km2[2] - area_cn$area_km2[2]
 
-
                        dir.create(paste0("Figures/Country/02_area/",
                                          split_group, "/RDS"), recursive = TRUE)
 

@@ -83,8 +83,8 @@ plot_density <- ggplot(data = plot_data) +
         axis.title = element_text(size = 9),
         legend.text = element_text(size = 9),
         legend.box = 'vertical') +
-  ylab("Density") +
-  xlab("Area weighted resilience")  +
+  ylab("Proportion of mangroves") +
+  xlab("Area-weighted resilience")  +
   scale_y_continuous(expand = c(0, 0), limits = c(0, 0.05)) +
   scale_x_continuous(expand = c(0, 0), limits = c(0, 100.1))
 

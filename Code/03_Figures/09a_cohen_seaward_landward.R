@@ -1,7 +1,7 @@
 #Author: Alvise Dabalà
 #Date: 14/05/2024
 
-pacman::p_load(tidyverse, sf, furrr, purrr, parallel)
+pacman::p_load(tidyverse, sf, furrr, purrr, parallel, patchwork)
 
 split_group <- "biotyp"
 

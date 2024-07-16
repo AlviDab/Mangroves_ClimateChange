@@ -39,6 +39,17 @@ future_map(seq(0.05, 0.3, by = 0.05),
                            .default = NA
                          ))
 
+                       dir.create(paste0("Results/gpkg/prioritisation/Country/03_comparison/",
+                                         split_group, "/",
+                                         CC_direction), recursive = T)
+
+                       st_write(sol %>%
+                                  dplyr::select(!starts_with("Sp_")),
+                                paste0("Results/gpkg/prioritisation/Country/03_comparison/",
+                                split_group, "/",
+                                CC_direction, "/Comparison_",
+                                as.character(prct), "_", CC_direction, ".gpkg"))
+
                        plot_overlap <- ggplot() +
                          geom_sf(data = world_map, fill = "grey60",
                                  colour = "grey60",

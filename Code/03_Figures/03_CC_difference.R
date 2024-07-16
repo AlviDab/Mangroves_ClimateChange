@@ -86,8 +86,8 @@ future_map(seq(0.05, 0.3, by = 0.05),
                                              name = "") +
                          scale_x_continuous(limits = c(0, 100), expand = c(0, 0)) +
                          scale_y_continuous(limits = c(0, d$y[which.max(d$y)]*1.2), expand = c(0, 0)) +
-                         xlab("Area weighted resilience") +
-                         ylab("Density") +
+                         xlab("Area-weighted resilience") +
+                         ylab("Proportion of mangroves") +
                          theme_bw(base_size = 7) +
                          theme(panel.background = element_blank(),
                                text = element_text(size = 8),

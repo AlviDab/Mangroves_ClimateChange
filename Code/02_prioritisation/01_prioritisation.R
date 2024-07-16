@@ -27,10 +27,19 @@ map(c("country_and_", ""), function(file_name) {
   metrics <- prioritizr::eval_target_coverage_summary(prioritizr_problem, solution[, "solution_1"])
 
   dir.create(paste0("Results/RDS/prioritisation/Country/01_prioritisation/", new_file_name), recursive = T)
+  dir.create(paste0("Results/gpkg/prioritisation/Country/01_prioritisation/", new_file_name), recursive = T)
 
   saveRDS(solution, paste0("Results/RDS/prioritisation/Country/01_prioritisation/",
                            new_file_name,
                            "/solution_prioritisation.rds"))
+
+  st_write(solution %>%
+             dplyr::select(c("solution_1",
+                             "Prob_gain_stability_mean",
+                             "Prob_gain_stability_seaward",
+                             "MangroveArea_km2")), paste0("Results/gpkg/prioritisation/Country/01_prioritisation/",
+                            new_file_name,
+                            "/solution_prioritisation.gpkg"))
 
   # saveRDS(replacement_score, paste0("Results/RDS/prioritisation/Country/01_prioritisation/",
   #                                   new_file_name,

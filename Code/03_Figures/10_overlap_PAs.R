@@ -29,6 +29,14 @@ data <- solution_cc %>%
             area_mangroves_WDPA_I_VI_km2 = sum(area_mangroves_WDPA_I_VI_km2),
             area_mangroves_WDPA_I_IV_km2 = sum(area_mangroves_WDPA_I_IV_km2))
 
+#selection covered by WDPA
+sel_cov_WDPA <- solution_cc %>%
+  st_drop_geometry() %>%
+  group_by(solution_1) %>%
+  summarise(area_mangroves_WDPA_all_km2 = sum(area_mangroves_WDPA_all_km2)/sum(MangroveArea_km2),
+            area_mangroves_WDPA_I_VI_km2 = sum(area_mangroves_WDPA_I_VI_km2/sum(MangroveArea_km2)),
+            area_mangroves_WDPA_I_IV_km2 = sum(area_mangroves_WDPA_I_IV_km2/sum(MangroveArea_km2)))
+
 plot_data <- data %>%
   rename_with(~ str_remove(., c("area_mangroves_")), everything()) %>%
   rename_with(~ str_remove(., c("_km2")), everything()) %>%
