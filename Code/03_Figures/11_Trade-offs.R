@@ -1,7 +1,7 @@
 #Author: Alvise Dabalà
 #Date: 14/06/2024
 
-pacman::p_load(tidyverse, sf, parallel, furrr, purrr, spatstat, collapse)
+pacman::p_load(tidyverse, sf, parallel, furrr, purrr, spatstat, collapse, modelr)
 
 ncores <- detectCores() - 2
 
@@ -64,26 +64,15 @@ new_area_cr <- area_cr[[1]][[1]] %>%
          prct_increase_mean_resilience = (mean_resilience - mean_resilience[1])/mean_resilience,
          ratio_prct_increase = prct_increase_mean_resilience/prct_increase_area*100)
 
-lm_area_cr <- lm(prct_increase_area ~ prct_increase_mean_resilience, data = new_area_cr)
+log_curve <- lm(mean_resilience~log(Area_mangrove_km2), data = new_area_cr)
 
-ggplot(data = new_area_cr, aes(x = prct_increase_area,
-                               y = prct_increase_mean_resilience)) +
-  geom_point() +
-  geom_smooth(method = "lm")
+model <- new_area_cr %>%
+  data_grid(Area_mangrove_km2 = seq_range(Area_mangrove_km2, n = 100, expand = 0.1)) %>%
+  mutate(mean_resilience = predict(log_curve, model))
 
 ggplot(data = new_area_cr, aes(x = Area_mangrove_km2,
                                y = mean_resilience)) +
   geom_point() +
-  geom_smooth(method = "glm", formula = y~x,
-              method.args = list(family = gaussian(link = 'log'))) +
+  geom_line(data = model, aes(x = Area_mangrove_km2,
+                              y = mean_resilience)) +
   theme_bw()
-
-ggplot(data = new_area_cr, aes(x = Area_mangrove_km2,
-                               y = median_resilience)) +
-  geom_point() +
-  geom_smooth(method = "lm")
-
-ggplot(data = new_area_cr, aes(x = Area_mangrove_km2,
-                               y = area_climate_resilient_75)) +
-  geom_point() +
-  geom_smooth(se=FALSE, method = "glm", formula= y ~ poly(x,2))
