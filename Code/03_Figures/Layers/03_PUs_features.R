@@ -26,7 +26,7 @@ plot_map <- ggplot() +
           colour = "grey60",
           linewidth = 0.001) +
   geom_sf(data = PUs_bin_feat,
-          aes(fill = n_features,
+          aes(fill = log10(n_features + 1),
               colour = n_features),
           linewidth = 0.01) +
   scale_colour_viridis_c(option = "A", guide = "none") +
@@ -34,7 +34,7 @@ plot_map <- ggplot() +
   guides(fill = guide_colourbar(barwidth = 10,
                                 barheight = 0.5,
                                 title.position = "top",
-                                title = expression("Number of features"),
+                                title = expression("log10(Number of features)"),
                                 ticks.colour = "black")) +
   geom_sf(data = dat, fill = NA) +
   theme_minimal(base_size = 7) +
