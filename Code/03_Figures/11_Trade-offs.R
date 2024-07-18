@@ -10,9 +10,10 @@ plan(multisession, workers = ncores)
 area_cr <- map(c(#"landward", "seaward",
   "mean"), function(CC_direction) {
 
-    map(c("country_and_biotyp", "biotyp"), function(split_group) {
+    map(c("country_and_biotyp",
+      "biotyp"), function(split_group) {
 
-      future_map(seq(0, 0.3, by = 0.05),
+      future_map(seq(0, 1, by = 0.05),
                  function(prct) {
                    if(prct == 0) {
                      solution <- readRDS(paste0("Results/RDS/prioritisation/Country/01_prioritisation/",
@@ -35,7 +36,7 @@ area_cr <- map(c(#"landward", "seaward",
                    climate_resilient_median_mean <- solution %>%
                      st_drop_geometry() %>%
                      filter(solution_1 == 1) %>%
-                     summarise(median_resilience = spatstat.geom::weighted.median(Prob_gain_stability_mean,
+                     summarise(median_resilience = spatstat.univar::weighted.median(Prob_gain_stability_mean,
                                                                                   MangroveArea_km2),
                                mean_resilience = weighted.mean(Prob_gain_stability_mean,
                                                                MangroveArea_km2))
@@ -58,12 +59,12 @@ area_cr <- map(c(#"landward", "seaward",
     })
   })
 
-lm_area_cr <- lm(prct_increase_area ~ prct_increase_mean_resilience, data = new_area_cr)
-
 new_area_cr <- area_cr[[1]][[1]] %>%
   mutate(prct_increase_area = (Area_mangrove_km2 - Area_mangrove_km2[1])/Area_mangrove_km2,
          prct_increase_mean_resilience = (mean_resilience - mean_resilience[1])/mean_resilience,
          ratio_prct_increase = prct_increase_mean_resilience/prct_increase_area*100)
+
+lm_area_cr <- lm(prct_increase_area ~ prct_increase_mean_resilience, data = new_area_cr)
 
 ggplot(data = new_area_cr, aes(x = prct_increase_area,
                                y = prct_increase_mean_resilience)) +
@@ -73,7 +74,9 @@ ggplot(data = new_area_cr, aes(x = prct_increase_area,
 ggplot(data = new_area_cr, aes(x = Area_mangrove_km2,
                                y = mean_resilience)) +
   geom_point() +
-  geom_smooth(method = "lm")
+  geom_smooth(method = "glm", formula = y~x,
+              method.args = list(family = gaussian(link = 'log'))) +
+  theme_bw()
 
 ggplot(data = new_area_cr, aes(x = Area_mangrove_km2,
                                y = median_resilience)) +
