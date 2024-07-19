@@ -82,7 +82,7 @@ area_cr <- map(c(#"landward", "seaward",
 
     scatterplot <- ggplot(data = area_cr, aes(x = prct_increase_area*100,
                                               y = prct_increase_mean_resilience*100)) +
-      geom_point(aes(colour = type), alpha = 0.7, size = 2) +
+      geom_point(aes(colour = type), alpha = 0.7, size = 1) +
       #geom_line(aes(colour = type), linetype = "dotted", linewidth = 1) +
       geom_function(fun = function(x) fit_global$coefficients[1] +
                       fit_global$coefficients[2]*log(x),
@@ -103,25 +103,25 @@ area_cr <- map(c(#"landward", "seaward",
       ylab("Percentage increase in resilience (%)") +
       xlab("Percentage increase in area (%)") +
       theme(legend.title = element_blank(),
-            axis.title.x = element_text(colour = "grey20",
-                                        face = "bold"),
-            axis.title.y = element_text(colour = "grey20",
-                                        face = "bold")) +
+            axis.title.x = element_text(colour = "grey20"
+                                        #face = "bold"
+                                        ),
+            axis.title.y = element_text(colour = "grey20"
+                                        #face = "bold"
+                                        )) +
       scale_x_continuous(limits = c(0, NA),
                          expand = expansion(mult = c(0, 0.1))) +
       scale_y_continuous(limits = c(0, NA),
                          expand = expansion(mult = c(0, 0.1)))
 
-    dir.create(paste0("Figures/Country/12_linear_investment/", split_group, "/RDS"), recursive = TRUE)
+    dir.create(paste0("Figures/Country/12_linear_investment/RDS"), recursive = TRUE)
 
-    ggsave(plot = scatterplot, paste0("Figures/Country/04_map_large/",
-                                      split_group,"/map_",
-                                      CC_direction, "_", prct, ".pdf"),
+    ggsave(plot = scatterplot, paste0("Figures/Country/12_linear_investment/linear_investment_",
+                                      CC_direction, ".pdf"),
            dpi = 300, width = 18, height = 11, units = "cm")
 
-    saveRDS(scatterplot, paste0("Figures/Country/12_linear_investment/",
-                                split_group, "/RDS/map_",
-                                CC_direction, "_", prct, ".rds"))
+    saveRDS(scatterplot, paste0("Figures/Country/12_linear_investment/RDS/map_",
+                                CC_direction, ".rds"))
 
   })
 
