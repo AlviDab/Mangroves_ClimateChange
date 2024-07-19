@@ -1,7 +1,7 @@
 #Author: Alvise Dabalà
-#Date: 1107/2024
+#Date: 11/07/2024
 
-pacman::p_load(tidyverse, sf, parallel, furrr, purrr, biscale)
+pacman::p_load(tidyverse, sf, parallel, furrr, purrr, biscale, irr)
 
 ncores <- detectCores() - 2
 
@@ -70,6 +70,7 @@ map(c("landward", "seaward", "mean"), function(CC_direction) {
                  kappa <- map(seq_along(small_solution_noCC),
                               function(index) {
 
+                                # NaN if no PUs intersect the large PU
                                 if(nrow(small_solution_noCC[[index]]) > 0) {
                                   spatialplanr::splnr_get_kappaCorrData(list(small_solution_noCC[[index]],
                                                                              small_solution_CC[[index]]),
@@ -91,7 +92,8 @@ map(c("landward", "seaward", "mean"), function(CC_direction) {
                  st_write(comparison_solution, paste0("Results/gpkg/prioritisation/Country/03_comparison/",
                                                       split_group, "/",
                                                       CC_direction, "/Comparison_large_",
-                                                      as.character(prct), "_", CC_direction, "_kappa.gpkg"))
+                                                      as.character(prct), "_", CC_direction, "_kappa.gpkg"),
+                          append = TRUE)
 
                  comparison_solution_clean <- comparison_solution %>%
                    filter(!is.na(kappa))
@@ -106,13 +108,17 @@ map(c("landward", "seaward", "mean"), function(CC_direction) {
                    geom_sf(data = world_map, fill = "grey60",
                            colour = "grey60",
                            linewidth = 0.001) +
+                   geom_sf(data = solution_noCC,
+                           fill = "transparent",
+                           colour = "black",
+                           lwd = 0.0001) +
                    geom_sf(data = biv_data,
                            aes(fill = bi_class),
                            colour = "black",
                            lwd = 0.0001) +
                    bi_scale_fill(pal = "DkBlue2", dim = 3) +
                    geom_sf(data = dat, fill = NA) +
-                   theme_minimal(base_size = 7) +
+                   theme_minimal(base_size = 6) +
                    theme(panel.grid.major = element_line(colour = "transparent"),
                          panel.background = element_blank(),
                          legend.position = "none") +
@@ -125,7 +131,7 @@ map(c("landward", "seaward", "mean"), function(CC_direction) {
                                           dim = 3,
                                           xlab = "Higher similarity",
                                           ylab = "Higher selection",
-                                          size = 7,
+                                          size = 6,
                                           pad_width = 1.5)
 
                  finalPlot <- cowplot::ggdraw() +
