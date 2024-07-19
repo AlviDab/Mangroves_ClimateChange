@@ -39,14 +39,15 @@ map(c("PUs_04_mangroves_cc_IUCN_split_by_country_and_biotyp",
           fNN_NAs("Prob_gain_stability_seaward") %>%
           fNN_NAs("Prob_gain_stability_mean")
 
-        ncores <- detectCores() - 2
+        ncores <- availableCores() - 2
 
         plan(multisession, workers = ncores)
 
-        map(seq(0.05, 0.3, by = 0.05),
-            #.options = furrr_options(seed = TRUE),
+        future_map(seq(0.05, 1, by = 0.05),
+            .options = furrr_options(seed = TRUE),
             function(prct) {
-              map(c("landward", "seaward", "mean"
+              map(c("landward", "seaward"#,
+                    #"mean"
                 ),
                 #.options = furrr_options(seed = TRUE),
                 function(CC_direction) {

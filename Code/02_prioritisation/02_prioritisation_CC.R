@@ -7,12 +7,13 @@ ncores <- detectCores() - 2
 
 plan(multisession, workers = ncores)
 
-future_map(seq(0.05, 0.3, by = 0.05),
+future_map(seq(0.05, 1, by = 0.05),
            .options = furrr_options(seed = TRUE),
            function(prct) {
 
-             map(c("landward", "seaward",
-                   "mean"), function(CC_direction) {
+             map(c("landward", "seaward"#,
+                   #"mean"
+                   ), function(CC_direction) {
 
                map(c("country_and_", ""), function(file_name) {
 
@@ -31,7 +32,7 @@ future_map(seq(0.05, 0.3, by = 0.05),
                    add_relative_targets(PUs_features_split_targets$targets) %>%
                    add_locked_in_constraints(PUs$priority) %>%
                    add_min_set_objective() %>%
-                   add_gurobi_solver()
+                   add_gurobi_solver(gap = 0.01)
 
                  solution <- solve(prioritizr_problem)
 
@@ -54,10 +55,13 @@ future_map(seq(0.05, 0.3, by = 0.05),
                                           CC_direction, "/solution_",
                                           as.character(prct), "_", CC_direction, ".rds"))
 
-                 st_write(solution, paste0("Results/gpkg/prioritisation/Country/02_prioritisation_CC/",
+                 st_write(solution %>%
+                            dplyr::select(geometry,
+                                          solution_1), paste0("Results/gpkg/prioritisation/Country/02_prioritisation_CC/",
                                           new_file_name, "/",
                                           CC_direction, "/solution_",
-                                          as.character(prct), "_", CC_direction, ".gpkg"))
+                                          as.character(prct), "_", CC_direction, ".gpkg"),
+                          append = TRUE)
 
                  # saveRDS(replacement_score, paste0("Results/RDS/prioritisation/Country/02_prioritisation_CC/",
                  #                                   new_file_name, "/",
@@ -75,5 +79,5 @@ future_map(seq(0.05, 0.3, by = 0.05),
 plan(sequential)
 
 rm(list = ls(all.names = TRUE)) #will clear all objects includes hidden objects.
-gc() #free up memrory and report the memory usage.
+gc() #free up memory and report the memory usage.
 .rs.restartR()
