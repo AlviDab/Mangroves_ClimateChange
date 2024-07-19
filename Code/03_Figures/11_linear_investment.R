@@ -5,7 +5,7 @@ pacman::p_load(tidyverse, sf, parallel, furrr, purrr, spatstat, collapse, modelr
 
 ncores <- detectCores() - 2
 
-plan(multisession, workers = ncores)
+# plan(multisession, workers = ncores)
 
 area_cr <- map(c(#"landward", "seaward",
   "mean"), function(CC_direction) {
@@ -64,13 +64,28 @@ area_cr <- map(c(#"landward", "seaward",
   }) %>%
   bind_rows()
 
-ggplot(data = area_cr, aes(x = prct_increase_area,
-                               y = prct_increase_mean_resilience)) +
-  geom_point(aes(colour = type)) +
-  scale_colour_manual(values = c('#233d4d', '#fe7f2d'),
+ggplot(data = area_cr, aes(x = prct_increase_area*100,
+                               y = prct_increase_mean_resilience*100)) +
+  geom_point(aes(colour = type), alpha = 0.7, size = 2) +
+  #geom_line(aes(colour = type), linetype = "dotted", linewidth = 1) +
+  scale_colour_manual(values = c('#2a9d8f', '#F4A261'),
                       labels = c('Global scale',
-                                 'Country scale')) +
-  theme_bw() +
-  ylab("Mean resilience") +
-  xlab("Percentage increase in area") +
-  theme(legend.title = element_blank())
+                                 'Country scale'),
+                      guide = guide_legend()) +
+  theme_classic() +
+  theme(
+    panel.grid.major = element_line(colour = "grey90", size = 0.1),
+    panel.grid.minor = element_line(colour = "grey90", size = 0.05),
+    legend.position = "top"
+  ) +
+  ylab("Percentage increase in resilience (%)") +
+  xlab("Percentage increase in area (%)") +
+  theme(legend.title = element_blank(),
+        axis.title.x = element_text(colour = "grey20",
+                                    face = "bold"),
+        axis.title.y = element_text(colour = "grey20",
+                                    face = "bold")) +
+  scale_x_continuous(limits = c(0, NA),
+                     expand = expansion(mult = c(0, 0.1))) +
+  scale_y_continuous(limits = c(0, NA),
+                     expand = expansion(mult = c(0, 0.1)))
