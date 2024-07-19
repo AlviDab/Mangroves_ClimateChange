@@ -11,6 +11,9 @@ source("Code/Functions/f_create_worldmap.r")
 world_map <- f_worldmap()
 
 PUs_large <- readRDS(file = "Results/RDS/00_PUs_large_mollweide.rds")
+rownames(PUs_large) <- 1:nrow(PUs_large)
+PUs_large <- PUs_large %>%
+  mutate(cellID = row.names(.))
 
 map(c("noCC", "landward", "seaward", "mean"), function(CC_direction) {
 
@@ -37,24 +40,24 @@ map(c("noCC", "landward", "seaward", "mean"), function(CC_direction) {
                  dat <- spatialplanr::splnr_get_boundary(Limits = "Global")
 
                  intersection <- PUs_large %>%
-                   st_intersects(st_centroid(solution)) %>%
-                   Filter(length, .)
+                   st_intersects(st_centroid(solution),
+                                 sparse = TRUE)
 
                  #select only the rows that intersect the large planning unit and
                  #calculate their mean value
                  large_sol <- map(seq_along(intersection), function(intersection_index) {
 
+                   if(length(intersection[[intersection_index]]) == 0) {
+                   } else {
                    mean_selected_solution <- solution %>%
-                     slice(intersection[intersection_index] %>%
-                             unlist()) %>%
+                     slice(intersection[[intersection_index]]) %>%
                      select(!c(ID, cellID)) %>%
                      mutate(nPUs = nrow(.)) %>%
                      summarise(across(!contains("Sp") & !contains("km2") & where(is.numeric), ~mean(.x)),
                                across(contains("km2") & where(is.numeric), ~sum(.x)))
 
                    selected_mangrove_area <- solution %>%
-                     slice(intersection[intersection_index] %>%
-                             unlist()) %>%
+                     slice(intersection[[intersection_index]]) %>%
                      st_drop_geometry %>%
                      filter(solution_1 == 1) %>%
                      summarise(selected_MangroveArea_km2 = sum(MangroveArea_km2)) %>%
@@ -71,6 +74,7 @@ map(c("noCC", "landward", "seaward", "mean"), function(CC_direction) {
                              st_drop_geometry(.))
 
                    return(PUs_large)
+                   }
 
                  }) %>%
                      bind_rows()
