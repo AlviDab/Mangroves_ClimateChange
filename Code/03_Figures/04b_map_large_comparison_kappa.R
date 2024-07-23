@@ -10,9 +10,12 @@ plan(multisession, workers = ncores)
 source("Code/Functions/f_create_worldmap.r")
 world_map <- f_worldmap()
 
-map(c("landward", "seaward", "mean"), function(CC_direction) {
+map(c("landward", "seaward"
+      #, "mean"
+      ), function(CC_direction) {
 
-  prct_seq <- c(seq(0.05, 0.3, by = 0.05))
+  prct_seq <- c(seq(#0.05,
+    0.3, by = 0.05))
 
   future_map(prct_seq,
              .options = furrr_options(seed = TRUE),
@@ -67,23 +70,24 @@ map(c("landward", "seaward", "mean"), function(CC_direction) {
                    })
 
                  #Calculate the kappa for each group
-                 kappa <- map(seq_along(small_solution_noCC),
-                              function(index) {
+                 kappa_vct <- map(seq_along(small_solution_noCC),
+                                  function(index) {
 
-                                # NaN if no PUs intersect the large PU
-                                if(nrow(small_solution_noCC[[index]]) > 0) {
-                                  spatialplanr::splnr_get_kappaCorrData(list(small_solution_noCC[[index]],
-                                                                             small_solution_CC[[index]]),
-                                                                        c("CC", "noCC"))[[2]]
-                                } else {
-                                  NaN
-                                }
+                                    # NaN if no PUs intersect the large PU
+                                    if(nrow(small_solution_noCC[[index]]) > 0) {
+                                      spatialplanr::splnr_get_kappaCorrData(list(small_solution_noCC[[index]],
+                                                                                 small_solution_CC[[index]]),
+                                                                            c("CC", "noCC"))[[2]]
+                                    } else {
+                                      "Empty" #If there is no intersection with small planning units
+                                    }
 
-                              }) %>%
+                                  }) %>%
                    unlist()
 
                  comparison_solution <- comparison_solution %>%
-                   mutate(kappa = kappa)
+                   filter(kappa != "Empty") %>%
+                   mutate(kappa = as.numeric(kappa_vct))
 
                  dir.create(paste0("Results/gpkg/prioritisation/Country/03_comparison/",
                                    split_group, "/",
@@ -101,15 +105,15 @@ map(c("landward", "seaward", "mean"), function(CC_direction) {
                  biv_data <- bi_class(comparison_solution_clean,
                                       x = kappa,
                                       y = diff_perc_selection_CC_noCC,
-                                      style = "quantile",
-                                      dim = 3)
+                                      style = "equal",
+                                      dim = 4)
 
                  plot_map <- ggplot() +
                    geom_sf(data = world_map, fill = "grey60",
                            colour = "grey60",
                            linewidth = 0.001) +
                    geom_sf(data = solution_noCC,
-                           fill = "transparent",
+                           fill = "white",
                            colour = "black",
                            lwd = 0.0001) +
                    geom_sf(data = biv_data,
@@ -127,11 +131,19 @@ map(c("landward", "seaward", "mean"), function(CC_direction) {
                    scale_alpha_continuous(range = c(0.8, 1)) +
                    coord_sf(datum = NA)
 
+                 legend_breaks <- bi_class_breaks(comparison_solution_clean,
+                                                  x = kappa,
+                                                  y = diff_perc_selection_CC_noCC,
+                                                  style = "equal",
+                                                  dim = 4,
+                                                  dig_lab = 2)
+
                  plot_legend <- bi_legend(pal = "DkBlue2",
-                                          dim = 3,
+                                          dim = 4,
                                           xlab = "Higher similarity",
                                           ylab = "Higher selection",
                                           size = 6,
+                                          breaks = legend_breaks,
                                           pad_width = 1.5)
 
                  finalPlot <- cowplot::ggdraw() +
@@ -143,13 +155,13 @@ map(c("landward", "seaward", "mean"), function(CC_direction) {
                             recursive = TRUE)
 
                  ggsave(plot = finalPlot, paste0("Figures/Country/04b_map_large_comparison_area_kappa/",
-                                                split_group,"/map_",
-                                                CC_direction, "_", prct, ".pdf"),
+                                                 split_group,"/map_",
+                                                 CC_direction, "_", prct, ".pdf"),
                         dpi = 300, width = 18, height = 11, units = "cm")
 
                  saveRDS(finalPlot, paste0("Figures/Country/04b_map_large_comparison_area_kappa/",
-                                          split_group, "/RDS/map_",
-                                          CC_direction, "_", prct, ".rds"))
+                                           split_group, "/RDS/map_",
+                                           CC_direction, "_", prct, ".rds"))
                })
              })
 })
