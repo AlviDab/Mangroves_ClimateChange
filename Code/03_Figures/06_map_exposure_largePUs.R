@@ -70,6 +70,10 @@ future_map(seq(0.05, 0.3, by = 0.05),
                ggsave(plot = figure_01, paste0("Figures/Country/06_large_map_exposure/",
                                                split_group,"/map_largePUs_exposure_", prct, ".pdf"),
                       dpi = 300, width = 18, height = 27, units = "cm")
+
+               ggsave(plot = figure_01, paste0("Figures/Country/06_large_map_exposure/",
+                                               split_group,"/map_largePUs_exposure_", prct, ".png"),
+                      dpi = 300, width = 18, height = 27, units = "cm")
              })
            })
 

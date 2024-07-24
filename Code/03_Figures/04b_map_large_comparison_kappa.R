@@ -7,6 +7,8 @@ ncores <- detectCores() - 2
 
 plan(multisession, workers = ncores)
 
+trace("bi_legend_build", edit=T, where = bi_legend) #change expand to c(0, 0)
+
 source("Code/Functions/f_create_worldmap.r")
 world_map <- f_worldmap()
 
@@ -156,6 +158,7 @@ map(c("landward", "seaward"
                              size = 8,
                              breaks = legend_breaks,
                              pad_width = 0.2,
+                             pad_color = "black",
                              arrows = FALSE)
 
     finalPlot <- cowplot::ggdraw() +
