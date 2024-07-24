@@ -7,10 +7,9 @@ ncores <- detectCores() - 2
 
 # plan(multisession, workers = ncores)
 
-area_cr <- map(c(#"landward", "seaward",
-  "mean"), function(CC_direction) {
+map(c("landward", "seaward"), function(CC_direction) {
 
-    map(c("country_and_biotyp",
+  area_cr <- map(c("country_and_biotyp",
           "biotyp"), function(split_group) {
 
             future_map(seq(0, 1, by = 0.05),
@@ -124,5 +123,3 @@ area_cr <- map(c(#"landward", "seaward",
                                 CC_direction, ".rds"))
 
   })
-
-
