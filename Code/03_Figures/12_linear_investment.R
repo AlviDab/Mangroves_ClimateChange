@@ -89,11 +89,11 @@ area_cr_country_sw <- area_cr %>%
   filter(prct_increase_area != 0)
 
 fit_global_lw <- lm(prct_increase_mean_resilience*100 ~ log(prct_increase_area*100),
-                 data = area_cr_global_lw)
+                    data = area_cr_global_lw)
 fit_global_sw <- lm(prct_increase_mean_resilience*100 ~ log(prct_increase_area*100),
                     data = area_cr_global_sw)
 fit_country_lw <- lm(prct_increase_mean_resilience*100 ~ log(prct_increase_area*100),
-                  data = area_cr_country_lw)
+                     data = area_cr_country_lw)
 fit_country_sw <- lm(prct_increase_mean_resilience*100 ~ log(prct_increase_area*100),
                      data = area_cr_country_sw)
 
@@ -103,16 +103,20 @@ scatterplot <- ggplot(data = area_cr, aes(x = prct_increase_area*100,
   #geom_line(aes(colour = type), linetype = "dotted", linewidth = 1) +
   geom_function(fun = function(x) fit_global_lw$coefficients[1] +
                   fit_global_lw$coefficients[2]*log(x),
+                xlim = c(min(area_cr_global_lw$prct_increase_area*100), max(area_cr_global_lw$prct_increase_area*100)),
                 colour = '#2a9d8f') +
   geom_function(fun = function(x) fit_global_sw$coefficients[1] +
                   fit_global_sw$coefficients[2]*log(x),
+                xlim = c(min(area_cr_global_sw$prct_increase_area*100), max(area_cr_global_sw$prct_increase_area*100)),
                 colour = '#2a9d8f',
                 linetype = "dashed") +
   geom_function(fun = function(x) fit_country_lw$coefficients[1] +
                   fit_country_lw$coefficients[2]*log(x),
+                xlim = c(min(area_cr_country_lw$prct_increase_area*100), max(area_cr_country_lw$prct_increase_area*100)),
                 colour = '#F4A261') +
   geom_function(fun = function(x) fit_country_sw$coefficients[1] +
                   fit_country_sw$coefficients[2]*log(x),
+                xlim = c(min(area_cr_country_sw$prct_increase_area*100), max(area_cr_country_sw$prct_increase_area*100)),
                 colour = '#F4A261',
                 linetype = "dashed") +
   scale_colour_manual(values = c('#2a9d8f', '#F4A261'),
@@ -121,8 +125,8 @@ scatterplot <- ggplot(data = area_cr, aes(x = prct_increase_area*100,
                       guide = guide_legend()) +
   scale_shape_manual(values = c(16, 17),
                      labels = c('Landward',
-                                 'Seaward'),
-                      guide = guide_legend()) +
+                                'Seaward'),
+                     guide = guide_legend()) +
   theme_classic() +
   theme(
     panel.grid.major = element_line(colour = "grey90", linewidth = 0.1),

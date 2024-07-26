@@ -18,7 +18,7 @@ map(c("country_and_", ""), function(file_name) {
                                 cost_column = "area_km2") %>%
     add_relative_targets(PUs_features_split_targets$targets) %>%
     add_min_set_objective() %>%
-    add_gurobi_solver()
+    add_gurobi_solver(gap = 0.01)
 
   solution <- solve(prioritizr_problem)
 
@@ -39,7 +39,8 @@ map(c("country_and_", ""), function(file_name) {
                              "Prob_gain_stability_seaward",
                              "MangroveArea_km2")), paste0("Results/gpkg/prioritisation/Country/01_prioritisation/",
                             new_file_name,
-                            "/solution_prioritisation.gpkg"))
+                            "/solution_prioritisation.gpkg"),
+           append = TRUE)
 
   # saveRDS(replacement_score, paste0("Results/RDS/prioritisation/Country/01_prioritisation/",
   #                                   new_file_name,
