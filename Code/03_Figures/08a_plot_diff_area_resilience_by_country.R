@@ -117,7 +117,7 @@ map(c("landward", "seaward"), function(CC_direction) {
                     max.iter = 5000, size = 3) +
     scale_fill_moma_d("Smith", name = "") +
     ylab(expression("log"[10]*"(percentage difference area selected)")) +
-    xlab(expression("log"[10]*"(percentage difference in climate resilience)")) +
+    xlab(expression("log"[10]*"(percentage increase in climate resilience)")) +
     theme_bw() +
     theme(legend.position = 'bottom',
           legend.title = element_text(size = 11, face = "bold"),
@@ -162,22 +162,22 @@ map(c("landward", "seaward"), function(CC_direction) {
 })
 # })
 
-#Description of the figures
-writeLines("Comparison of the different outcomes of the climate-smart prioritisations against the climate-naive prioritisation.
-
-Each point represent a different country/province. The size of the point is the km² of mangrove area selected in the climate-smart solution.
-
-The y-axis represent the percentage of mangrove area selected by the climate-smart prioritisation.
-
-The x-axis represent the difference in the climate resilience between the climate-smart and climate-naive. The value of resilience for each country/province is the area weighted mean of the resilience of the mangrove areas selected in the prioritisation.
-The x-axis values are in logarithmic scale. For the negative values of resilience, we scaled the absolute value to logarithmic and then inverted the resulting value.
-
-In the boxes on the right side of the figures are reported the thresholds used for the selection of the climate-priority areas of the climate-smart prioritisation.
-
-The vertical dashed line show the area weighted mean value of resilience variation between the climate-smart and the climate-naive prioritisation.
-
-The points that show a percentage of area selected equal to zero present different resilience variation values. These are just the opposite of the resilience value of the areas selected in the climate-naive prioritisation as there is no selection of areas in that country/province in the climate-smart prioritisation."
-           , paste0("Figures/Country/08_plot_area_resilience/", CC_direction, "/info.txt"))
+# #Description of the figures
+# writeLines("Comparison of the different outcomes of the climate-smart prioritisations against the climate-naive prioritisation.
+#
+# Each point represent a different country/province. The size of the point is the km² of mangrove area selected in the climate-smart solution.
+#
+# The y-axis represent the percentage of mangrove area selected by the climate-smart prioritisation.
+#
+# The x-axis represent the difference in the climate resilience between the climate-smart and climate-naive. The value of resilience for each country/province is the area weighted mean of the resilience of the mangrove areas selected in the prioritisation.
+# The x-axis values are in logarithmic scale. For the negative values of resilience, we scaled the absolute value to logarithmic and then inverted the resulting value.
+#
+# In the boxes on the right side of the figures are reported the thresholds used for the selection of the climate-priority areas of the climate-smart prioritisation.
+#
+# The vertical dashed line show the area weighted mean value of resilience variation between the climate-smart and the climate-naive prioritisation.
+#
+# The points that show a percentage of area selected equal to zero present different resilience variation values. These are just the opposite of the resilience value of the areas selected in the climate-naive prioritisation as there is no selection of areas in that country/province in the climate-smart prioritisation."
+#            , paste0("Figures/Country/08_plot_area_resilience/", CC_direction, "/info.txt"))
 
 plan(sequential)
 
