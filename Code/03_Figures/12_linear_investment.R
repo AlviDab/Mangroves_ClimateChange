@@ -1,7 +1,9 @@
 #Author: Alvise Dabalà
 #Date: 14/06/2024
 
-pacman::p_load(tidyverse, sf, parallel, furrr, purrr, spatstat, collapse, modelr)
+pacman::p_load(tidyverse, sf, parallel,
+               furrr, purrr, spatstat,
+               collapse, modelr, openxlsx)
 
 ncores <- detectCores() - 2
 
@@ -100,7 +102,6 @@ fit_country_sw <- lm(prct_increase_mean_resilience*100 ~ log(prct_increase_area*
 scatterplot <- ggplot(data = area_cr, aes(x = prct_increase_area*100,
                                           y = prct_increase_mean_resilience*100)) +
   geom_point(aes(colour = scale, shape = edge), alpha = 0.7, size = 1) +
-  #geom_line(aes(colour = type), linetype = "dotted", linewidth = 1) +
   geom_function(fun = function(x) fit_global_lw$coefficients[1] +
                   fit_global_lw$coefficients[2]*log(x),
                 xlim = c(min(area_cr_global_lw$prct_increase_area*100), max(area_cr_global_lw$prct_increase_area*100)),
@@ -149,7 +150,10 @@ scatterplot <- ggplot(data = area_cr, aes(x = prct_increase_area*100,
 
 dir.create(paste0("Figures/Country/12_linear_investment/RDS"), recursive = TRUE)
 
-ggsave(plot = scatterplot, paste0("Figures/Country/12_linear_investment/linear_investment.pdf"),
+write.xlsx(area_cr %>%
+             st_drop_geometry(), "Figures/Country/12_linear_investment/linear_investment.xlsx")
+
+ggsave(plot = scatterplot, "Figures/Country/12_linear_investment/linear_investment.pdf",
        dpi = 300, width = 18, height = 11, units = "cm")
 
-saveRDS(scatterplot, paste0("Figures/Country/12_linear_investment/RDS/linear_investment.rds"))
+saveRDS(scatterplot, "Figures/Country/12_linear_investment/RDS/linear_investment.rds")
