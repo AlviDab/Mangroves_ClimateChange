@@ -8,7 +8,7 @@ split_group <- "biotyp"
 dir.create(paste0("Figures/Country/09_plot_comparison_area_lw_sw/",
                   split_group), recursive = TRUE)
 
-kappa_cc <- map(seq(0.05, 0.3, by = 0.05),
+kappa_cc <- map(seq(0.05, 1, by = 0.05),
                 function(prct) {
 
                   solution_cc_sw <- readRDS(paste0("Results/RDS/prioritisation/Country/02_prioritisation_CC/",

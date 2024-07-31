@@ -38,3 +38,7 @@ prct_protection_sp <- prct_protection_sp %>%
   ))
 
 sum(prct_protection_sp$protected)/258
+
+prct_protection_sp %>%
+  filter(protected == FALSE) %>%
+  summarise(mean_shortfall = sum(targets-prct_protection)/nrow(.))

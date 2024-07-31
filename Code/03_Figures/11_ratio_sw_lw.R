@@ -7,6 +7,7 @@ split_group <- "biotyp"
 
 source("Code/Functions/f_create_worldmap.r")
 world_map <- f_worldmap()
+source("Code/Functions/f_intersect_countries.R")
 
 map(seq(0.05, 0.3, by = 0.05),
     function(prct) {

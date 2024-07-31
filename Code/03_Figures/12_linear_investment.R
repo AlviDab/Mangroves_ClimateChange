@@ -27,6 +27,9 @@ area_cr <- map(c("landward", "seaward"), function(CC_direction) {
 
                        }
 
+                       solution <- solution %>%
+                         rename_with(~"resilience", !!sym(paste0("Prob_gain_stability_", CC_direction)))
+
                        area <- solution %>%
                          st_drop_geometry() %>%
                          filter(solution_1 == 1) %>%
@@ -37,19 +40,19 @@ area_cr <- map(c("landward", "seaward"), function(CC_direction) {
                          st_drop_geometry() %>%
                          filter(solution_1 == 1) %>%
                          summarise(median_resilience =
-                                     spatstat.univar::weighted.median(Prob_gain_stability_mean,
+                                     spatstat.univar::weighted.median(resilience,
                                                                       MangroveArea_km2),
                                    mean_resilience =
-                                     weighted.mean(Prob_gain_stability_mean,
+                                     weighted.mean(resilience,
                                                    MangroveArea_km2))
-                       # mode_resilience = collapse::fmode(Prob_gain_stability_mean,
+                       # mode_resilience = collapse::fmode(resilience,
                        #                                   MangroveArea_km2))
 
                        #Filter mangroves with resilience >= 75
                        climate_resilient_75 <- solution %>%
                          st_drop_geometry() %>%
                          filter(solution_1 == 1,
-                                Prob_gain_stability_mean >= 75) %>%
+                                resilience >= 75) %>%
                          summarise(area_climate_resilient_75 = sum(MangroveArea_km2))
 
                        area_cr <- area %>%
