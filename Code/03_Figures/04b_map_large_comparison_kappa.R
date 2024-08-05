@@ -132,11 +132,11 @@ map(c("landward", "seaward"
       geom_sf(data = solution_noCC,
               fill = "white",
               colour = "black",
-              lwd = 0.0001) +
+              lwd = 0.000001) +
       geom_sf(data = biv_data,
               aes(fill = bi_class),
               colour = "black",
-              lwd = 0.0001) +
+              lwd = 0.000001) +
       bi_scale_fill(pal = "DkBlue2", dim = 3) +
       geom_sf(data = dat, fill = NA) +
       theme_minimal(base_size = 6) +
