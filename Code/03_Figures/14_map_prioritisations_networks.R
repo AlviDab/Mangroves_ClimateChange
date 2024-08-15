@@ -38,8 +38,8 @@ plot_patchwork <- list(nocc_global, cc_global,
 
 dir.create("Figures/Country/14_map_prioritisations_networks/", recursive = TRUE)
 
-ggsave(paste0("Figures/Country/14_map_prioritisations_networks/patchwork_maps_0.3_horizontal.pdf"),
+ggsave(paste0("Figures/Country/14_map_prioritisations_networks/patchwork_maps_0.3.pdf"),
        dpi = 300, width = 18, height = 13, units = "cm")
 
-ggsave(paste0("Figures/Country/14_map_prioritisations_networks/patchwork_maps_0.3_horizontal.jpg"),
+ggsave(paste0("Figures/Country/14_map_prioritisations_networks/patchwork_maps_0.3.jpg"),
        dpi = 1000, width = 18, height = 13, units = "cm")
