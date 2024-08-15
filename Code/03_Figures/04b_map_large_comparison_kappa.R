@@ -12,8 +12,8 @@ trace("bi_legend_build", edit=T, where = bi_legend) #change expand to c(0, 0)
 source("Code/Functions/f_create_worldmap.r")
 world_map <- f_worldmap()
 
-map(c("landward", "seaward"
-      #, "mean"
+map(c(#"landward", "seaward",
+      "mean"
 ), function(CC_direction) {
 
   # prct_seq <- c(seq(#0.05,
@@ -89,8 +89,8 @@ map(c("landward", "seaward"
       unlist()
 
     comparison_solution <- comparison_solution %>%
-      filter(kappa != "Empty") %>%
-      mutate(kappa = as.numeric(kappa_vct))
+      mutate(kappa = as.numeric(kappa_vct)) %>%
+      filter(kappa != "Empty")
 
     dir.create(paste0("Results/gpkg/prioritisation/Country/03_comparison/",
                       split_group, "/",
