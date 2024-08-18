@@ -7,7 +7,7 @@ ncores <- detectCores() - 2
 
 plan(multisession, workers = ncores)
 
-trace("bi_legend_build", edit=T, where = bi_legend) #change expand to c(0, 0)
+trace("bi_legend_build", edit = T, where = bi_legend) #change expand to c(0, 0)
 
 source("Code/Functions/f_create_worldmap.r")
 world_map <- f_worldmap()
