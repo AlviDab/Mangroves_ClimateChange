@@ -20,10 +20,8 @@ cc_country <- readRDS(paste0("Figures/Country/04_map_large/country_and_biotyp/RD
   ggtitle("Country-scale climate-smart")
 
 design <- c(
-"1
-2
-3
-4"
+"12
+34"
 )
 
 plot_patchwork <- list(nocc_global, cc_global,

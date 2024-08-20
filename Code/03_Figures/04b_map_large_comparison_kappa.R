@@ -92,6 +92,15 @@ map(c(#"landward", "seaward",
       mutate(kappa = as.numeric(kappa_vct)) %>%
       filter(kappa != "Empty")
 
+    dir.create(paste0("Results/RDS/prioritisation/Country/03_comparison/",
+                      split_group, "/",
+                      CC_direction), recursive = TRUE)
+
+    saveRDS(comparison_solution, paste0("Results/RDS/prioritisation/Country/03_comparison/",
+                                         split_group, "/",
+                                         CC_direction, "/Comparison_large_",
+                                         as.character(prct), "_", CC_direction, "_kappa.RDS"))
+
     dir.create(paste0("Results/gpkg/prioritisation/Country/03_comparison/",
                       split_group, "/",
                       CC_direction), recursive = TRUE)
@@ -137,7 +146,7 @@ map(c(#"landward", "seaward",
               aes(fill = bi_class),
               colour = "black",
               lwd = 0.000001) +
-      bi_scale_fill(pal = "DkBlue2", dim = 3) +
+      bi_scale_fill(pal = "DkBlue2", dim = 4) +
       geom_sf(data = dat, fill = NA) +
       theme_minimal(base_size = 6) +
       theme(panel.grid.major = element_line(colour = "transparent"),
@@ -186,9 +195,6 @@ map(c(#"landward", "seaward",
 
 plan(sequential)
 
-#Description of the figures
-writeLines("")
-
-rm(list = ls(all.names = TRUE)) #will clear all objects includes hidden objects.
-gc() #free up memrory and report the memory usage.
-.rs.restartR()
+# rm(list = ls(all.names = TRUE)) #will clear all objects includes hidden objects.
+# gc() #free up memrory and report the memory usage.
+# .rs.restartR()
