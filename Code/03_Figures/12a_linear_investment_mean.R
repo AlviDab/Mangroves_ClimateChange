@@ -65,9 +65,9 @@ area_cr <- map(c("country_and_biotyp",
                      mutate(scale = split_group,
                             edge = CC_direction) %>%
                      mutate(prct_increase_area = (Area_mangrove_km2 -
-                                                    Area_mangrove_km2[1])/Area_mangrove_km2,
+                                                    Area_mangrove_km2[1])/Area_mangrove_km2[1],
                             prct_increase_mean_resilience = (mean_resilience -
-                                                               mean_resilience[1])/mean_resilience,
+                                                               mean_resilience[1])/mean_resilience[1],
                             ratio_prct_increase = prct_increase_mean_resilience/prct_increase_area*100)
                  })%>%
   bind_rows()
