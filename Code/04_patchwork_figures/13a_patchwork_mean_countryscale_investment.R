@@ -32,7 +32,7 @@ theme_txt <- theme(title = element_text(size = 11,
 layout <- c(
   patchwork::area(t = 1, l = 1, b = 30, r = 60),
   patchwork::area(t = 35, l = 1, b = 105, r = 60),
-  patchwork::area(t = 110, l = 1, b = 170, r = 60)
+  patchwork::area(t = 110, l = 1, b = 230, r = 60)
 )
 
 figure_02 <- plot_legend + plot_mean + linear +
@@ -42,10 +42,10 @@ figure_02 <- plot_legend + plot_mean + linear +
 dir.create("Figures/Country/13_patchwork_countryscale_investment/", recursive = TRUE)
 
 ggsave(plot = figure_02, paste0("Figures/Country/13_patchwork_countryscale_investment/patchwork_countryscale_investment_mean_", prct, ".pdf"),
-       dpi = 300, width = 18, height = 23, units = "cm")
+       dpi = 300, width = 18, height = 27, units = "cm")
 
 ggsave(plot = figure_02, paste0("Figures/Country/13_patchwork_countryscale_investment/patchwork_countryscale_investment_mean_", prct, ".jpg"),
-       dpi = 300, width = 18, height = 23, units = "cm")
+       dpi = 300, width = 18, height = 27, units = "cm")
 
 # plan(sequential)
 
