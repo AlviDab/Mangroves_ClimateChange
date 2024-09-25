@@ -59,7 +59,7 @@ future_map(seq(0.05, 0.3, by = 0.05),
                                                                        area_km2)) %>%
                          as_tibble()
 
-                       selected <- rbind(selected_cn, selected_cs, PUs)
+                       selected <- rbind(selected_cn, selected_cs)
 
                        # WHY AM I USING TOTAL AREA ONLY FOR PUs?
                        total_area <- PUs %>%
@@ -80,9 +80,9 @@ future_map(seq(0.05, 0.3, by = 0.05),
                                     #linetype = "dashed",
                                     #linewidth = 0.3
                          ) +
-                         scale_fill_manual(values = c("#CECECE", "#0F0247", "#26AFD1"),
+                         scale_fill_manual(values = c("#0F0247", "#26AFD1"),
                                            name = "") +
-                         scale_colour_manual(values = c("#CECECE", "#0F0247", "#26AFD1"),
+                         scale_colour_manual(values = c("#0F0247", "#26AFD1"),
                                              name = "") +
                          scale_x_continuous(limits = c(0, 100), expand = c(0, 0)) +
                          scale_y_continuous(limits = c(0, d$y[which.max(d$y)]*1.2), expand = c(0, 0)) +
