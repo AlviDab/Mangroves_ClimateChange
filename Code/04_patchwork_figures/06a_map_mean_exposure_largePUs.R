@@ -28,7 +28,7 @@ prct <- 0.3
 
 
   layout <- c(
-    area(t = 85, l = 50, b = 115, r = 60),
+    area(t = 85, l = 50, b = 110, r = 60),
     area(t = 1, l = 1, b = 90, r = 60),
     area(t = 110, l = 1, b = 190, r = 60),
     area(t = 200, l = 1, b = 250, r = 33),
@@ -39,14 +39,16 @@ prct <- 0.3
                                           face = 'bold'),
                      text = element_text(size = 9),
                      axis.text = element_text(size = 10),
-                     legend.text = element_text(size = 8))
+                     legend.text = element_text(size = 11))
 
-  figure_01 <- plot_legend +
+  figure_01 <- (plot_legend +
+                  theme_txt +
+                  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1))) +
     (plot_map_large_PUs_mean_global +
-       ggtitle("Global scale") +
+       ggtitle("Comparing global-scale climate smart\nand climate-naïve prioritisation") +
        theme_txt) +
     (plot_map_large_PUs_mean_country +
-       ggtitle("Country scale") +
+       ggtitle("Comparing country-scale climate smart\nand climate-naïve prioritisation") +
        theme_txt) +
     (kd_plot_mean_global +
        ggtitle("Global-scale resilience") +
