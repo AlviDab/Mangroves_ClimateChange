@@ -67,7 +67,7 @@ map(seq(0.05, 0.3, by = 0.05),
         dplyr::select(country, landward, seaward) %>%
         left_join(kappa_by_country, by = "country") %>%
         group_by(country) %>%
-        summarise(county = first(country),
+        summarise(country = first(country),
                   landward = sum(landward, na.rm = TRUE),
                   seaward = sum(seaward, na.rm = TRUE),
                   kappa = first(kappa)) %>%

@@ -109,7 +109,14 @@ scatterplot <- ggplot(data = area_cr, aes(x = prct_increase_area*100,
   theme(
     panel.grid.major = element_line(colour = "grey90", linewidth = 0.1),
     panel.grid.minor = element_line(colour = "grey90", linewidth = 0.05),
-    legend.position = "top"
+    legend.position = 'bottom',
+    plot.tag = element_text(face = 'bold'),
+    title = element_text(size = 11,
+                         face = 'bold'),
+    legend.text = element_text(size = 9),
+    legend.title = element_text(size = 10,
+                                face = 'bold'),
+    plot.title = element_text(hjust = 0.5)
   ) +
   ylab("Percentage increase in resilience (%)") +
   xlab("Percentage increase in area (%)") +
@@ -134,3 +141,5 @@ ggsave(plot = scatterplot, "Figures/Country/12_linear_investment/linear_investme
        dpi = 300, width = 18, height = 12, units = "cm")
 
 saveRDS(scatterplot, "Figures/Country/12_linear_investment/RDS/linear_investment_mean.rds")
+saveRDS(fit_global_mean, "Figures/Country/12_linear_investment/RDS/fit_global_mean.rds")
+saveRDS(fit_country_mean, "Figures/Country/12_linear_investment/RDS/fit_country_mean.rds")

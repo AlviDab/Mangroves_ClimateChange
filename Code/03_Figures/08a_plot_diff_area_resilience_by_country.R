@@ -21,7 +21,7 @@ plan(multisession, workers = ncores)
 #            function(prct) {
 prct <- 0.3
 
-map(c("landward", "seaward"), function(CC_direction) {
+map(c("mean", "landward", "seaward"), function(CC_direction) {
 
   plot_layer <- map(c("country_and_biotyp", "biotyp"), function(split_group) {
 
@@ -100,17 +100,21 @@ map(c("landward", "seaward"), function(CC_direction) {
   }) %>%
     bind_rows()
 
-  #remove infinite value
+  #remove infinite value and order the databases
   plot_layer_no_inf <- plot_layer %>%
     filter(is.finite(diff_perc_resilience_CC_noCC))
 
   plot <- ggplot(data = plot_layer_no_inf,
                  aes(x = diff_perc_resilience_CC_noCC, y = diff_perc_area_CC_noCC)) +
+    geom_hline(yintercept = 0, linewidth = 0.5, linetype = "dashed",
+               alpha = 0.8, colour = "grey20",) +
+    geom_vline(xintercept = 0, linewidth = 0.5, linetype = "dashed",
+               alpha = 0.8, colour = "grey20",) +
     geom_point(aes(fill = continent, size = CC_mangrove_area), alpha = 0.8,
                shape = 21,
                stroke = NA) +
     guides(fill = guide_legend(override.aes = list(size = 5))) +
-    geom_text_repel(data = plot_layer,
+    geom_text_repel(data = plot_layer_a,
                     aes(x = diff_perc_resilience_CC_noCC, y = diff_perc_area_CC_noCC, label = country),
                     hjust = 0, min.segment.length = 0, max.overlaps = 4,
                     force = 30,
@@ -120,7 +124,8 @@ map(c("landward", "seaward"), function(CC_direction) {
     xlab(expression("log"[10]*"(percentage increase in climate resilience)")) +
     theme_bw() +
     theme(legend.position = 'bottom',
-          legend.title = element_text(size = 11, face = "bold"),
+          title = element_text(size = 11, face = "bold"),
+          legend.title = element_text(size = 10, face = "bold"),
           panel.grid.major = element_line(colour = "transparent"),
           panel.background = element_blank(),
           legend.key.size = unit(0.5, "cm"),
@@ -138,7 +143,10 @@ map(c("landward", "seaward"), function(CC_direction) {
     # guides(fill = guide_legend(override.aes = list(size = 3)),
     #        size = guide_legend(title.position = "top")) +
     # facet_grid(prct ~ split_group)
-    facet_wrap(vars(split_group))
+    facet_wrap(~factor(split_group, levels = c("Global scale",
+                                              "Country scale"))) +
+    theme(strip.text.x = element_text(size = 11, face = 'bold'),
+          axis.title = element_text(size = 10, face = "bold"))
 
   plot_legend <- ggpubr::get_legend(plot) %>%
     as_ggplot()

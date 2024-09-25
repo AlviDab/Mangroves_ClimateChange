@@ -12,6 +12,9 @@ pacman::p_load(tidyverse, sf, parallel, furrr, purrr, patchwork)
 #            function(prct) {
 prct <- 0.3
 
+fit_global_mean <- readRDS("Figures/Country/12_linear_investment/RDS/fit_global_mean.rds")
+fit_country_mean <- readRDS("Figures/Country/12_linear_investment/RDS/fit_country_mean.rds")
+
 plot_legend <- readRDS(paste0("Figures/Country/08a_plot_diff_area_resilience/seaward/RDS/diff_area_resilience_seaward_by_country_",
                               prct, "_legend.rds")) +
   theme(legend.spacing.y = unit(0, "cm"))
@@ -32,7 +35,7 @@ theme_txt <- theme(title = element_text(size = 11,
 layout <- c(
   patchwork::area(t = 1, l = 1, b = 30, r = 60),
   patchwork::area(t = 35, l = 1, b = 105, r = 60),
-  patchwork::area(t = 110, l = 1, b = 230, r = 60)
+  patchwork::area(t = 110, l = 1, b = 190, r = 60)
 )
 
 figure_02 <- plot_legend + plot_mean + linear +
@@ -51,4 +54,4 @@ ggsave(plot = figure_02, paste0("Figures/Country/13_patchwork_countryscale_inves
 
 rm(list = ls(all.names = TRUE)) #will clear all objects includes hidden objects.
 gc() #free up memrory and report the memory usage.
-.rs.restartR()
+# .rs.restartR()
