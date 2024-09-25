@@ -30,8 +30,11 @@ plot_patchwork <- list(nocc_global, cc_global,
   plot_layout(guides = 'collect', design = design) &
   theme(legend.position = 'bottom',
         plot.tag = element_text(face = 'bold'),
-        title = element_text(size = 10,
+        title = element_text(size = 11,
                              face = 'bold'),
+        legend.text = element_text(size = 9),
+        legend.title = element_text(size = 10,
+                                    face = 'bold'),
         plot.title = element_text(hjust = 0.5))
 
 dir.create("Figures/Country/14_map_prioritisations_networks/", recursive = TRUE)
