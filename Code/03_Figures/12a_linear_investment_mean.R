@@ -87,7 +87,7 @@ fit_country_mean <- lm(prct_increase_mean_resilience*100 ~ log(prct_increase_are
 
 scatterplot <- ggplot(data = area_cr, aes(x = prct_increase_area*100,
                                           y = prct_increase_mean_resilience*100)) +
-  geom_point(aes(colour = scale, shape = scale), alpha = 0.7, size = 1) +
+  geom_point(aes(colour = scale, shape = scale), alpha = 0.7, size = 2) +
   geom_function(fun = function(x) fit_global_mean$coefficients[1] +
                   fit_global_mean$coefficients[2]*log(x),
                 xlim = c(min(area_cr_global_mean$prct_increase_area*100), max(area_cr_global_mean$prct_increase_area*100)),
@@ -100,6 +100,7 @@ scatterplot <- ggplot(data = area_cr, aes(x = prct_increase_area*100,
                       labels = c('Global scale',
                                  'Country scale'),
                       guide = guide_legend()) +
+  geom_abline(intercept = 0, slope = 1, color = "grey20", linewidth = 0.5, alpha = 0.8) +
   scale_shape_manual(values = c(16, 17),
                      labels = c('Global scale',
                                 'Country scale'),
@@ -130,6 +131,6 @@ write.xlsx(area_cr %>%
              st_drop_geometry(), "Figures/Country/12_linear_investment/linear_investment_mean.xlsx")
 
 ggsave(plot = scatterplot, "Figures/Country/12_linear_investment/linear_investment_mean.pdf",
-       dpi = 300, width = 18, height = 11, units = "cm")
+       dpi = 300, width = 18, height = 12, units = "cm")
 
 saveRDS(scatterplot, "Figures/Country/12_linear_investment/RDS/linear_investment_mean.rds")
