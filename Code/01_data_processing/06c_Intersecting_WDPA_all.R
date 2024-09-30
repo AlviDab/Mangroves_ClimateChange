@@ -120,3 +120,7 @@ PUs <- PUs %>%
                   area_mangroves_WDPA_I_IV_km2), ~ ifelse(is.na(.), 0, .)))
 
 saveRDS(PUs, "Results/RDS/PUs_06_cc_IUCN_split_by_MEOW_and_biotyp_WDPA.rds")
+
+rm(list = ls(all.names = TRUE)) #will clear all objects includes hidden objects.
+gc() #free up memrory and report the memory usage.
+.rs.restartR()

@@ -11,8 +11,8 @@ future_map(seq(0.05, 1, by = 0.05),
            .options = furrr_options(seed = TRUE),
            function(prct) {
 
-             map(c("landward", "seaward"#,
-                   #"mean"
+             map(c("landward", "seaward",
+                   "mean"
                    ), function(CC_direction) {
 
                map(c("country_and_", ""), function(file_name) {

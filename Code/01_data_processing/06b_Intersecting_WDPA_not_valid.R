@@ -43,3 +43,6 @@ map(c("polygons", "points"), function(shape) {
 })
 
 # plan(sequential)
+rm(list = ls(all.names = TRUE)) #will clear all objects includes hidden objects.
+gc() #free up memrory and report the memory usage.
+.rs.restartR()

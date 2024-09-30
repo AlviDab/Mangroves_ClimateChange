@@ -30,3 +30,6 @@ prct_area_selected <- area_selected %>%
   mutate(prct_area_selected = area_selected/(area_not_selected + area_selected)) %>%
   arrange(desc(prct_area_selected))
 
+rm(list = ls(all.names = TRUE)) #will clear all objects includes hidden objects.
+gc() #free up memrory and report the memory usage.
+.rs.restartR()

@@ -41,8 +41,8 @@ map(c("PUs_04_mangroves_cc_IUCN_split_by_country_and_biotyp",
 
         map(seq(0.05, 1, by = 0.05),
             function(prct) {
-              map(c("landward", "seaward"#,
-                    #"mean"
+              map(c("landward", "seaward",
+                    "mean"
                 ),
                 #.options = furrr_options(seed = TRUE),
                 function(CC_direction) {
