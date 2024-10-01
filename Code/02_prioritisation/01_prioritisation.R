@@ -18,7 +18,7 @@ map(c("country_and_", ""), function(file_name) {
                                 cost_column = "area_km2") %>%
     add_relative_targets(PUs_features_split_targets$targets) %>%
     add_min_set_objective() %>%
-    add_gurobi_solver(gap = 0)
+    add_gurobi_solver(gap = 1*10^-5)
 
   solution <- solve(prioritizr_problem)
 

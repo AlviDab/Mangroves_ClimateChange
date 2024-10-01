@@ -32,7 +32,7 @@ future_map(seq(0.05, 1, by = 0.05),
                    add_relative_targets(PUs_features_split_targets$targets) %>%
                    add_locked_in_constraints(PUs$priority) %>%
                    add_min_set_objective() %>%
-                   add_gurobi_solver(gap = 0.01)
+                   add_gurobi_solver(gap = 1*10^-5)
 
                  solution <- solve(prioritizr_problem)
 
