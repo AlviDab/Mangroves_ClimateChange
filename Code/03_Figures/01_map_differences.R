@@ -7,7 +7,7 @@ ncores <- detectCores() - 2
 
 plan(multisession, workers = ncores)
 
-future_map(seq(0.05, 0.3, by = 0.05),
+future_map(seq(0.05, 1, by = 0.05),
            .options = furrr_options(seed = TRUE),
            function(prct) {
 
@@ -95,6 +95,8 @@ plan(sequential)
 writeLines("The figure is a map of the planning units that overlap the global mangrove distribution. There is a comparison of the selection using climate-smart and climate-naive methods.
 
 'mean' means that I am using a mean value of landward and seaward change in the prioritisation.
+'landward' means that I am using landward change in the prioritisation.
+'seaward' means that I am using seaward change in the prioritisation.
 
 The value reported is the percentage used as a tradeoff to select climate-priority areas for each conservation feature (more on the method 'climate-priority areas' in Buenafe et al. 2023 - https://doi.org/10.1002/eap.2852).
 
