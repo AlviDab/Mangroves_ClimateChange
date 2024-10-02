@@ -7,7 +7,7 @@ ncores <- detectCores() - 2
 
 plan(multisession, workers = ncores)
 
-future_map(seq(0.05, 0.3, by = 0.05),
+future_map(seq(0.05, 1, by = 0.05),
            function(prct) {
 
              map(c("landward", "seaward",

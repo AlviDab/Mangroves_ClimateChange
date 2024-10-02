@@ -7,7 +7,7 @@ ncores <- detectCores() - 2
 
 plan(multisession, workers = ncores)
 
-future_map(seq(0.05, 0.3, by = 0.05),
+future_map(seq(0.05, 1, by = 0.05),
            function(prct) {
 
              map(c("landward", "seaward",
@@ -86,7 +86,7 @@ future_map(seq(0.05, 0.3, by = 0.05),
                                              name = "") +
                          scale_x_continuous(limits = c(0, 100), expand = c(0, 0)) +
                          scale_y_continuous(limits = c(0, d$y[which.max(d$y)]*1.2), expand = c(0, 0)) +
-                         xlab("Area-weighted resilience") +
+                         xlab(expression("Climate-resilience (km"^2*")")) +
                          ylab("Proportion of mangroves") +
                          theme_bw(base_size = 7) +
                          theme(panel.background = element_blank(),
@@ -128,8 +128,10 @@ writeLines("The figures show a kernel density plot of the weighted exposure of t
 to climate change
 
 'mean' means that I am using a mean value of landward and seaward change in the prioritisation.
+'landward' means that I am using landward change in the prioritisation.
+'seaward' means that I am using seaward change in the prioritisation.
 
-The value reported is the percentage used as a tradeoff to select climate-priority areas for each conservation feature (more on the method 'climate-priority areas' in Buenafe et al. 2023 - https://doi.org/10.1002/eap.2852).",
+The value reported in the name of the file is the percentage used as a trade-off to select climate-priority areas for each conservation feature (more on the method 'climate-priority areas' in Buenafe et al. 2023 - https://doi.org/10.1002/eap.2852).",
            "Figures/Country/03_CC_exposure/info.txt")
 
 rm(list = ls(all.names = TRUE)) #will clear all objects includes hidden objects.
