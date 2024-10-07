@@ -40,26 +40,22 @@ future_map(seq(0.05, 1, by = 0.05),
                                                 "country-scale",
                                                 "global-scale")
 
-                       #mean climate risk climate-naïve
+                       #climate-naïve
                        selected_cn <- solution %>%
                          st_drop_geometry() %>%
                          filter(solution_1 == 1) %>%
-                         mutate(type = paste("Climate-naïve", str_to_sentence(type_indicator))) %>%
+                         mutate(type = paste("Climate-naïve", str_to_sentence(type_indicator)),
+                                climate = "Climate-naïve",
+                                scale = str_to_sentence(type_indicator)) %>%
                          as_tibble()
 
-                       #Add values from column Prob_gain_stability_mean to the dataframe that are missing it
-                       if("Prob_gain_stability_mean" %in% names(solution_cc) == FALSE) {
-                         solution_cc <- solution_cc %>%
-                           left_join(solution %>%
-                                       dplyr::select(ID, Prob_gain_stability_mean) %>%
-                                       st_drop_geometry(), by = "ID")
-                       }
-
-                       #mean climate risk climate-smart
+                       #climate-smart
                        selected_cs <- solution_cc %>%
                          st_drop_geometry() %>%
                          filter(solution_1 == 1) %>%
-                         mutate(type = paste("Climate-smart", str_to_sentence(type_indicator))) %>%
+                         mutate(type = paste("Climate-smart", str_to_sentence(type_indicator)),
+                                climate = "Climate-naïve",
+                                scale = str_to_sentence(type_indicator)) %>%
                          as_tibble()
 
                        selected <- rbind(selected_cn, selected_cs) %>%
@@ -67,25 +63,36 @@ future_map(seq(0.05, 1, by = 0.05),
                      }) %>%
                        bind_rows()
 
-                     total_area <- PUs %>%
-                       summarise(sum(area_km2)) %>%
-                       as.numeric()
-
-                     selected_summary <- selected %>%
-                       group_by(type) %>%
-                       summarise(weighted_mean_exposure = weighted.mean(!!sym(col_name),
-                                                                        area_km2),
-                                 std_dev = sqrt(Hmisc::wtd.var(!!sym(col_name), weights = area_km2)[1]),
-                                 n = n(),
-                                 std_error = std_dev/sqrt(n)) #How to calculate std error in weighted mean?
-
                      selected_country <- selected %>%
                        left_join(PUs %>%
-                                   dplyr::select(c("country", "cellID"))) %>%
+                                   dplyr::select(c("country", "cellID")),
+                                 by = "cellID") %>%
                        group_by(country, type) %>%
-                       summarise(weighted_mean_exposure = weighted.mean(!!sym(col_name),
-                                                                        area_km2)) %>%
+                       summarise(area_selected = sum(area_km2),
+                                 climate = first(climate),
+                                 scale = first(scale)) %>%
                        mutate(country = str_replace_all(country, "_", " "))
+
+                     PUs_country <- PUs %>%
+                       st_drop_geometry() %>%
+                       group_by(country) %>%
+                       summarise(tot_area = sum(area_km2)) %>%
+                       mutate(country = str_replace_all(country, "_", " "))
+
+                     selected_country <- selected_country %>%
+                       ungroup() %>%
+                       complete(country, type,
+                                fill = list(area_selected = 0)) %>%
+                       left_join(PUs_country,
+                                 by = "country") %>%
+                       mutate(prct_area_selected = area_selected/tot_area*100)
+
+                     selected_summary <- selected_country %>%
+                       group_by(type) %>%
+                       summarise(tot_area = sum(tot_area),
+                                 area_selected = sum(area_selected),
+                                 mean_area = area_selected/tot_area*100,
+                                 )
 
                      countries_ggrepel <- c("Ecuador", "New Caledonia", "Sierra Leone", "Cambodia", "Fiji",
                                             "Equatorial Guinea", "Japan", "Malaysia")
@@ -95,24 +102,28 @@ future_map(seq(0.05, 1, by = 0.05),
                      level_order <- c('Climate-naïve Country-scale', 'Climate-naïve Global-scale',
                                       'Climate-smart Country-scale', 'Climate-smart Global-scale')
 
-                     boxplot_resilience <- ggplot() +
+                     boxplot_area <- ggplot() +
                        # geom_point(data = selected_summary, aes(x = type, y = weighted_mean_exposure),
                        #            size = 4) +
-                       geom_errorbar(data = selected_summary, aes(x = factor(type, level = level_order), y = weighted_mean_exposure,
-                                                                  ymin = weighted_mean_exposure,
-                                                                  ymax = weighted_mean_exposure,
+                       geom_errorbar(data = selected_summary, aes(x = factor(type, level = level_order), y = mean_area,
+                                                                  ymin = mean_area,
+                                                                  ymax = mean_area,
                                                                   colour = factor(type, level = level_order)),
                                      width = 0.6,
                                      linewidth = 1.2) +
-                       geom_point(data = selected_country, aes(y = weighted_mean_exposure, x = factor(type, level = level_order),
+                       geom_point(data = selected_country, aes(y = prct_area_selected, x = factor(type, level = level_order),
                                                                colour = factor(type, level = level_order),
                                                                shape = factor(type, level = level_order)),
                                   position = pos,
                                   size = 1.2, alpha = 0.6) +
                        geom_text_repel(data = selected_country,
-                                       aes(x = factor(type, level = level_order), y = weighted_mean_exposure,
-                                           label = country),
-                                       hjust = 0, min.segment.length = 0, max.overlaps = 8,
+                                       aes(x = factor(type, level = level_order), y = prct_area_selected,
+                                           # label = country
+                                           label = ifelse(country %in% countries_ggrepel,
+                                                          country,
+                                                          "")
+                                           ),
+                                       hjust = 0, min.segment.length = 0, max.overlaps = 20,
                                        force = 10,
                                        max.iter = 5000, size = 2.5,
                                        position = pos) +
@@ -124,7 +135,7 @@ future_map(seq(0.05, 1, by = 0.05),
                        guides(fill = guide_legend(nrow = 2, byrow = TRUE),
                               x = ggh4x::guide_axis_nested(delim = " ", inv = TRUE)) +
                        scale_y_continuous(limits = c(-5, 105), expand = c(0, 0)) +
-                       ylab(expression("Area-weighted climate resilience")) +
+                       ylab(expression("Mangrove area selected (%)")) +
                        xlab("") +
                        theme_bw(base_size = 10) +
                        theme(panel.background = element_blank(),
@@ -136,18 +147,19 @@ future_map(seq(0.05, 1, by = 0.05),
                              plot.margin = margin(r = 0.5, unit = "cm"),
                              # axis.title.x = element_blank(),
                              # axis.text.x = element_blank(),
-                             axis.ticks.x = element_blank())
+                             axis.ticks.x = element_blank(),
+                             legend.text = element_text(size = 9))
 
-                     dir.create(paste0("Figures/Country/03a_resilience/",
+                     dir.create(paste0("Figures/Country/02a_area/",
                                        split_group, "/RDS"), recursive = TRUE)
 
-                     ggsave(plot = boxplot_resilience, paste0("Figures/Country/03a_resilience/",
-                                                              split_group, "/boxplot_resilience_",
-                                                              CC_direction, "_", prct, ".pdf"),
+                     ggsave(plot = boxplot_area, paste0("Figures/Country/02a_area/",
+                                                        split_group, "/boxplot_area_",
+                                                        CC_direction, "_", prct, ".pdf"),
                             dpi = 300, width = 18, height = 8, units = "cm")
 
-                     saveRDS(boxplot_resilience, paste0("Figures/Country/03a_resilience/",
-                                                        split_group, "/RDS/boxplot_resilience_",
-                                                        CC_direction, "_", prct, ".rds"))
+                     saveRDS(boxplot_area, paste0("Figures/Country/02a_area/",
+                                                  split_group, "/RDS/boxplot_area_",
+                                                  CC_direction, "_", prct, ".rds"))
                    })
            })

@@ -87,25 +87,25 @@ fit_country_mean <- lm(prct_increase_mean_resilience*100 ~ log(prct_increase_are
 
 scatterplot <- ggplot(data = area_cr, aes(x = prct_increase_area*100,
                                           y = prct_increase_mean_resilience*100)) +
-  geom_point(aes(colour = scale, shape = scale), alpha = 0.7, size = 2) +
+  geom_point(aes(colour = scale, shape = scale, alpha = threshold), size = 2) +
   geom_function(fun = function(x) fit_global_mean$coefficients[1] +
                   fit_global_mean$coefficients[2]*log(x),
                 xlim = c(min(area_cr_global_mean$prct_increase_area*100), max(area_cr_global_mean$prct_increase_area*100)),
-                colour = '#2a9d8f') +
+                colour = "#003049") +
   geom_function(fun = function(x) fit_country_mean$coefficients[1] +
                   fit_country_mean$coefficients[2]*log(x),
                 xlim = c(min(area_cr_country_mean$prct_increase_area*100), max(area_cr_country_mean$prct_increase_area*100)),
-                colour = '#F4A261') +
-  scale_colour_manual(values = c('#2a9d8f', '#F4A261'),
+                colour = "#4B86AA") +
+  scale_colour_manual(values = c("#003049", "#4B86AA"),
                       labels = c('Global scale',
                                  'Country scale'),
                       guide = guide_legend()) +
-  geom_abline(intercept = 0, slope = 1, color = "grey20", linewidth = 0.5, alpha = 0.8) +
+  geom_abline(intercept = 0, slope = 1, linetype = "dashed", linewidth = 0.5, alpha = 0.8) +
   scale_shape_manual(values = c(16, 17),
                      labels = c('Global scale',
                                 'Country scale'),
                      guide = guide_legend()) +
-  theme_classic() +
+  theme_bw() +
   theme(
     panel.grid.major = element_line(colour = "grey90", linewidth = 0.1),
     panel.grid.minor = element_line(colour = "grey90", linewidth = 0.05),

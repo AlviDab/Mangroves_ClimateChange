@@ -114,7 +114,7 @@ map(c("mean", "landward", "seaward"), function(CC_direction) {
                shape = 21,
                stroke = NA) +
     guides(fill = guide_legend(override.aes = list(size = 5))) +
-    geom_text_repel(data = plot_layer_a,
+    geom_text_repel(data = plot_layer,
                     aes(x = diff_perc_resilience_CC_noCC, y = diff_perc_area_CC_noCC, label = country),
                     hjust = 0, min.segment.length = 0, max.overlaps = 4,
                     force = 30,

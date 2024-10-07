@@ -108,22 +108,22 @@ scatterplot <- ggplot(data = area_cr, aes(x = prct_increase_area*100,
   geom_function(fun = function(x) fit_global_lw$coefficients[1] +
                   fit_global_lw$coefficients[2]*log(x),
                 xlim = c(min(area_cr_global_lw$prct_increase_area*100), max(area_cr_global_lw$prct_increase_area*100)),
-                colour = '#2a9d8f') +
+                colour = "#003049") +
   geom_function(fun = function(x) fit_global_sw$coefficients[1] +
                   fit_global_sw$coefficients[2]*log(x),
                 xlim = c(min(area_cr_global_sw$prct_increase_area*100), max(area_cr_global_sw$prct_increase_area*100)),
-                colour = '#2a9d8f',
+                colour = "#003049",
                 linetype = "dashed") +
   geom_function(fun = function(x) fit_country_lw$coefficients[1] +
                   fit_country_lw$coefficients[2]*log(x),
                 xlim = c(min(area_cr_country_lw$prct_increase_area*100), max(area_cr_country_lw$prct_increase_area*100)),
-                colour = '#F4A261') +
+                colour = "#4B86AA") +
   geom_function(fun = function(x) fit_country_sw$coefficients[1] +
                   fit_country_sw$coefficients[2]*log(x),
                 xlim = c(min(area_cr_country_sw$prct_increase_area*100), max(area_cr_country_sw$prct_increase_area*100)),
-                colour = '#F4A261',
+                colour = "#4B86AA",
                 linetype = "dashed") +
-  scale_colour_manual(values = c('#2a9d8f', '#F4A261'),
+  scale_colour_manual(values = c("#003049", "#4B86AA"),
                       labels = c('Global scale',
                                  'Country scale'),
                       guide = guide_legend()) +
