@@ -118,12 +118,12 @@ future_map(seq(0.05, 1, by = 0.05),
                                   size = 1.2, alpha = 0.6) +
                        geom_text_repel(data = selected_country,
                                        aes(x = factor(type, level = level_order), y = prct_area_selected,
-                                           # label = country
-                                           label = ifelse(country %in% countries_ggrepel,
-                                                          country,
-                                                          "")
+                                           label = country
+                                           # label = ifelse(country %in% countries_ggrepel,
+                                           #                country,
+                                           #                "")
                                            ),
-                                       hjust = 0, min.segment.length = 0, max.overlaps = 20,
+                                       hjust = 0, min.segment.length = 0, max.overlaps = 8,
                                        force = 10,
                                        max.iter = 5000, size = 2.5,
                                        position = pos) +

@@ -73,7 +73,13 @@ map(seq(0.05, 0.3, by = 0.05),
                   kappa = first(kappa)) %>%
         mutate(ratio_lw_sw = landward-seaward,
                size_dots = abs(ratio_lw_sw)) %>%
-        st_centroid()
+        st_centroid() %>%
+        mutate(kappa_def = case_when(
+          dplyr::between(kappa, 0.2, 0.4) ~ "Fair",
+          dplyr::between(kappa, 0.4, 0.6) ~ "Moderate",
+          dplyr::between(kappa, 0.6, 0.8) ~ "Substantial",
+          dplyr::between(kappa, 0.8, 1) ~ "Almost perfect",
+          .default = "None to slight"))
 
       dat <- spatialplanr::splnr_get_boundary(Limits = "Global")
 
@@ -81,14 +87,8 @@ map(seq(0.05, 0.3, by = 0.05),
         geom_sf(data = world_map, fill = "grey60",
                 colour = "grey60",
                 linewidth = 0.001) +
-        geom_sf(data = solution_cc, aes(colour = kappa, size = size_dots), alpha = 0.8) +
-        scale_colour_viridis_c() +
-        guides(colour = guide_colourbar(barwidth = 10,
-                                        barheight = 0.5,
-                                        title.position = "top",
-                                        title = "Cohen's kappa",
-                                        ticks.colour = "black"),
-               size = "none") +
+        geom_sf(data = solution_cc, aes(colour = kappa_def, size = size_dots), alpha = 0.8) +
+        scale_colour_viridis_d(name = "Agreement") +
         geom_sf(data = dat, fill = NA) +
         theme_minimal(base_size = 7) +
         theme(panel.grid.major = element_line(colour = "transparent"),
