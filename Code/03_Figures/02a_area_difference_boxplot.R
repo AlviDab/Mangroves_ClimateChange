@@ -92,7 +92,7 @@ future_map(seq(0.05, 1, by = 0.05),
                        summarise(tot_area = sum(tot_area),
                                  area_selected = sum(area_selected),
                                  mean_area = area_selected/tot_area*100,
-                                 )
+                       )
 
                      countries_ggrepel <- c("Ecuador", "New Caledonia", "Sierra Leone", "Cambodia", "Fiji",
                                             "Equatorial Guinea", "Japan", "Malaysia")
@@ -102,64 +102,104 @@ future_map(seq(0.05, 1, by = 0.05),
                      level_order <- c('Climate-naïve Country-scale', 'Climate-naïve Global-scale',
                                       'Climate-smart Country-scale', 'Climate-smart Global-scale')
 
-                     boxplot_area <- ggplot() +
-                       # geom_point(data = selected_summary, aes(x = type, y = weighted_mean_exposure),
-                       #            size = 4) +
-                       geom_errorbar(data = selected_summary, aes(x = factor(type, level = level_order), y = mean_area,
-                                                                  ymin = mean_area,
-                                                                  ymax = mean_area,
-                                                                  colour = factor(type, level = level_order)),
-                                     width = 0.6,
-                                     linewidth = 1.2) +
-                       geom_point(data = selected_country, aes(y = prct_area_selected, x = factor(type, level = level_order),
-                                                               colour = factor(type, level = level_order),
-                                                               shape = factor(type, level = level_order)),
-                                  position = pos,
-                                  size = 1.2, alpha = 0.6) +
-                       geom_text_repel(data = selected_country,
-                                       aes(x = factor(type, level = level_order), y = prct_area_selected,
-                                           label = country
-                                           # label = ifelse(country %in% countries_ggrepel,
-                                           #                country,
-                                           #                "")
-                                           ),
-                                       hjust = 0, min.segment.length = 0, max.overlaps = 8,
-                                       force = 10,
-                                       max.iter = 5000, size = 2.5,
-                                       position = pos) +
-                       scale_fill_manual(values = c("#B80000", "#F2AC6B", "#003049", "#4B86AA"),
-                                         name = "") +
-                       scale_colour_manual(values = c("#B80000", "#F2AC6B", "#003049", "#4B86AA"),
+                     map(c("all_comparisons", "Global-scale", "Climate-smart"), function(group_name) {
+
+                       if(group_name == "all_comparisons") {
+
+                         comparison <- selected_country
+                         comparison_summary <- selected_summary
+
+                         colours_plot <- c("#B80000", "#F2AC6B", "#003049", "#4B86AA")
+                         shapes_plot <- c(17, 19, 17, 19)
+
+                       } else {
+
+                         if(group_name == "Global-scale") {
+
+                           colours_plot <- c("#F2AC6B", "#4B86AA")
+                           shapes_plot <- c(19, 19)
+
+                         } else {
+
+                           colours_plot <- c("#003049", "#4B86AA")
+                           shapes_plot <- c(17, 19)
+
+                         }
+
+                         comparison <- selected_country %>%
+                           filter(str_detect(type, group_name))
+
+                         comparison_summary <- selected_summary %>%
+                           filter(str_detect(type, group_name))
+
+                       }
+
+                       invert <- ifelse(group_name == "Global-scale", FALSE, TRUE)
+
+                       plot_comparison <- ggplot() +
+                         # geom_point(data = selected_summary, aes(x = type, y = weighted_mean_exposure),
+                         #            size = 4) +
+                         geom_errorbar(data = comparison_summary, aes(x = factor(type, level = level_order), y = mean_area,
+                                                                      ymin = mean_area,
+                                                                      ymax = mean_area,
+                                                                      colour = factor(type, level = level_order)),
+                                       width = 0.6,
+                                       linewidth = 1.2) +
+                         geom_point(data = comparison, aes(y = prct_area_selected, x = factor(type, level = level_order),
+                                                           colour = factor(type, level = level_order),
+                                                           shape = factor(type, level = level_order)),
+                                    position = pos,
+                                    size = 1.2, alpha = 0.6) +
+                         geom_text_repel(data = comparison,
+                                         aes(x = factor(type, level = level_order), y = prct_area_selected,
+                                             label = country
+                                             # label = ifelse(country %in% countries_ggrepel,
+                                             #                country,
+                                             #                "")
+                                         ),
+                                         hjust = 0, min.segment.length = 0, max.overlaps = 5,
+                                         force = 10,
+                                         max.iter = 5000, size = 2.5,
+                                         position = pos) +
+                         scale_fill_manual(values = colours_plot,
                                            name = "") +
-                       scale_shape_manual(values = c(17, 19, 17, 19)) +
-                       guides(fill = guide_legend(nrow = 2, byrow = TRUE),
-                              x = ggh4x::guide_axis_nested(delim = " ", inv = TRUE)) +
-                       scale_y_continuous(limits = c(-5, 105), expand = c(0, 0)) +
-                       ylab(expression("Mangrove area selected (%)")) +
-                       xlab("") +
-                       theme_bw(base_size = 10) +
-                       theme(panel.background = element_blank(),
-                             text = element_text(size = 7),
-                             axis.text = element_text(size = 10),
-                             axis.title = element_text(size = 12, face = 'bold'),
-                             legend.position = "none",
-                             legend.key.size = unit(0.3, "cm"),
-                             plot.margin = margin(r = 0.5, unit = "cm"),
-                             # axis.title.x = element_blank(),
-                             # axis.text.x = element_blank(),
-                             axis.ticks.x = element_blank(),
-                             legend.text = element_text(size = 9))
+                         scale_colour_manual(values = colours_plot,
+                                             name = "") +
+                         scale_shape_manual(values = shapes_plot) +
+                         guides(fill = guide_legend(nrow = 2, byrow = TRUE),
+                                x = ggh4x::guide_axis_nested(delim = " ", inv = invert)) +
+                         scale_y_continuous(limits = c(-5, 105), expand = c(0, 0)) +
+                         ylab(expression("Mangrove area selected (%)")) +
+                         xlab("") +
+                         theme_bw(base_size = 10) +
+                         theme(panel.background = element_blank(),
+                               text = element_text(size = 7),
+                               axis.text = element_text(size = 10),
+                               axis.title = element_text(size = 12, face = 'bold'),
+                               legend.position = "none",
+                               legend.key.size = unit(0.3, "cm"),
+                               plot.margin = margin(r = 0.5, unit = "cm"),
+                               axis.title.x = element_text(size = 12, face = 'bold'),
+                               # axis.text.x = element_blank(),
+                               axis.ticks.x = element_blank(),
+                               legend.text = element_text(size = 9))
 
-                     dir.create(paste0("Figures/Country/02a_area/",
-                                       split_group, "/RDS"), recursive = TRUE)
+                       dir.create(paste0("Figures/Country/02a_area/",
+                                         split_group, "/RDS"), recursive = TRUE)
 
-                     ggsave(plot = boxplot_area, paste0("Figures/Country/02a_area/",
-                                                        split_group, "/boxplot_area_",
-                                                        CC_direction, "_", prct, ".pdf"),
-                            dpi = 300, width = 18, height = 8, units = "cm")
+                       ggsave(plot = plot_comparison, paste0("Figures/Country/02a_area/",
+                                                          split_group, "/boxplot_area_",
+                                                          CC_direction, "_", prct, "_", group_name, ".jpg"),
+                              dpi = 300, width = 18, height = 8, units = "cm")
 
-                     saveRDS(boxplot_area, paste0("Figures/Country/02a_area/",
-                                                  split_group, "/RDS/boxplot_area_",
-                                                  CC_direction, "_", prct, ".rds"))
+                       ggsave(plot = plot_comparison, paste0("Figures/Country/02a_area/",
+                                                             split_group, "/boxplot_area_",
+                                                             CC_direction, "_", prct, "_", group_name, ".pdf"),
+                              dpi = 300, width = 18, height = 8, units = "cm")
+
+                       saveRDS(plot_comparison, paste0("Figures/Country/02a_area/",
+                                                    split_group, "/RDS/boxplot_area_",
+                                                    CC_direction, "_", prct, "_", group_name, ".rds"))
+                     })
                    })
            })
