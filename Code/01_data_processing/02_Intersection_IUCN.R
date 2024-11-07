@@ -10,7 +10,6 @@ PUs <- read_rds("Results/RDS/PUs_01_mangroves_biotyp_cc.rds")
 tictoc::tic()
 
 IUCN_mangroves <- st_read("Data/IUCN_Distribution_Mangroves/MANGROVES.shp") %>%
-  st_transform(moll_proj) %>%
   st_make_valid()
 
 `%!in%` = Negate(`%in%`)
