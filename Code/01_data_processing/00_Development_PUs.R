@@ -100,7 +100,7 @@ plan(multisession, workers = n_cores)
 intersection_biotyp_PUs <- split(biotyp, split_vector) %>%
   furrr::future_map(function(x) st_intersection(x, PUs))
 
-#We save the result as RDS
+#We save the result as RDS (needed to also calculate the area of each biophysical typology in each PU)
 saveRDS(intersection_biotyp_PUs, "Results/RDS/PUs_00_intersection_biotyp.rds")
 
 # Next we can run an intersection to return the actual overlap for each PU to calculate cutoffs
