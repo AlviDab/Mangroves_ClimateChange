@@ -9,10 +9,7 @@ source("Code/Functions/f_intersect_countries.R")
 
 #Intersect countries
 PUs <- PUs %>%
-  f_int_countries() %>%
-  mutate(country = case_when(country == "France" ~ "French Guiana",
-                             .default = country) %>%
-           gsub(" ", "_", .))
+  f_int_countries()
 
 #Species
 sp_names <- PUs %>%

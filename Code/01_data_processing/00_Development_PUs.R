@@ -10,7 +10,7 @@ devtools::install_github("https://github.com/MathMarEcol/spatialplanr")
 devtools::install_github("emlab-ucsb/spatialgridr")
 
 # devtools::install_github("emlab-ucsb/spatialgridr")
-pacman::p_load(sf, tidyverse, spatialgridr, spatialplanr)
+pacman::p_load(sf, tidyverse, spatialgridr, spatialplanr, parallelly, future.apply)
 
 #I move the lon_0 of the projection so that overlapping PUs
 #are in the middle of the Pacific
@@ -42,9 +42,9 @@ bndry <- spatialplanr::splnr_get_boundary(bb, cCRS = cCRS)
 #   dggridR::dgearthgrid()
 
 PUs_all <- st_make_grid(bndry,
-                    cellsize = 27750,
-                    crs = cCRS,
-                    square = FALSE) %>%
+                        cellsize = 27750,
+                        crs = cCRS,
+                        square = FALSE) %>%
   sf::st_as_sf() %>%
   dplyr::mutate(cellID = dplyr::row_number()) %>%
   st_transform("EPSG:4326") %>%
@@ -68,11 +68,13 @@ saveRDS(PUs, "Results/RDS/PUs_00_EPSG4326.rds")
 
 # Get the larger PUs for the visualisation
 PUs_large_all <- sf::st_make_grid(x = bndry, cellsize = 2755000,
-                              crs = cCRS,
-                              square = FALSE) %>%
+                                  crs = cCRS,
+                                  square = FALSE) %>%
   sf::st_sf() %>%
   dplyr::mutate(cellID = dplyr::row_number()) %>%
-  st_transform("EPSG:4326")
+  st_transform("EPSG:4326") %>%
+  st_make_valid() %>%
+  st_wrap_dateline()
 
 overlap_large <- sf::st_intersects(PUs_large_all, biotyp) %>%
   lengths() > 0
@@ -80,28 +82,36 @@ overlap_large <- sf::st_intersects(PUs_large_all, biotyp) %>%
 PUs_large <- PUs_large_all[overlap_large,]
 
 #Intersect with biotyp and calculate area
+biotyp <- biotyp[1:500,]
 
 #Fist we cast biotyp to "POLYGON" to make a faster intersection
 biotyp <- biotyp %>%
   st_cast("POLYGON")
 
-#Split by the number of cores to parallelise
-n_cores <- parallel::detectCores() - 6
+# #Split by the number of cores to parallelise
+n_cores <- parallelly::availableCores() - 8
 
-fold_length <- floor(nrow(biotyp) / n_cores)
+split_biotyp <- biotyp %>%
+  split(seq(1:n_cores))
 
-split_vector <- rep(x = 1:n_cores,
-                    times = c(rep(x = fold_length, times = n_cores - 1),
-                              nrow(biotyp) - fold_length * (n_cores - 1)))
+rm(biotyp)
 
 #We intersect
 plan(multisession, workers = n_cores)
 
-intersection_biotyp_PUs <- split(biotyp, split_vector) %>%
-  furrr::future_map(function(x) st_intersection(x, PUs))
+PUs <- readRDS("Results/RDS/PUs_00_EPSG4326.rds")
+
+tictoc::tic()
+intersection_biotyp_PUs <- split_biotyp %>%
+      future_lapply(function(x) {
+        st_intersection(x, PUs)
+      })
+tictoc::toc()
+
+plan(sequential)
 
 #We save the result as RDS (needed to also calculate the area of each biophysical typology in each PU)
-saveRDS(intersection_biotyp_PUs, "Results/RDS/PUs_00_intersection_biotyp.rds")
+saveRDS(intersection_biotyp_PUs, "Results/RDS/PUs_00_intersection_biotyp_1_500.rds")
 
 # Next we can run an intersection to return the actual overlap for each PU to calculate cutoffs
 area <- intersection_biotyp_PUs %>%
