@@ -3,16 +3,19 @@
 
 pacman::p_load(tidyverse, sf, parallel, furrr, purrr, patchwork)
 
+prct <- 0.3
+CC_direction <- "mean"
+
 # ncores <- detectCores() - 6
 #
 # plan(multisession, workers = ncores)
 
-map(seq(0.05, 0.3, by = 0.05),
-           #.options = furrr_options(seed = TRUE),
-           function(prct) {
-
-             map(c("landward", "seaward",
-                   "mean"), function(CC_direction) {
+# map(seq(0.05, 0.3, by = 0.05),
+#            #.options = furrr_options(seed = TRUE),
+#            function(prct) {
+#
+#              map(c("landward", "seaward",
+#                    "mean"), function(CC_direction) {
 
                      map(c("country_and_biotyp", "biotyp"), function(split_group) {
 
@@ -41,16 +44,16 @@ map(seq(0.05, 0.3, by = 0.05),
                        dir.create(paste0("Figures/Country/05_map_area_exposure/",
                                          split_group), recursive = TRUE)
 
-                       ggsave(plot = figure_01, paste0("Figures/Country/05_map_area_exposure/",
+                       ggsave(plot = figure_01, paste0("Figures/Country/Patchwork/01_map_area_exposure/",
                                                        split_group,"/map_area_exposure_",
                                                        CC_direction, "_", prct, ".pdf"),
                               dpi = 300, width = 18, height = 18, units = "cm")
                      })
-                   })
-           })
+           #         })
+           # })
 
 plan(sequential)
 
 rm(list = ls(all.names = TRUE)) #will clear all objects includes hidden objects.
 gc() #free up memrory and report the memory usage.
-.rs.restartR()
+# .rs.restartR()

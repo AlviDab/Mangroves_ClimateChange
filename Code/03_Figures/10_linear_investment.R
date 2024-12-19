@@ -151,12 +151,12 @@ scatterplot <- ggplot(data = area_cr, aes(x = prct_increase_area*100,
   scale_y_continuous(limits = c(0, NA),
                      expand = expansion(mult = c(0, 0.1)))
 
-dir.create(paste0("Figures/Country/12_linear_investment/RDS"), recursive = TRUE)
+dir.create(paste0("Figures/Country/10_linear_investment/RDS"), recursive = TRUE)
 
 write.xlsx(area_cr %>%
-             st_drop_geometry(), "Figures/Country/12_linear_investment/linear_investment.xlsx")
+             st_drop_geometry(), "Figures/Country/10_linear_investment/linear_investment.xlsx")
 
-ggsave(plot = scatterplot, "Figures/Country/12_linear_investment/linear_investment.pdf",
+ggsave(plot = scatterplot, "Figures/Country/10_linear_investment/linear_investment.pdf",
        dpi = 300, width = 18, height = 11, units = "cm")
 
-saveRDS(scatterplot, "Figures/Country/12_linear_investment/RDS/linear_investment.rds")
+saveRDS(scatterplot, "Figures/Country/10_linear_investment/RDS/linear_investment.rds")

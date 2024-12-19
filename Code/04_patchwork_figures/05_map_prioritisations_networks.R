@@ -37,10 +37,10 @@ plot_patchwork <- list(nocc_global, cc_global,
                                     face = 'bold'),
         plot.title = element_text(hjust = 0.5))
 
-dir.create("Figures/Country/14_map_prioritisations_networks/", recursive = TRUE)
+dir.create("Figures/Country/Patchwork/05_map_prioritisations_networks/", recursive = TRUE)
 
-ggsave(paste0("Figures/Country/14_map_prioritisations_networks/patchwork_maps_0.3.pdf"),
+ggsave(paste0("Figures/Country/Patchwork/05_map_prioritisations_networks/patchwork_maps_0.3.pdf"),
        dpi = 300, width = 18, height = 13, units = "cm")
 
-ggsave(paste0("Figures/Country/14_map_prioritisations_networks/patchwork_maps_0.3.jpg"),
+ggsave(paste0("Figures/Country/Patchwork/05_map_prioritisations_networks/patchwork_maps_0.3.jpg"),
        dpi = 1000, width = 18, height = 13, units = "cm")

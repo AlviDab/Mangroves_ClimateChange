@@ -5,12 +5,12 @@ pacman::p_load(tidyverse, sf, MetBrewer, purrr, patchwork)
 
 source("Code/Functions/f_addcols_WDPA.r")
 
+prct <- 0.3
+
 map(c("country_and_biotyp",
       "biotyp"), function(split_group) {
 
-        plot_density <- map(c("landward", "seaward"), function(CC_direction) {
-
-          prct <- 0.3
+        plot_density <- map(c("mean", "landward", "seaward"), function(CC_direction) {
 
           solution <- readRDS(paste0("Results/RDS/prioritisation/Country/01_prioritisation/",
                                      split_group,"/solution_prioritisation.rds")) %>%
@@ -35,6 +35,7 @@ map(c("country_and_biotyp",
 
           resilience_WDPA_all <- solution_cc %>%
             st_drop_geometry() %>%
+            mutate(area_mangroves_WDPA_all_km2 = rowSums(select(., ends_with("WDPA_all_km2")))) %>%
             dplyr::select(ID, area_mangroves_WDPA_all_km2, resilience) %>%
             rename(MangroveArea_km2 = area_mangroves_WDPA_all_km2) %>%
             mutate(weighted_mean_exposure = weighted.mean(resilience,
@@ -61,20 +62,20 @@ map(c("country_and_biotyp",
             rbind(resilience_WDPA_all) %>%
             # rbind(resilience_WDPA_I_VI) %>%
             # rbind(resilience_WDPA_I_IV) %>%
-            mutate(category = case_when(category == "WDPA_all" ~ "All PAs",
+            mutate(category = case_when(category == "WDPA_all" ~ "Protected Areas",
                                         # category == "WDPA_I_VI" ~ "Category I-VI",
                                         # category == "WDPA_I_IV" ~ "Category I-IV",
-                                        .default = "Selected priorities"))
+                                        .default = "Selected mangroves global-scale climate-smart prioritisation"))
 
           plot_density <- ggplot(data = plot_data) +
             geom_density(aes(colour = fct_relevel(category,
-                                                  c("All PAs",
+                                                  c("Protected Areas",
                                                     # "Category I-VI", "Category I-IV",
-                                                    "Selected priorities")),
+                                                    "Selected mangroves global-scale climate-smart prioritisation")),
                              fill = fct_relevel(category,
-                                                c("All PAs",
+                                                c("Protected Areas",
                                                   # "Category I-VI", "Category I-IV",
-                                                  "Selected priorities")),
+                                                  "Selected mangroves global-scale climate-smart prioritisation")),
                              x = resilience,
                              weight = MangroveArea_km2),
                          alpha = 0.3) +
@@ -97,23 +98,23 @@ map(c("country_and_biotyp",
             scale_y_continuous(expand = c(0, 0), limits = c(0, 0.07)) +
             scale_x_continuous(expand = c(0, 0), limits = c(0, 100.1))
 
-          dir.create(paste0("Figures/Country/10_overlap_WDPA/",
+          dir.create(paste0("Figures/Country/08_overlap_WDPA/",
                             split_group, "/RDS/"), recursive = TRUE)
 
-          saveRDS(plot_density, paste0("Figures/Country/10_overlap_WDPA/",
+          saveRDS(plot_density, paste0("Figures/Country/08_overlap_WDPA/",
                                        split_group, "/RDS/overlap_WDPA_resilience_",
                                        CC_direction, "_", prct, ".rds"))
 
-          openxlsx::write.xlsx(plot_data, paste0("Figures/Country/10_overlap_WDPA/",
+          openxlsx::write.xlsx(plot_data, paste0("Figures/Country/08_overlap_WDPA/",
                                                  split_group, "/overlap_WDPA_resilience_",
                                                  CC_direction, "_", prct, ".xlsx"))
 
           return(plot_density)
         })
 
-        (plot_density[[1]] +
+        (plot_density[[2]] +
             ggtitle("Landward")) /
-          (plot_density[[2]] +
+          (plot_density[[3]] +
              ggtitle("Seaward")) +
           plot_layout(guides = 'collect') &
           theme(legend.position = 'bottom',
@@ -124,9 +125,8 @@ map(c("country_and_biotyp",
                 legend.text = element_text(size = 10)) &
           plot_annotation(tag_levels = "a")
 
-        ggsave(paste0("Figures/Country/10_overlap_WDPA/",
-                      split_group, "/overlap_WDPA_resilience_",
-                      CC_direction, "_", prct, ".pdf"),
+        ggsave(paste0("Figures/Country/08_overlap_WDPA/",
+                      split_group, "/overlap_WDPA_resilience_", prct, ".pdf"),
                width = 18, height = 18, units = "cm", dpi = 300)
       })
 

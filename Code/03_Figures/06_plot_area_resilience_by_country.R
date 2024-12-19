@@ -1,65 +1,63 @@
 #Author: Alvise Dabalà
-#Date: 08/04/2024
+#Date: 06/04/2024
 
 pacman::p_load(tidyverse, sf, MoMAColors, purrr, furrr, parallel, openxlsx)
 
 source("Code/Functions/f_intersect_continents.r")
 source("Code/Functions/f_intersect_countries.R")
 
+prct <- 0.3
 CC_direction <- "mean"
 
 PUs <- readRDS("Results/RDS/PUs_03_mangroves_biotyp_cc_IUCN_MEOW.rds") %>%
-  f_int_countries() %>%
-  mutate(country = case_when(country == "France" ~ "French Guiana",
-                             .default = country) %>%
-           gsub(" ", "_", .))
+  f_int_countries()
 
-ncores <- detectCores() - 2
+ncores <- detectCores() - 10
 
 plan(multisession, workers = ncores)
 
-plot_layer <- map(c("country_and_biotyp", "biotyp"), function(split_group) {
+plot_layer <- future_map(c("country_and_biotyp", "biotyp"), function(split_group) {
 
   solution <- readRDS(paste0("Results/RDS/prioritisation/Country/01_prioritisation/",
                              split_group,"/solution_prioritisation.rds"))
 
-  future_map(seq(0.05, 0.3, by = 0.05),
-             .options = furrr_options(seed = TRUE),
-             function(prct) {
+  # future_map(seq(0.05, 0.3, by = 0.05),
+  #            .options = furrr_options(seed = TRUE),
+  #            function(prct) {
 
-               solution_cc <- readRDS(paste0("Results/RDS/prioritisation/Country/02_prioritisation_CC/",
-                                             split_group, "/",
-                                             CC_direction, "/solution_",
-                                             as.character(prct), "_", CC_direction, ".rds"))
+  solution_cc <- readRDS(paste0("Results/RDS/prioritisation/Country/02_prioritisation_CC/",
+                                split_group, "/",
+                                CC_direction, "/solution_",
+                                as.character(prct), "_", CC_direction, ".rds"))
 
-               name_split_group <- ifelse(split_group == "biotyp",
-                                          "Global level",
-                                          "Country level")
+  name_split_group <- ifelse(split_group == "biotyp",
+                             "Global level",
+                             "Country level")
 
-               plot_layer <- solution_cc %>%
-                 left_join(PUs %>%
-                             as_tibble() %>%
-                             dplyr::select(country, ID), by = "ID") %>%
-                 group_by(country, solution_1) %>%
-                 summarise(tot_area = sum(area_km2),
-                           cc_exp = weighted.mean(Prob_gain_stability_mean, area_km2)) %>%
-                 pivot_wider(names_from = "solution_1", values_from = c("tot_area", "cc_exp")) %>%
-                 group_by(country) %>%
-                 summarise(across(ends_with(c("0", "1")), ~sum(., na.rm = TRUE))) %>%
-                 mutate(perc_sel_area = tot_area_1/(tot_area_1 + tot_area_0)*100,
-                        res_var = round((cc_exp_1 - cc_exp_0), 3)) %>%
-                 f_int_continents() %>%
-                 mutate(continent = case_when(grepl("America", continent) ~ "America",
-                                              continent == "Europe" ~ "America",
-                                              .default = continent)) %>%
-                 mutate(prct = prct,
-                        split_group = name_split_group) %>%
-                 mutate(log_res_var = case_when( #make a log transformation symmetrical respect 0
-                   res_var > 0 ~ log10(res_var + 1), #removing 1 so that the minimum is zero
-                   res_var < 0 ~ -log10(abs(res_var - 1)), #adding 1 so that the minimum is zero
-                   .default = 0
-                 ))
-             })
+  plot_layer <- solution_cc %>%
+    left_join(PUs %>%
+                as_tibble() %>%
+                dplyr::select(country, ID), by = "ID") %>%
+    group_by(country, solution_1) %>%
+    summarise(tot_area = sum(area_km2),
+              cc_exp = weighted.mean(Prob_gain_stability_mean, area_km2)) %>%
+    pivot_wider(names_from = "solution_1", values_from = c("tot_area", "cc_exp")) %>%
+    group_by(country) %>%
+    summarise(across(ends_with(c("0", "1")), ~sum(., na.rm = TRUE))) %>%
+    mutate(perc_sel_area = tot_area_1/(tot_area_1 + tot_area_0)*100,
+           res_var = round((cc_exp_1 - cc_exp_0), 3)) %>%
+    f_int_continents() %>%
+    mutate(continent = case_when(grepl("America", continent) ~ "America",
+                                 continent == "Europe" ~ "America",
+                                 .default = continent)) %>%
+    mutate(prct = prct,
+           split_group = name_split_group) %>%
+    mutate(log_res_var = case_when( #make a log transformation symmetrical respect 0
+      res_var > 0 ~ log10(res_var + 1), #removing 1 so that the minimum is zero
+      res_var < 0 ~ -log10(abs(res_var - 1)), #adding 1 so that the minimum is zero
+      .default = 0
+    ))
+# })
 }) %>%
   bind_rows()
 
@@ -73,7 +71,7 @@ zero_high_selection <- plot_layer %>%
             num_mid_selection = sum(mid_selection),
             num_high_selection = sum(high_selection))
 
-write.xlsx(zero_high_selection, paste0("Figures/Country/08_plot_area_resilience/",
+write.xlsx(zero_high_selection, paste0("Figures/Country/06_plot_area_resilience/",
                                        CC_direction,
                                        "/zero_or_high_selection_areas.xlsx"))
 
@@ -82,7 +80,7 @@ sd_prct_sel_area <- plot_layer %>%
   group_by(prct, split_group) %>%
   summarise(perc_sel_area_sd = sd(perc_sel_area))
 
-write.xlsx(sd_prct_sel_area, paste0("Figures/Country/08_plot_area_resilience/",
+write.xlsx(sd_prct_sel_area, paste0("Figures/Country/06_plot_area_resilience/",
                                     CC_direction,
                                     "/percentage_area_selected_standard_deviation.xlsx"))
 
@@ -119,21 +117,21 @@ plot <- ggplot(data = plot_layer,
          size = guide_legend(title.position = "top")) +
   facet_grid(prct ~ split_group)
 
-dir.create(paste0("Figures/Country/08_plot_area_resilience/mean/RDS"), recursive = TRUE)
+dir.create(paste0("Figures/Country/06_plot_area_resilience/mean/RDS"), recursive = TRUE)
 
-ggsave(plot = plot, paste0("Figures/Country/08_plot_area_resilience/", CC_direction, "/area_resilience_",
+ggsave(plot = plot, paste0("Figures/Country/06_plot_area_resilience/", CC_direction, "/area_resilience_",
                            CC_direction, "_by_country.pdf"),
        dpi = 300, width = 18, height = 25, units = "cm")
 
-saveRDS(plot, paste0("Figures/Country/08_plot_area_resilience/", CC_direction, "/RDS/area_resilience_",
+saveRDS(plot, paste0("Figures/Country/06_plot_area_resilience/", CC_direction, "/RDS/area_resilience_",
                      CC_direction, "_by_country.rds"))
 
 write.xlsx(plot_layer %>%
-             st_drop_geometry(), paste0("Figures/Country/08_plot_area_resilience/", CC_direction, "/area_resilience_",
+             st_drop_geometry(), paste0("Figures/Country/06_plot_area_resilience/", CC_direction, "/area_resilience_",
                                         CC_direction, "_by_country.xlsx"))
 
 write.xlsx(plot_layer_mean %>%
-             st_drop_geometry(), paste0("Figures/Country/08_plot_area_resilience/", CC_direction, "/area_resilience_",
+             st_drop_geometry(), paste0("Figures/Country/06_plot_area_resilience/", CC_direction, "/area_resilience_",
                                         CC_direction, "_by_country_mean.xlsx"))
 
 #Description of the figures
@@ -151,7 +149,7 @@ In the boxes on the right side of the figures are reported the thresholds used f
 The vertical dashed line show the area weighted mean value of resilience variation between the climate-smart and the climate-naive prioritisation.
 
 The points that show a percentage of area selected equal to zero present different resilience variation values. These are just the opposite of the resilience value of the areas selected in the climate-naive prioritisation as there is no selection of areas in that country/province in the climate-smart prioritisation."
-           , paste0("Figures/Country/08_plot_area_resilience/", CC_direction, "/info.txt"))
+           , paste0("Figures/Country/06_plot_area_resilience/", CC_direction, "/info.txt"))
 
 plan(sequential)
 

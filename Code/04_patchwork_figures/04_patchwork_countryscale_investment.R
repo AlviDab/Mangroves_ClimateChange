@@ -10,17 +10,18 @@ pacman::p_load(tidyverse, sf, parallel, furrr, purrr, patchwork)
 # future_map(seq(0.05, 0.3, by = 0.05),
 #            .options = furrr_options(seed = TRUE),
 #            function(prct) {
+
 prct <- 0.3
 
-plot_legend <- readRDS(paste0("Figures/Country/08a_plot_diff_area_resilience/seaward/RDS/diff_area_resilience_seaward_by_country_",
+plot_legend <- readRDS(paste0("Figures/Country/06a_plot_diff_area_resilience/mean/RDS/diff_area_resilience_seaward_by_country_",
                               prct, "_legend.rds")) +
   theme(legend.spacing.y = unit(0, "cm"))
 
-plot_lw <- readRDS(paste0("Figures/Country/08a_plot_diff_area_resilience/landward/RDS/diff_area_resilience_landward_by_country_", prct, ".rds"))
+plot_lw <- readRDS(paste0("Figures/Country/06a_plot_diff_area_resilience/landward/RDS/diff_area_resilience_landward_by_country_", prct, ".rds"))
 
-plot_sw <- readRDS(paste0("Figures/Country/08a_plot_diff_area_resilience/seaward/RDS/diff_area_resilience_seaward_by_country_", prct, ".rds"))
+plot_sw <- readRDS(paste0("Figures/Country/06a_plot_diff_area_resilience/seaward/RDS/diff_area_resilience_seaward_by_country_", prct, ".rds"))
 
-linear <- readRDS(paste0("Figures/Country/12_linear_investment/RDS/linear_investment.rds"))
+linear <- readRDS(paste0("Figures/Country/10_linear_investment/RDS/linear_investment.rds"))
 
 theme_txt <- theme(title = element_text(size = 11,
                                         face = 'bold'),
@@ -65,12 +66,12 @@ layout <- c(
 figure_02 <- plot_legend + figure_02_a + figure_02_b +
   plot_layout(design = layout)
 
-dir.create("Figures/Country/13_patchwork_countryscale_investment/", recursive = TRUE)
+dir.create("Figures/Country/Patchwork/04_patchwork_countryscale_investment/", recursive = TRUE)
 
-ggsave(plot = figure_02, paste0("Figures/Country/13_patchwork_countryscale_investment/patchwork_countryscale_investment_", prct, ".pdf"),
+ggsave(plot = figure_02, paste0("Figures/Country/Patchwork/04_patchwork_countryscale_investment/patchwork_countryscale_investment_", prct, ".pdf"),
        dpi = 300, width = 18, height = 27, units = "cm")
 
-ggsave(plot = figure_02, paste0("Figures/Country/13_patchwork_countryscale_investment/patchwork_countryscale_investment_", prct, ".jpg"),
+ggsave(plot = figure_02, paste0("Figures/Country/Patchwork/04_patchwork_countryscale_investment/patchwork_countryscale_investment_", prct, ".jpg"),
        dpi = 300, width = 18, height = 27, units = "cm")
 
 # plan(sequential)

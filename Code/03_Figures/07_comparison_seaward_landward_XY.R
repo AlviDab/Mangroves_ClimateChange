@@ -58,15 +58,8 @@ solution_cc <- future_map(seq(0.05, 0.3, by = 0.05),
 
 plan(sequential)
 
-#Solve the problem with French Guiana in Europe
-
-## CHECK IF THERE ARE ANY OTHER FRENCH
 solution_cc_long <- solution_cc %>%
-  pivot_longer(c(seaward, landward)) #%>%
-  # mutate(country = case_when(country == "France" ~ "French Guiana",
-  #                            .default = country),
-  #        continent = case_when(continent == "Europe" ~ "America",
-  #                              .default = continent))
+  pivot_longer(c(seaward, landward))
 
 plot_sw_lw <- ggplot() +
   geom_col(data = solution_cc_long, aes(y = value,
@@ -95,14 +88,18 @@ plot_sw_lw <- ggplot() +
   ylim(c(0, 1)) +
   scale_y_continuous(expand = c(0, 0), limits = c(0, 1.1))
 
-dir.create(paste0("Figures/Country/09_plot_comparison_area_lw_sw/",
+dir.create(paste0("Figures/Country/07_plot_comparison_area_lw_sw/",
                   split_group, "/RDS"), recursive = TRUE)
 
-ggsave(paste0("Figures/Country/09_plot_comparison_area_lw_sw/",
+ggsave(paste0("Figures/Country/07_plot_comparison_area_lw_sw/",
               split_group, "/plot_comparison_area_lw_sw_",
               split_group, "_province.pdf"),
        dpi = 300, width = 18, height = 25, units = "cm")
 
-saveRDS(plot_sw_lw, paste0("Figures/Country/09_plot_comparison_area_lw_sw/",
+saveRDS(plot_sw_lw, paste0("Figures/Country/07_plot_comparison_area_lw_sw/",
                            split_group, "/RDS/plot_comparison_area_lw_sw_",
                      split_group, "_province.rds"))
+
+
+rm(list = ls(all.names = TRUE)) #will clear all objects includes hidden objects.
+gc() #free up memrory and report the memory usage.

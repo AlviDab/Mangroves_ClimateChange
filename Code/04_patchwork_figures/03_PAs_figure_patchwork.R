@@ -21,7 +21,7 @@ plot_overlap_area <- readRDS(paste0("Figures/Country/10_overlap_WDPA/",
   theme(legend.position = "none") +
   scale_fill_met_d("Johnson", override.order = TRUE)
 
-plot_overlap_resilience <- readRDS(paste0("Figures/Country/10_overlap_WDPA/",
+plot_overlap_resilience <- readRDS(paste0("Figures/Country/08_overlap_WDPA/",
                                split_group, "/RDS/overlap_WDPA_resilience_",
                                CC_direction, "_", prct, ".rds")) +
   scale_colour_met_d("Johnson", override.order = TRUE) +
@@ -31,7 +31,7 @@ plot_overlap_resilience <- readRDS(paste0("Figures/Country/10_overlap_WDPA/",
 patchwork_plot <- plot_overlap_area / plot_overlap_resilience +
   plot_annotation(tag_levels = 'a')
 
-ggsave(plot = patchwork_plot, paste0("Figures/Country/10_overlap_WDPA/",
+ggsave(plot = patchwork_plot, paste0("Figures/Country/Patchwork/03_overlap_WDPA/",
               split_group, "/comparison_WDPA_area_resilience_",
               CC_direction, "_", prct, ".pdf"),
        width = 18, height = 18, dpi = 300, units = "cm")

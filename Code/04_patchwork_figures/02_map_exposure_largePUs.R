@@ -3,11 +3,12 @@
 
 pacman::p_load(tidyverse, sf, parallel, furrr, purrr, patchwork)
 
-ncores <- detectCores() - 2
-
-plan(multisession, workers = ncores)
+# ncores <- detectCores() - 2
+#
+# plan(multisession, workers = ncores)
 
 prct <- 0.3
+
 # future_map(seq(0.05, 0.3, by = 0.05),
 #            .options = furrr_options(seed = TRUE),
 #            function(prct) {
@@ -65,14 +66,14 @@ map(c("country_and_biotyp", "biotyp"), function(split_group) {
     plot_annotation(tag_levels = list(c('', 'a', 'b', 'c', 'd'))) &
     theme(plot.tag = element_text(face = 'bold'))
 
-  dir.create(paste0("Figures/Country/06_large_map_exposure/",
+  dir.create(paste0("Figures/Country/Patchwork/02a_large_map_exposure_mean/",
                     split_group), recursive = TRUE)
 
-  ggsave(plot = figure_01, paste0("Figures/Country/06_large_map_exposure/",
+  ggsave(plot = figure_01, paste0("Figures/Country/Patchwork/02_large_map_exposure/",
                                   split_group,"/map_largePUs_exposure_", prct, ".pdf"),
          dpi = 300, width = 18, height = 27, units = "cm")
 
-  ggsave(plot = figure_01, paste0("Figures/Country/06_large_map_exposure/",
+  ggsave(plot = figure_01, paste0("Figures/Country/Patchwork/02_large_map_exposure/",
                                   split_group,"/map_largePUs_exposure_", prct, ".png"),
          dpi = 300, width = 18, height = 27, units = "cm")
 })
@@ -81,5 +82,4 @@ map(c("country_and_biotyp", "biotyp"), function(split_group) {
 plan(sequential)
 
 rm(list = ls(all.names = TRUE)) #will clear all objects includes hidden objects.
-gc() #free up memrory and report the memory usage.
-.rs.restartR()
+gc() #free up memory and report the memory usage.

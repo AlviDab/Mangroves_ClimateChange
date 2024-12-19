@@ -5,7 +5,7 @@ pacman::p_load(tidyverse, sf, furrr, purrr, parallel, patchwork)
 
 split_group <- "biotyp"
 
-dir.create(paste0("Figures/Country/09_plot_comparison_area_lw_sw/",
+dir.create(paste0("Figures/Country/07_plot_comparison_area_lw_sw/",
                   split_group), recursive = TRUE)
 
 kappa_cc <- map(seq(0.05, 1, by = 0.05),
@@ -26,7 +26,7 @@ kappa_cc <- map(seq(0.05, 1, by = 0.05),
                                                                  c("landward", "seaward"))[[2]]
 
                   write(paste0("Cohen's Kappa ", as.character(prct), " thresholds = ", as.character(kappa)), append = TRUE,
-                        file = paste0("Figures/Country/09_plot_comparison_area_lw_sw/",
+                        file = paste0("Figures/Country/07_plot_comparison_area_lw_sw/",
                                       split_group, "/Cohens_kappa.txt"))
 
                   return(kappa)
@@ -36,4 +36,4 @@ kappa_cc <- map(seq(0.05, 1, by = 0.05),
 
 rm(list = ls(all.names = TRUE)) #will clear all objects includes hidden objects.
 gc() #free up memrory and report the memory usage.
-.rs.restartR()
+# .rs.restartR()

@@ -111,11 +111,10 @@ scatterplot <- ggplot(data = area_cr, aes(x = prct_increase_area*100,
     panel.grid.minor = element_line(colour = "grey90", linewidth = 0.05),
     legend.position = 'bottom',
     plot.tag = element_text(face = 'bold'),
-    title = element_text(size = 11,
+    title = element_text(size = 12,
                          face = 'bold'),
-    legend.text = element_text(size = 9),
-    legend.title = element_text(size = 10,
-                                face = 'bold'),
+    legend.title = element_text(size = 12, face = 'bold'),
+    legend.text = element_text(size = 10),
     plot.title = element_text(hjust = 0.5)
   ) +
   ylab("Percentage increase in resilience (%)") +
@@ -132,14 +131,14 @@ scatterplot <- ggplot(data = area_cr, aes(x = prct_increase_area*100,
   scale_y_continuous(limits = c(0, NA),
                      expand = expansion(mult = c(0, 0.1)))
 
-dir.create(paste0("Figures/Country/12_linear_investment/RDS"), recursive = TRUE)
+dir.create(paste0("Figures/Country/10_linear_investment/RDS"), recursive = TRUE)
 
 write.xlsx(area_cr %>%
-             st_drop_geometry(), "Figures/Country/12_linear_investment/linear_investment_mean.xlsx")
+             st_drop_geometry(), "Figures/Country/10_linear_investment/linear_investment_mean.xlsx")
 
-ggsave(plot = scatterplot, "Figures/Country/12_linear_investment/linear_investment_mean.pdf",
+ggsave(plot = scatterplot, "Figures/Country/10_linear_investment/linear_investment_mean.pdf",
        dpi = 300, width = 18, height = 12, units = "cm")
 
-saveRDS(scatterplot, "Figures/Country/12_linear_investment/RDS/linear_investment_mean.rds")
-saveRDS(fit_global_mean, "Figures/Country/12_linear_investment/RDS/fit_global_mean.rds")
-saveRDS(fit_country_mean, "Figures/Country/12_linear_investment/RDS/fit_country_mean.rds")
+saveRDS(scatterplot, "Figures/Country/10_linear_investment/RDS/linear_investment_mean.rds")
+saveRDS(fit_global_mean, "Figures/Country/10_linear_investment/RDS/fit_global_mean.rds")
+saveRDS(fit_country_mean, "Figures/Country/10_linear_investment/RDS/fit_country_mean.rds")

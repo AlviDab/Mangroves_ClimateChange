@@ -28,11 +28,11 @@ prct <- 0.3
 
 
   layout <- c(
-    area(t = 85, l = 50, b = 110, r = 60),
-    area(t = 1, l = 1, b = 90, r = 60),
-    area(t = 110, l = 1, b = 190, r = 60),
-    area(t = 200, l = 1, b = 250, r = 33),
-    area(t = 200, l = 34, b = 250, r = 60)
+    patchwork::area(t = 85, l = 50, b = 110, r = 60),
+    patchwork::area(t = 1, l = 1, b = 90, r = 60),
+    patchwork::area(t = 110, l = 1, b = 190, r = 60),
+    patchwork::area(t = 200, l = 1, b = 250, r = 33),
+    patchwork::area(t = 200, l = 34, b = 250, r = 60)
   )
 
   theme_txt <- theme(title = element_text(size = 11,
@@ -60,17 +60,17 @@ prct <- 0.3
     plot_annotation(tag_levels = list(c('', 'a', 'b', 'c', 'd'))) &
     theme(plot.tag = element_text(face = 'bold'))
 
-  dir.create(paste0("Figures/Country/06a_large_map_exposure_mean"), recursive = TRUE)
+  dir.create(paste0("Figures/Country/Patchwork/02a_large_map_exposure_mean/"), recursive = TRUE)
 
-  ggsave(plot = figure_01, paste0("Figures/Country/06a_large_map_exposure_mean/map_largePUs_exposure_", prct, ".pdf"),
+  ggsave(plot = figure_01, paste0("Figures/Country/Patchwork/02a_large_map_exposure_mean/map_largePUs_exposure_", prct, ".pdf"),
          dpi = 300, width = 18, height = 27, units = "cm")
 
-  ggsave(plot = figure_01, paste0("Figures/Country/06a_large_map_exposure_mean/map_largePUs_exposure_", prct, ".png"),
+  ggsave(plot = figure_01, paste0("Figures/Country/Patchwork/02a_large_map_exposure_mean/map_largePUs_exposure_", prct, ".png"),
          dpi = 300, width = 18, height = 27, units = "cm")
 #})
 
 # plan(sequential)
-#
-# rm(list = ls(all.names = TRUE)) #will clear all objects includes hidden objects.
-# gc() #free up memrory and report the memory usage.
+
+rm(list = ls(all.names = TRUE)) #will clear all objects includes hidden objects.
+gc() #free up memory and report the memory usage.
 # .rs.restartR()
