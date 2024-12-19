@@ -1,6 +1,10 @@
 pacman::p_load(tidyverse, sf)
 
-solution_nocc <- readRDS(paste0("Results/RDS/prioritisation/Country/02_prioritisation_CC/biotyp/mean/solution_0.3_mean.rds"))
+solution_cc <- readRDS(paste0("Results/RDS/prioritisation/Country/02_prioritisation_CC/biotyp/mean/solution_0.3_mean.rds")) %>%
+  mutate(solution_cc = solution_1) %>%
+  select(c("ID", "solution_cc"))
+solution_nocc <- readRDS(paste0("Results/RDS/prioritisation/Country/01_prioritisation/biotyp/solution_prioritisation.rds")) %>%
+  mutate(solution_nocc = solution_1)
 
 moll_proj <- "ESRI:54009"
 
@@ -25,27 +29,52 @@ PUs_MEOW <- solution_nocc %>%
   rename(MEOW = ECOREGION) %>%
   relocate(geometry, .before = "ID") %>%
   relocate(MEOW, .before = "area_km2") %>%
-  st_as_sf()
+  st_as_sf() %>%
+  left_join(solution_cc %>%
+              st_drop_geometry(), by = "ID")
 
-area_selected <- PUs_MEOW %>%
+area_selected_cc <- PUs_MEOW %>%
   st_drop_geometry() %>%
-  filter(solution_1 == TRUE) %>%
+  filter(solution_cc == TRUE) %>%
   group_by(MEOW) %>%
-  summarise(area_selected = sum(area_km2)) %>%
-  arrange(desc(area_selected))
+  summarise(area_selected_cc = sum(area_km2)) %>%
+  arrange(desc(area_selected_cc))
 
-area_not_selected <- PUs_MEOW %>%
+area_selected_nocc <- PUs_MEOW %>%
   st_drop_geometry() %>%
-  filter(solution_1 == FALSE) %>%
+  filter(solution_nocc == TRUE) %>%
   group_by(MEOW) %>%
-  summarise(area_not_selected = sum(area_km2)) %>%
-  arrange(desc(area_not_selected))
+  summarise(area_selected_nocc = sum(area_km2)) %>%
+  arrange(desc(area_selected_nocc))
 
-prct_area_selected <- area_selected %>%
-  left_join(area_not_selected, by = "MEOW") %>%
-  mutate(prct_area_selected = area_selected/(area_not_selected + area_selected)) %>%
-  arrange(desc(prct_area_selected))
+area_not_selected_cc <- PUs_MEOW %>%
+  st_drop_geometry() %>%
+  filter(solution_cc == FALSE) %>%
+  group_by(MEOW) %>%
+  summarise(area_not_selected_cc = sum(area_km2)) %>%
+  arrange(desc(area_not_selected_cc))
 
-rm(list = ls(all.names = TRUE)) #will clear all objects includes hidden objects.
-gc() #free up memrory and report the memory usage.
-.rs.restartR()
+area_not_selected_nocc <- PUs_MEOW %>%
+  st_drop_geometry() %>%
+  filter(solution_nocc == FALSE) %>%
+  group_by(MEOW) %>%
+  summarise(area_not_selected_nocc = sum(area_km2)) %>%
+  arrange(desc(area_not_selected_nocc))
+
+resilience_MEOW <- PUs_MEOW %>%
+  st_drop_geometry() %>%
+  group_by(MEOW) %>%
+  summarise(resilience = weighted.mean(Prob_gain_stability_mean, area_km2))
+
+prct_area_selected <- area_selected_cc %>%
+  full_join(area_not_selected_cc, by = "MEOW") %>%
+  full_join(area_selected_nocc, by = "MEOW") %>%
+  full_join(area_not_selected_nocc, by = "MEOW") %>%
+  left_join(resilience_MEOW, by = "MEOW") %>%
+  mutate(
+    across(everything(), replace_na, 0)
+  ) %>%
+  mutate(prct_area_selected_cc = area_selected_cc/(area_not_selected_cc + area_selected_cc),
+         prct_area_selected_nocc = area_selected_nocc/(area_not_selected_nocc + area_selected_nocc)) %>%
+  mutate(change_prct_area_selected_nocc_to_cc = prct_area_selected_cc - prct_area_selected_nocc) %>%
+  arrange(desc(change_prct_area_selected_nocc_to_cc))
