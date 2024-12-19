@@ -7,23 +7,24 @@ ncores <- detectCores() - 2
 
 plan(multisession, workers = ncores)
 
-future_map(seq(0.05, 0.3, by = 0.05),
+future_map(seq(0.05, 1, by = 0.05),
            .options = furrr_options(seed = TRUE),
            function(prct) {
 
              map(c("landward", "seaward",
-                   "mean"), function(CC_direction) {
+                   "mean"
+                   ), function(CC_direction) {
 
-               map(c("MEOW_and_", ""), function(file_name) {
+               map(c("country_and_", ""), function(file_name) {
 
-                 PUs <- readRDS(paste0("Results/RDS/prioritisation_input/PUs_05_mangroves_cc_IUCN_split_by_",
+                 PUs <- readRDS(paste0("Results/RDS/prioritisation_input/Country/PUs_05_mangroves_cc_IUCN_split_by_",
                                        file_name, "biotyp_priority_",
                                        prct, "_", CC_direction, ".rds"))
 
                  PUs_features_split_targets <- readRDS(paste0("Results/RDS/PUs_05_features_split_targets_by_",
                                                               file_name, "biotyp.rds"))
 
-                 new_file_name <- ifelse(file_name == "MEOW_and_", "MEOW_and_biotyp", "biotyp")
+                 new_file_name <- ifelse(file_name == "country_and_", "country_and_biotyp", "biotyp")
 
                  prioritizr_problem <- problem(PUs,
                                                PUs_features_split_targets$feature,
@@ -31,7 +32,7 @@ future_map(seq(0.05, 0.3, by = 0.05),
                    add_relative_targets(PUs_features_split_targets$targets) %>%
                    add_locked_in_constraints(PUs$priority) %>%
                    add_min_set_objective() %>%
-                   add_gurobi_solver()
+                   add_gurobi_solver(gap = 1*10^-4)
 
                  solution <- solve(prioritizr_problem)
 
@@ -41,21 +42,33 @@ future_map(seq(0.05, 0.3, by = 0.05),
                  metrics <- prioritizr::eval_target_coverage_summary(prioritizr_problem,
                                                                      solution[, "solution_1"])
 
-                 dir.create(paste0("Results/RDS/prioritisation/02_prioritisation_CC/",
+                 dir.create(paste0("Results/RDS/prioritisation/Country/02_prioritisation_CC/",
                                    new_file_name, "/",
                                    CC_direction), recursive = T)
 
-                 saveRDS(solution, paste0("Results/RDS/prioritisation/02_prioritisation_CC/",
+                 dir.create(paste0("Results/gpkg/prioritisation/Country/02_prioritisation_CC/",
+                                   new_file_name, "/",
+                                   CC_direction), recursive = T)
+
+                 saveRDS(solution, paste0("Results/RDS/prioritisation/Country/02_prioritisation_CC/",
                                           new_file_name, "/",
                                           CC_direction, "/solution_",
                                           as.character(prct), "_", CC_direction, ".rds"))
 
-                 # saveRDS(replacement_score, paste0("Results/RDS/prioritisation/02_prioritisation_CC/",
+                 st_write(solution %>%
+                            dplyr::select(geometry,
+                                          solution_1), paste0("Results/gpkg/prioritisation/Country/02_prioritisation_CC/",
+                                          new_file_name, "/",
+                                          CC_direction, "/solution_",
+                                          as.character(prct), "_", CC_direction, ".gpkg"),
+                          append = TRUE)
+
+                 # saveRDS(replacement_score, paste0("Results/RDS/prioritisation/Country/02_prioritisation_CC/",
                  #                                   new_file_name, "/",
                  #                                   CC_direction, "/replacement_score_",
                  #                                   as.character(prct), "_", CC_direction, ".rds"))
 
-                 saveRDS(metrics, paste0("Results/RDS/prioritisation/02_prioritisation_CC/",
+                 saveRDS(metrics, paste0("Results/RDS/prioritisation/Country/02_prioritisation_CC/",
                                          new_file_name, "/",
                                          CC_direction, "/metrics_",
                                          as.character(prct), "_", CC_direction, ".rds"))
@@ -66,5 +79,5 @@ future_map(seq(0.05, 0.3, by = 0.05),
 plan(sequential)
 
 rm(list = ls(all.names = TRUE)) #will clear all objects includes hidden objects.
-gc() #free up memrory and report the memory usage.
+gc() #free up memory and report the memory usage.
 .rs.restartR()

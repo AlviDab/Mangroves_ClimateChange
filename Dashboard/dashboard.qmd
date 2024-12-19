@@ -1,0 +1,48 @@
+---
+title: "Mangroves climate-smart prioritisation"
+author: "Alvise Dabalà"
+format: 
+  dashboard:
+    nav-buttons: [github]
+server: shiny
+---
+
+# {.sidebar}
+```{r}
+shiny::selectInput('lvl', 'Level',
+                   choices = list("Country level" = "biotyp",
+                                  "Global level" = "country_and_biotyp"))
+
+# shiny::selectInput('mrgn', 'Margin',
+#                    choices = list("Seaward" = "landward",
+#                                   "Landward" = "seaward",
+#                                   "Mean" = "mean"))
+
+shiny::sliderInput('prct', 'Threshold climate-priority area', 
+                   min = 0.05, max = 0.3,
+                   value = 0.05, step = 0.05)
+```
+
+# Interactive map comparison
+```{r}
+library(tidyverse, tmap)
+
+cat("title=", "Map comparison")
+
+tmap::tmap_mode("view")
+
+tmap::tmapOutput('plot')
+
+```
+
+```{r}
+#| context: server
+
+output$plot <- tmap::renderTmap({
+  
+  readRDS(paste0("C:/Users/Alvise/OneDrive - The University of Queensland/Github/Mangroves_CC/Figures/Country/00_interactive_maps/", 
+                 input$lvl, "/RDS/overlap_mean_", 
+                 input$prct, ".rds"))
+  
+})
+```
