@@ -10,125 +10,78 @@ devtools::install_github("https://github.com/MathMarEcol/spatialplanr")
 devtools::install_github("emlab-ucsb/spatialgridr")
 
 # devtools::install_github("emlab-ucsb/spatialgridr")
-pacman::p_load(sf, tidyverse, spatialgridr, spatialplanr, parallelly, future.apply)
+pacman::p_load(sf, tidyverse, spatialgridr, spatialplanr)
 
-#I move the lon_0 of the projection so that overlapping PUs
-#are in the middle of the Pacific
-cCRS <- "+proj=cea +lat_ts=30 +lon_0=+44 +y_0=0 +datum=WGS84 +units=m +no_defs +type=crs"
+moll_proj <- "ESRI:54009"
+
+gmw <- sf::st_read("Data/gmw_v3_2020/vector/gmw_v3_2020_vec.shp") %>%
+  st_transform(moll_proj) %>%
+  st_make_valid()
 
 # It takes too long to start with a global set of PUs.
 # Lets try getting the PUs within the bbox of the GMW data
 # then check the intersection of the coverage of the PUs for the actual GMW data.
 
-# biotyp <- sf::st_read("Data/MangroveTypology/Mangrove_Typology_v3_2020.shp") %>%
-#   st_make_valid() %>%
-#   st_transform(cCRS) %>%
-#   st_make_valid()
+bb <- sf::st_read("Data/gmw_v3_2020/vector/gmw_v3_2020_vec.shp") %>%
+  st_bbox()
+bb["ymin"] <- floor(bb["ymin"]) # Round the limits or they won't form a complete boundary
+bb["ymax"] = ceiling(bb["ymax"])
 
-#biotyp_moll <- saveRDS(biotyp, "Results/RDS/mangroves_biotyp_mollweide.rds")
+bndry <- spatialplanr::splnr_get_boundary(bb, res = 1) # Get a boundary
 
-biotyp <- sf::st_read("Data/MangroveTypology/Mangrove_Typology_v3_2020.shp") %>%
-  st_make_valid()
-
-biotyp_area_geod <- biotyp %>%
-  lwgeom::st_geod_area() #Use ellipsoid calculation of area
-
-bb <- st_bbox(c(xmin = -180.0000, ymin = -39.0000, xmax = 180.000, ymax = 33.0000))
-
-bndry <- spatialplanr::splnr_get_boundary(bb, cCRS = cCRS)
-
-# grid <- dggridR::dgconstruct(projection = "ISEA",
-#                              spacing = 27.75) %>%
-#   dggridR::dgearthgrid()
-
-PUs_all <- st_make_grid(bndry,
-                        cellsize = 27750,
-                        crs = cCRS,
-                        square = FALSE) %>%
-  sf::st_as_sf() %>%
-  dplyr::mutate(cellID = dplyr::row_number()) %>%
-  st_transform("EPSG:4326") %>%
-  st_make_valid() %>%
-  st_wrap_dateline()
-
-saveRDS(PUs, "Results/RDS/PUs_00_all_EPSG4326.rds")
-
-overlap <- sf::st_intersects(PUs_all, biotyp) %>%
-  lengths() > 0
-
-PUs <- PUs_all[overlap,]
-
-PUs_area <- lwgeom::st_geod_area(PUs)
-
-#Percentage difference in area
-(max(PUs_area) - min(PUs_area)) / max(PUs_area)
-
-st_write(PUs, "Results/gpkg/00_PUs.gpkg", append = FALSE)
-saveRDS(PUs, "Results/RDS/PUs_00_EPSG4326.rds")
+# Get the PUs for the broader bounding box
+PUs <- spatialgridr::get_grid(bndry, option = "sf_hex",
+                              projection_crs = moll_proj,
+                              resolution = 27000) %>%
+  sf::st_sf() %>%
+  dplyr::mutate(cellID = dplyr::row_number())
 
 # Get the larger PUs for the visualisation
-PUs_large_all <- sf::st_make_grid(x = bndry, cellsize = 2755000,
-                                  crs = cCRS,
-                                  square = FALSE) %>%
+PUs_large <- spatialgridr::get_grid(bndry, option = "sf_hex",
+                              projection_crs = moll_proj,
+                              resolution = 270000) %>%
   sf::st_sf() %>%
-  dplyr::mutate(cellID = dplyr::row_number()) %>%
-  st_transform("EPSG:4326") %>%
-  st_make_valid() %>%
-  st_wrap_dateline()
+  dplyr::mutate(cellID = dplyr::row_number())
 
-overlap_large <- sf::st_intersects(PUs_large_all, biotyp) %>%
+gg <- ggplot() +
+  geom_sf(data = PUs, linewidth = 0.00001)
+
+ggsave("Figures/00_bbox_PUs.pdf", gg)
+
+# Now we only want the ones that intersect with
+overlap <- sf::st_intersects(PUs, gmw) %>%
   lengths() > 0
 
-PUs_large <- PUs_large_all[overlap_large,]
+overlap_large <- sf::st_intersects(PUs_large, gmw) %>%
+  lengths() > 0
 
-#Intersect with biotyp and calculate area
-biotyp <- biotyp[1:500,]
+PUs <- PUs[overlap,]
+PUs_large <- PUs_large[overlap_large,]
 
-#Fist we cast biotyp to "POLYGON" to make a faster intersection
-biotyp <- biotyp %>%
-  st_cast("POLYGON")
+# Lets check it's working ok
+gg <- ggplot() +
+  geom_sf(data = gmw, linewidth = 0.0001, colour = "red", fill = NA) +
+  geom_sf(data = PUs, linewidth = 0.0001, fill = NA, colour = "blue")
 
-# #Split by the number of cores to parallelise
-n_cores <- parallelly::availableCores() - 8
-
-split_biotyp <- biotyp %>%
-  split(seq(1:n_cores))
-
-rm(biotyp)
-
-#We intersect
-plan(multisession, workers = n_cores)
-
-PUs <- readRDS("Results/RDS/PUs_00_EPSG4326.rds")
-
-tictoc::tic()
-intersection_biotyp_PUs <- split_biotyp %>%
-      future_lapply(function(x) {
-        st_intersection(x, PUs)
-      })
-tictoc::toc()
-
-plan(sequential)
-
-#We save the result as RDS (needed to also calculate the area of each biophysical typology in each PU)
-saveRDS(intersection_biotyp_PUs, "Results/RDS/PUs_00_intersection_biotyp_1_500.rds")
+ggsave("Figures/00_mangrove_PUs.pdf", gg, width = 20, height = 5)
 
 # Next we can run an intersection to return the actual overlap for each PU to calculate cutoffs
-area <- intersection_biotyp_PUs %>%
-  dplyr::mutate(MangroveArea_km2 = as.numeric(units::set_units(lwgeom::st_geod_area(.), "km2"))) %>%
+area <- sf::st_intersection(gmw, PUs) %>%
+  dplyr::mutate(MangroveArea_km2 = as.numeric(units::set_units(sf::st_area(.), "km2"))) %>%
   dplyr::group_by(cellID) %>%
   sf::st_drop_geometry() %>%
   summarise(MangroveArea_km2 = sum(MangroveArea_km2))
-
-#TODO::Still need to calculate the area for each class of biophysical typology (as it was in 01_CalculateArea...)
 
 PUs <- PUs %>%
   left_join(area, by = "cellID") %>%
   dplyr::mutate(PUArea_km2 = as.numeric(units::set_units(sf::st_area(.), "km2")),
                 MangroveProp = MangroveArea_km2/PUArea_km2)
 
-saveRDS(PUs, file = "Results/RDS/PUs_00_EPSG4326_mangrove_area.rds")
-st_write(PUs, "Results/gpkg/PUs_00_EPSG4326_mangrove_area.gpkg")
+saveRDS(PUs, file = "Results/RDS/00_PUs_mollweide.rds")
+st_write(PUs, "Results/gpkg/00_PUs_mollweide.gpkg")
+
+saveRDS(PUs_large, file = "Results/RDS/00_PUs_large_mollweide.rds")
 
 rm(list = ls(all.names = TRUE)) #will clear all objects includes hidden objects.
-gc() #free up memory and report the memory usage.
+gc() #free up memrory and report the memory usage.
+.rs.restartR()
