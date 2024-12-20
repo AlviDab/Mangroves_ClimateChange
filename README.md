@@ -11,4 +11,4 @@ Data to run the code in 01_PrepareLayers.R can be downloaded at:
 - Global biophysical typology of mangroves (https://zenodo.org/records/8340259)
 - Probability of mangrove loss (contact author of this paper: DOI:10.21203/rs.3.rs-3708020/v1)
 
-Data to run the code starting from 02_Prioritisation.R is provided as RDS.
+Data to run the code starting from 07_CPA_selection.R is provided as RDS.
