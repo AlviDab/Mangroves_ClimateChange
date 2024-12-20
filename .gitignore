@@ -6,4 +6,8 @@
 /Data
 /Results
 /Figures
-/Results
+/Results/gpkg
+/Results/RDS/mangroves_biotyp_mollweide.rds
+/Results/RDS/WDPA
+/Results/RDS/prioritisation
+/Results/RDS/prioritisation_input
