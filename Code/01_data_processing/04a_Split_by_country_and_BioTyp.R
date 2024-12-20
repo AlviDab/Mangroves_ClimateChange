@@ -3,7 +3,7 @@
 
 pacman::p_load(tidyverse, sf, purrr)
 
-PUs <- readRDS("Results/RDS/PUs_03_mangroves_biotyp_cc_IUCN_MEOW.rds")
+PUs <- readRDS("Results/RDS/PUs_01_mangroves_biotyp_cc.rds.rds")
 
 source("Code/Functions/f_intersect_countries.R")
 
