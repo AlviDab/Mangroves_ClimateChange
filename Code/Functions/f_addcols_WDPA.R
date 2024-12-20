@@ -3,7 +3,7 @@
 
 f_addcols_WDPA <- function(sol) {
 
-  PUs_WDPA <- readRDS("Results/RDS/PUs_06_cc_IUCN_split_by_MEOW_and_biotyp_WDPA.rds") %>%
+  PUs_WDPA <- readRDS("Results/RDS/PUs_06_cc_IUCN_split_by_biotyp_WDPA.rds") %>%
     dplyr::select(ends_with("WDPA_all_km2"),
                   ID) %>%
     st_drop_geometry()

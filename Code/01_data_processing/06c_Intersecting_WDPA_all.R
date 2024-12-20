@@ -171,7 +171,7 @@ PUs %>%
   summarise(WDPA_area = rowSums(pick(where(is.numeric)))) %>%
   sum()
 
-saveRDS(PUs, "Results/RDS/PUs_06_cc_IUCN_split_by_MEOW_and_biotyp_WDPA.rds")
+saveRDS(PUs, "Results/RDS/PUs_06_cc_IUCN_split_by_biotyp_WDPA.rds")
 
 rm(list = ls(all.names = TRUE)) #will clear all objects includes hidden objects.
 gc() #free up memrory and report the memory usage.
