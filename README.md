@@ -1,6 +1,6 @@
-# Protecting climate-resilient mangroves requires a small increase in the global protected area estate
+# Protecting climate-resilient mangroves requires a small increase in the global protected area
 
-In this repository is reported the code to run the prioritisation and produce the figures of the study "Protecting climate-resilient mangroves requires a small increase in the global protected area estate".
+In this repository is reported the code to run the prioritisation and produce the figures of the study "Protecting climate-resilient mangroves requires a small increase in the global protected area".
 
 The code should be run sequentially.
 
