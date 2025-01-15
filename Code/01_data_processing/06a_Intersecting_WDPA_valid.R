@@ -24,7 +24,7 @@ PUs_not_valid <- PUs %>%
 #I KEEP IT NOT PARALLEL CAUSE I CAN'T OPEN THE THREE FILES AT THE SAME TIME
 #can parallelise using future_map and removing part of the code with '#'
 
-map(c(#"polygons",
+map(c("polygons",
   "points"), function(shape) {
   map(0:2,
       #.options = furrr_options(seed = TRUE),
