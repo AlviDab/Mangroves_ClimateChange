@@ -47,5 +47,5 @@ st_write(PUs,
          append = FALSE)
 
 rm(list = ls(all.names = TRUE)) #will clear all objects includes hidden objects.
-gc() #free up memrory and report the memory usage.
+gc() #free up memory and report the memory usage.
 .rs.restartR()

@@ -4,6 +4,10 @@
 .Ruserdata
 .DS_Store
 /Data
-/Results
 /Figures
-/Results
+/Results/gpkg
+/Results/RDS/mangroves_biotyp_mollweide.rds
+/Results/RDS/PUs_01_mangroves_biotyp_cc_intersection.rds
+/Results/RDS/WDPA
+/Results/RDS/prioritisation
+/Results/RDS/prioritisation_input
