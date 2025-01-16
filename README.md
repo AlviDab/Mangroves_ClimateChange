@@ -37,5 +37,3 @@ Install the following packages in R to run the code and reproduce results.
 1. Download or clone the github repo in the branch 'master' and double click the Mangroves_CC.Rproj file to open RStudio. To run the data in the demo use
 2. The data to run the analysis starting from the code in "Code/02_prioritisation" is available.
 3. To run the analysis and generate the figures, start with the first script in "Code/02_prioritisation" and run the rest in sequential order including those in "03_figures" and "04_patchwork_figures".
-
-The cross-validation uses uses 5 cores for parallel processing.
