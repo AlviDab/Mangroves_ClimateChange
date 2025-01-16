@@ -14,7 +14,7 @@ Install the following packages in R to run the code and reproduce results.
 
 `install.packages(c('tidyverse', 'sf', 'prioritizr', 'gurobi', 'terra', 'devtools', 'patchwork', 'sf', 'purrr', 'furrr', 'wdpar', 
                    'parallel', 'tmap', 'openxlsx', 'ggeffects', 'ggstats', 'ggrepel', 'biscale', 'irr', 'ggnewscale', 
-                   'MetBrewer', 'spatstat', 'collapse', 'modelr'))`
+                   'MetBrewer', 'spatstat', 'collapse', 'modelr', 'pacman'))`
                    
 `devtools::install_github("https://github.com/MathMarEcol/spatialplanr")`
 
