@@ -30,7 +30,7 @@ Here is a guide on how to install gurobi: https://support.gurobi.com/hc/en-us/ar
 
 This is a guide to install gurobi in R: https://support.gurobi.com/hc/en-us/articles/14462206790033-How-do-I-install-Gurobi-for-R
 
-Tipical installation time is some minutes.
+Tipical installation time would take minutes to hours.
 
 ## Demo
 Cloning the content of the branch "demo" it is possible to run a demo of the content of the folder "Code/01_data_processing" using a smaller dataset to make it less computationally intensive. Running all the data processing code from the folder "Code/01_data_processing" from the branch "master" could take multiple days (or weeks, depending on the computing power of your machine).
