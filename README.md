@@ -30,7 +30,7 @@ Here is a guide on how to install gurobi: https://support.gurobi.com/hc/en-us/ar
 
 This is a guide to install gurobi in R: https://support.gurobi.com/hc/en-us/articles/14462206790033-How-do-I-install-Gurobi-for-R
 
-Tipical installation time would take minutes to hours.
+Typical installation time would take minutes to hours.
 
 ## Demo
 Cloning the content of the branch "demo" it is possible to run a demo of the content of the folder "Code/01_data_processing" using a smaller dataset to make it less computationally intensive. Running all the data processing code from the folder "Code/01_data_processing" from the branch "master" could take multiple days (or weeks, depending on the computing power of your machine).
@@ -43,7 +43,7 @@ Run time of the demo should be of approximately 1h.
 2. The data to run the analysis starting from the code in "Code/02_prioritisation" is provided as RDS.
 3. To run the analysis and generate the figures, start with the first script in "Code/02_prioritisation" and run the rest in sequential order including those in "03_figures" and "04_patchwork_figures".
 
-Tipical run time is of a certain amount of hours (up to a couple of days, depending on the computing power of your machine) without running the code in "Code/01_data_processing". 
+Typical run time is of a certain amount of hours (up to a couple of days, depending on the computing power of your machine) without running the code in "Code/01_data_processing". 
 
 Data to run the code in "Code/01_data_processing" can be downloaded at:
 
