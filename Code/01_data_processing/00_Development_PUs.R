@@ -14,7 +14,7 @@ pacman::p_load(sf, tidyverse, spatialgridr, spatialplanr)
 
 moll_proj <- "ESRI:54009"
 
-gmw <- sf::st_read("Data/gmw_v3_2020/vector/gmw_v3_2020_vec.shp") %>%
+gmw <- readRDS("Data/Demo/gmw_png.rds") %>%
   st_transform(moll_proj) %>%
   st_make_valid()
 
@@ -22,7 +22,7 @@ gmw <- sf::st_read("Data/gmw_v3_2020/vector/gmw_v3_2020_vec.shp") %>%
 # Lets try getting the PUs within the bbox of the GMW data
 # then check the intersection of the coverage of the PUs for the actual GMW data.
 
-bb <- sf::st_read("Data/gmw_v3_2020/vector/gmw_v3_2020_vec.shp") %>%
+bb <- readRD  ("Data/Demo/gmw_png.rds") %>%
   st_bbox()
 bb["ymin"] <- floor(bb["ymin"]) # Round the limits or they won't form a complete boundary
 bb["ymax"] = ceiling(bb["ymax"])
