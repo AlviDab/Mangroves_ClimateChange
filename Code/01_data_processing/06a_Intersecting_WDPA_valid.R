@@ -25,30 +25,30 @@ PUs_not_valid <- PUs %>%
 #can parallelise using future_map and removing part of the code with '#'
 
 map(c("polygons",
-  "points"), function(shape) {
-  map(0:2,
-      #.options = furrr_options(seed = TRUE),
-      function(number_file) {
+      "points"), function(shape) {
+        map(0:2,
+            #.options = furrr_options(seed = TRUE),
+            function(number_file) {
 
-        WDPA <- st_read(paste0("Data/WDPA/WDPA_WDOECM_Apr2024_Public_all_shp/WDPA_WDOECM_Apr2024_Public_all_shp_",
-                               number_file,
-                               "/WDPA_WDOECM_Apr2024_Public_all_shp-", shape, ".shp")) %>%
-          wdpar::wdpa_clean(erase_overlaps = FALSE)
+              WDPA <- readRDS(paste0("Data/Demo/WDPA_png_",
+                                     number_file,
+                                     "_", shape, ".rds")) %>%
+                wdpar::wdpa_clean(erase_overlaps = FALSE)
 
-        dir.create("Results/RDS/WDPA/cleaned_map_ESRI_54017/", recursive = TRUE)
+              dir.create("Results/RDS/WDPA/cleaned_map_ESRI_54017/", recursive = TRUE)
 
-        saveRDS(WDPA,
-                paste0("Results/RDS/WDPA/cleaned_map_ESRI_54017/WDPA_", shape,"_clean_", number_file, ".rds"))
+              saveRDS(WDPA,
+                      paste0("Results/RDS/WDPA/cleaned_map_ESRI_54017/WDPA_", shape,"_clean_", number_file, ".rds"))
 
-        WDPA_PUs_int_filter <- WDPA %>%
-          st_filter(PUs_valid, .predicate = st_intersects)
+              WDPA_PUs_int_filter <- WDPA %>%
+                st_filter(PUs_valid, .predicate = st_intersects)
 
-        dir.create("Results/RDS/WDPA/PUs_valid/filtered/", recursive = TRUE)
+              dir.create("Results/RDS/WDPA/PUs_valid/filtered/", recursive = TRUE)
 
-        saveRDS(WDPA_PUs_int_filter,
-                paste0("Results/RDS/WDPA/PUs_valid/filtered/WDPA_", shape,"_filtered_", number_file, ".rds"))
+              saveRDS(WDPA_PUs_int_filter,
+                      paste0("Results/RDS/WDPA/PUs_valid/filtered/WDPA_", shape,"_filtered_", number_file, ".rds"))
+            })
       })
-})
 
 # plan(sequential)
 

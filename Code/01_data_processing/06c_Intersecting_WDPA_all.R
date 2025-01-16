@@ -38,7 +38,7 @@ WDPA_PUs <- readRDS("Results/RDS/WDPA/all_overlapping_MPAs_ESRI_54009.rds") #TO 
 
 PUs <- readRDS("Results/RDS/PUs_04a_mangroves_cc_IUCN_split_by_biotyp.rds")
 
-biotyp_intersection_WDPA <- st_read("Data/MangroveTypology/Mangrove_Typology_v3_2020.shp") %>%
+biotyp_intersection_WDPA <- st_read("Data/Demo/biotyp_png.shp") %>%
   st_transform("ESRI:54009") %>%
   st_make_valid() %>%
   st_intersection(WDPA_PUs)
