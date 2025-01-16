@@ -35,6 +35,8 @@ Tipical installation time would take minutes to hours.
 ## Demo
 Cloning the content of the branch "demo" it is possible to run a demo of the content of the folder "Code/01_data_processing" using a smaller dataset to make it less computationally intensive. Running all the data processing code from the folder "Code/01_data_processing" from the branch "master" could take multiple days (or weeks, depending on the computing power of your machine).
 
+Run time of the demo should be of approximately 1h.
+
 ## Instruction for use
 
 1. Download or clone the github repo in the branch 'master' and double click the Mangroves_CC.Rproj file to open RStudio. To run the data in the demo use
