@@ -23,12 +23,15 @@ Download and install R (https://cran.r-project.org/bin/windows/base/) and RStudi
 
 Install the following packages in R to run the code and reproduce results.
 
-install.packages(c('tidyverse', 'sf', 'prioritizr', 'terra', 'devtools', 'patchwork', 'sf', 'purrr', 'furrr', 'wdpar', 
+`install.packages(c('tidyverse', 'sf', 'prioritizr', 'terra', 'devtools', 'patchwork', 'sf', 'purrr', 'furrr', 'wdpar', 
                    'parallel', 'tmap', 'openxlsx', 'ggeffects', 'ggstats', 'ggrepel', 'biscale', 'irr', 'ggnewscale', 
-                   'MetBrewer', 'spatstat', 'collapse', 'modelr'))
-devtools::install_github("https://github.com/MathMarEcol/spatialplanr")
-devtools::install_github("emlab-ucsb/spatialgridr")
-devtools::install_github("BlakeRMills/MoMAColors")
+                   'MetBrewer', 'spatstat', 'collapse', 'modelr'))`
+                   
+`devtools::install_github("https://github.com/MathMarEcol/spatialplanr")`
+
+`devtools::install_github("emlab-ucsb/spatialgridr")`
+
+`devtools::install_github("BlakeRMills/MoMAColors")`
 
 ## Instruction for use
 1. Download or clone the github repo in the branch 'master' and double click the Mangroves_CC.Rproj file to open RStudio. To run the data in the demo use
