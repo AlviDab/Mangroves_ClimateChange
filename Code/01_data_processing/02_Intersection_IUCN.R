@@ -10,6 +10,7 @@ PUs <- read_rds("Results/RDS/PUs_01_mangroves_biotyp_cc.rds")
 tictoc::tic()
 
 IUCN_mangroves <- readRDS("Data/Demo/IUCN_png.rds") %>%
+  st_transform(moll_proj) %>%
   st_make_valid()
 
 `%!in%` = Negate(`%in%`)

@@ -14,7 +14,7 @@ predictions_CC <- read.csv("Data/Predictions_Buelow/mangrove-forecasts.csv") %>%
 # mangroves_biotyp <- readRDS("Results/RDS/mangroves_distribution_mollweide.rds")
 
 # Otherwise just use the shapefile
-mangroves_biotyp <- readRDS("Data/Demo/biotyp_png.shp") %>%
+mangroves_biotyp <- readRDS("Data/Demo/biotyp_png.rds") %>%
 st_transform(moll_proj) %>%
 st_make_valid()
 

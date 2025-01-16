@@ -22,7 +22,7 @@ gmw <- readRDS("Data/Demo/gmw_png.rds") %>%
 # Lets try getting the PUs within the bbox of the GMW data
 # then check the intersection of the coverage of the PUs for the actual GMW data.
 
-bb <- readRD  ("Data/Demo/gmw_png.rds") %>%
+bb <- readRDS("Data/Demo/gmw_png.rds") %>%
   st_bbox()
 bb["ymin"] <- floor(bb["ymin"]) # Round the limits or they won't form a complete boundary
 bb["ymax"] = ceiling(bb["ymax"])
@@ -30,22 +30,23 @@ bb["ymax"] = ceiling(bb["ymax"])
 bndry <- spatialplanr::splnr_get_boundary(bb, res = 1) # Get a boundary
 
 # Get the PUs for the broader bounding box
-PUs <- spatialgridr::get_grid(bndry, option = "sf_hex",
-                              projection_crs = moll_proj,
+PUs <- spatialgridr::get_grid(bndry, output = "sf_hex",
+                              crs = moll_proj,
                               resolution = 27000) %>%
   sf::st_sf() %>%
   dplyr::mutate(cellID = dplyr::row_number())
 
 # Get the larger PUs for the visualisation
-PUs_large <- spatialgridr::get_grid(bndry, option = "sf_hex",
-                              projection_crs = moll_proj,
-                              resolution = 270000) %>%
+PUs_large <- spatialgridr::get_grid(bndry, output = "sf_hex",
+                                    crs = moll_proj,
+                                    resolution = 270000) %>%
   sf::st_sf() %>%
   dplyr::mutate(cellID = dplyr::row_number())
 
 gg <- ggplot() +
   geom_sf(data = PUs, linewidth = 0.00001)
 
+dir.create("Figures")
 ggsave("Figures/00_bbox_PUs.pdf", gg)
 
 # Now we only want the ones that intersect with
@@ -77,10 +78,13 @@ PUs <- PUs %>%
   dplyr::mutate(PUArea_km2 = as.numeric(units::set_units(sf::st_area(.), "km2")),
                 MangroveProp = MangroveArea_km2/PUArea_km2)
 
-saveRDS(PUs, file = "Results/RDS/00_PUs_mollweide.rds")
-st_write(PUs, "Results/gpkg/00_PUs_mollweide.gpkg")
+dir.create("Results/RDS", recursive = TRUE)
+dir.create("Results/gpkg", recursive = TRUE)
 
-saveRDS(PUs_large, file = "Results/RDS/00_PUs_large_mollweide.rds")
+saveRDS(PUs, file = "Results/RDS/PUs_00_mollweide.rds")
+st_write(PUs, "Results/gpkg/PUs_00_mollweide.gpkg")
+
+saveRDS(PUs_large, file = "Results/RDS/PUs_00_large_mollweide.rds")
 
 rm(list = ls(all.names = TRUE)) #will clear all objects includes hidden objects.
 gc() #free up memrory and report the memory usage.

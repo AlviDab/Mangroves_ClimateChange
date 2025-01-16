@@ -38,7 +38,7 @@ WDPA_PUs <- readRDS("Results/RDS/WDPA/all_overlapping_MPAs_ESRI_54009.rds") #TO 
 
 PUs <- readRDS("Results/RDS/PUs_04a_mangroves_cc_IUCN_split_by_biotyp.rds")
 
-biotyp_intersection_WDPA <- st_read("Data/Demo/biotyp_png.shp") %>%
+biotyp_intersection_WDPA <- readRDS("Data/Demo/biotyp_png.rds") %>%
   st_transform("ESRI:54009") %>%
   st_make_valid() %>%
   st_intersection(WDPA_PUs)
@@ -146,7 +146,7 @@ rm(biotyp_intersection_WDPA_all_union)
 #Add to the planning units
 biotyp_WDPA_km2 <- PUs_biotyp_WDPA_all_intersection[[1]]
 
-for(i in 2:4) {
+for(i in 2:length(PUs_biotyp_WDPA_all_intersection)) {
   biotyp_WDPA_km2 <- biotyp_WDPA_km2 %>%
     full_join(PUs_biotyp_WDPA_all_intersection[[i]],
               by = "ID")

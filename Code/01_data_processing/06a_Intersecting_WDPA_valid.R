@@ -32,7 +32,11 @@ map(c("polygons",
 
               WDPA <- readRDS(paste0("Data/Demo/WDPA_png_",
                                      number_file,
-                                     "_", shape, ".rds")) %>%
+                                     "_", shape, ".rds"))
+
+              if(nrow(WDPA) > 0) {
+
+              WDPA <- WDPA %>%
                 wdpar::wdpa_clean(erase_overlaps = FALSE)
 
               dir.create("Results/RDS/WDPA/cleaned_map_ESRI_54017/", recursive = TRUE)
@@ -47,6 +51,9 @@ map(c("polygons",
 
               saveRDS(WDPA_PUs_int_filter,
                       paste0("Results/RDS/WDPA/PUs_valid/filtered/WDPA_", shape,"_filtered_", number_file, ".rds"))
+
+              }
+
             })
       })
 
