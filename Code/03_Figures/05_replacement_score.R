@@ -81,8 +81,8 @@ plan(sequential)
 #Description of the figures
 writeLines("In the CC folder there are the replacement score maps for the climate-smart prioritisation and in the no_CC those for the climate-naive.
 
-In the 'biotyp' folder are all the results for prioritisations that include conservation features not split by ecoregion.
-Viceversa in 'country_and_biotyp' the conservation features were split by ecoregion.
+In the 'biotyp' folder are all the results for prioritisations that include conservation features not split by country.
+Viceversa in 'country_and_biotyp' the conservation features were split by country.
 
 The value reported in the name of each file is the percentage used as a tradeoff to select climate-priority areas for each conservation feature (more on the method 'climate-priority areas' in Buenafe et al. 2023 - https://doi.org/10.1002/eap.2852).
 

@@ -10,15 +10,13 @@ plan(multisession, workers = ncores)
 source("Code/Functions/f_create_worldmap.r")
 world_map <- f_worldmap()
 
-PUs_large <- readRDS("C:/Users/uqadabal/OneDrive - The University of Queensland/Github/Mangroves_CC/Results/RDS/PUs_00_large_mollweide.rds")
+PUs_large <- readRDS("Results/RDS/PUs_00_large_mollweide.rds")
 rownames(PUs_large) <- 1:nrow(PUs_large)
 
 PUs_large <- PUs_large %>%
   mutate(cellID = row.names(.))
 
-future_map(c(#"noCC",
-  "landward", "seaward"
-  #, "mean"
+future_map(c("noCC", "landward", "seaward", "mean"
   ), function(CC_direction) {
 
         if(CC_direction == "noCC") {
