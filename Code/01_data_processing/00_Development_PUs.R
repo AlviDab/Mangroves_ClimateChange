@@ -77,10 +77,10 @@ PUs <- PUs %>%
   dplyr::mutate(PUArea_km2 = as.numeric(units::set_units(sf::st_area(.), "km2")),
                 MangroveProp = MangroveArea_km2/PUArea_km2)
 
-saveRDS(PUs, file = "Results/RDS/00_PUs_mollweide.rds")
-st_write(PUs, "Results/gpkg/00_PUs_mollweide.gpkg")
+saveRDS(PUs, file = "Results/RDS/PUs_00_mollweide.rds")
+st_write(PUs, "Results/gpkg/PUs_00_mollweide.gpkg")
 
-saveRDS(PUs_large, file = "Results/RDS/00_PUs_large_mollweide.rds")
+saveRDS(PUs_large, file = "Results/RDS/PUs_00_large_mollweide.rds")
 
 rm(list = ls(all.names = TRUE)) #will clear all objects includes hidden objects.
 gc() #free up memrory and report the memory usage.
