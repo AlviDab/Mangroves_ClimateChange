@@ -11,12 +11,12 @@ predictions_CC <- read.csv("Data/Predictions_Buelow/mangrove-forecasts.csv") %>%
   as_tibble() %>%
   dplyr::select("ID", "Prob_gain_stability_landward", "Prob_gain_stability_seaward")
 
-mangroves_biotyp <- readRDS("Results/RDS/mangroves_distribution_mollweide.rds")
+# mangroves_biotyp <- readRDS("Results/RDS/mangroves_distribution_mollweide.rds")
 
 # Otherwise just use the shapefile
-# mangroves_biotyp <- sf::st_read("Data/MangroveTypology/Mangrove_Typology_v3_2020.shp") %>%
-# st_transform(moll_proj) %>%
-# st_make_valid()
+mangroves_biotyp <- sf::st_read("Data/MangroveTypology/Mangrove_Typology_v3_2020.shp") %>%
+st_transform(moll_proj) %>%
+st_make_valid()
 
 mangroves_biotyp_cc <- mangroves_biotyp %>%
   left_join(predictions_CC, by = "ID")
