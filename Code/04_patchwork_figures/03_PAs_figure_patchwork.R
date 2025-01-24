@@ -1,3 +1,5 @@
+#THIS DOES NOT NEED TO BE RUN
+
 #Author: Alvise Dabalà
 #Date: 28/05/2024
 
@@ -15,7 +17,7 @@ solution_cc <- readRDS(paste0("Results/RDS/prioritisation/Country/02_prioritisat
 
 tot_area_mangroves <- sum(solution_cc$MangroveArea_km2)
 
-plot_overlap_area <- readRDS(paste0("Figures/Country/10_overlap_WDPA/",
+plot_overlap_area <- readRDS(paste0("Figures/Country/08_overlap_WDPA/",
                                     split_group, "/RDS/overlap_WDPA_area_",
                                     CC_direction, "_", prct, ".rds")) +
   theme(legend.position = "none") +
