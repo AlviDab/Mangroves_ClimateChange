@@ -21,7 +21,7 @@ map(c("PUs_04_mangroves_cc_IUCN_split_by_country_and_biotyp",
 
         source("Code/Functions/f_find_priority.r")
 
-        dir.create("Results/RDS/prioritisation_input/Country")
+        dir.create("Results/RDS/prioritisation_input/Country", recursive = TRUE)
 
         #add mean probability of gain stability
         PUs <- PUs %>%
