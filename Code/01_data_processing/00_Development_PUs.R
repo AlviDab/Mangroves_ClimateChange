@@ -30,15 +30,15 @@ bb["ymax"] = ceiling(bb["ymax"])
 bndry <- spatialplanr::splnr_get_boundary(bb, res = 1) # Get a boundary
 
 # Get the PUs for the broader bounding box
-PUs <- spatialgridr::get_grid(bndry, option = "sf_hex",
-                              projection_crs = moll_proj,
+PUs <- spatialgridr::get_grid(bndry, output = "sf_hex",
+                              crs = moll_proj,
                               resolution = 27000) %>%
   sf::st_sf() %>%
   dplyr::mutate(cellID = dplyr::row_number())
 
 # Get the larger PUs for the visualisation
-PUs_large <- spatialgridr::get_grid(bndry, option = "sf_hex",
-                              projection_crs = moll_proj,
+PUs_large <- spatialgridr::get_grid(bndry, output = "sf_hex",
+                              crs = moll_proj,
                               resolution = 270000) %>%
   sf::st_sf() %>%
   dplyr::mutate(cellID = dplyr::row_number())
@@ -63,6 +63,7 @@ gg <- ggplot() +
   geom_sf(data = gmw, linewidth = 0.0001, colour = "red", fill = NA) +
   geom_sf(data = PUs, linewidth = 0.0001, fill = NA, colour = "blue")
 
+dir.create("Figures")
 ggsave("Figures/00_mangrove_PUs.pdf", gg, width = 20, height = 5)
 
 # Next we can run an intersection to return the actual overlap for each PU to calculate cutoffs
@@ -76,6 +77,9 @@ PUs <- PUs %>%
   left_join(area, by = "cellID") %>%
   dplyr::mutate(PUArea_km2 = as.numeric(units::set_units(sf::st_area(.), "km2")),
                 MangroveProp = MangroveArea_km2/PUArea_km2)
+
+dir.create("Results/RDS", recursive = TRUE)
+dir.create("Results/gpkg", recursive = TRUE)
 
 saveRDS(PUs, file = "Results/RDS/PUs_00_mollweide.rds")
 st_write(PUs, "Results/gpkg/PUs_00_mollweide.gpkg")
