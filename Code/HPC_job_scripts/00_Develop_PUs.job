@@ -3,21 +3,23 @@
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
-#SBATCH --mem=10G
+#SBATCH --mem=30G
 #SBATCH --time=10:00:00
 #SBATCH --qos=normal
 #SBATCH --partition=general
-#SBATCH --constraint=epyc4
-#SBATCH --batch=epyc4
+#SBATCH --constraint=epyc3
+#SBATCH --batch=epyc3
 #SBATCH --account=a_richardson
 #SBATCH -o slurm-%j.output
 #SBATCH -e slurm-%j.error
 
 # Define directories
-QRIS_DIR="..."
-DATA_DIR=$QRIS_DIR/...
+QRIS_DIR="/QRISdata/Q7384"
+DATA_DIR=$QRIS_DIR/Mangroves_CC_NatComms
 
 echo -e "Print directories\n"
+echo $TMPDIR
+echo -e "\n"
 echo $DATA_DIR
 
 # Recalling files and making sure they are loaded fine in the RDM
@@ -27,15 +29,15 @@ echo $DATA_DIR
 module purge
 
 # Load R
-module load r/4.4.2
+module load r/4.4.0-combo-EPYC3-only
 
 # Run R script
 srun Rscript 00_Development_PUs.R $DATA_DIR
 
 # Copy Figures into RDM
 echo -e "Copying figures\n"
-cp $TMPDIR/Figures/* $QRIS_DIR/...
+cp $TMPDIR/Figures/* $QRIS_DIR/Output
 
 # Copy Results into RDM
 echo -e "Copying results\n"
-cp $TMPDIR/Results/* $QRIS_DIR/...
+cp $TMPDIR/Results/* $QRIS_DIR/Output

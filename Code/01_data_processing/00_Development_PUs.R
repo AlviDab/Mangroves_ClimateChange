@@ -19,22 +19,47 @@ library(tidyverse)
 library(spatialgridr)
 library(spatialplanr)
 
+cat("Loaded libraries\n")
+
 # Define directories
 args = commandArgs(trailingOnly = TRUE)
 INPUT_DIR = args[1] # 1st argument in the srun Rscript function is the the input directory
 TMP_DIR = Sys.getenv("TMPDIR")
 FIG_DIR = file.path(TMP_DIR, "Figures")
-RESULTS_DIR = file.path(TMPDIR, "Results")
+RESULTS_DIR = file.path(TMP_DIR, "Results")
+
+cat("Defined directories\n")
+
+# Create new directories
+htr_make_folder <- function(folder) { # Function is form hotrstuff
+  if (!isTRUE(file.info(folder)$isdir)) dir.create(folder, recursive = TRUE)
+}
+htr_make_folder(FIG_DIR)
+htr_make_folder(RESULTS_DIR)
+
+cat("Create new directories\n")
 
 # Use this planning unit area
-PU_AREA = 27000
-PU_AREA_LARGE = 270000
+# Function to calculate diameter from area
+CellArea <- 1000*1000 # in m
+calculate_diameter <- function(CellArea){ # calculated in m
+  diameter <- 2 * sqrt((CellArea*1e6)/((3*sqrt(3)/2))) * sqrt(3)/2 # Diameter in m's
+}
+
+PU_AREA <- calculate_diameter(CellArea)
+PU_AREA_LARGE <- PU_AREA*10
+
+cat("Calculated area\n")
+
+#original values
+#PU_AREA = 27000
+#PU_AREA_LARGE = 270000
 
 # Define projection
 moll_proj <- "ESRI:54009"
 
 # Load GMW data
-gmw_data <- sf::st_read(file.path(INPUT_DIR, "vector", "gmw_v3_2020_vec.shp"))
+gmw_data <- sf::st_read(file.path(INPUT_DIR, "gmw_v3_2020", "vector", "gmw_v3_2020_vec.shp"))
 
 gmw <- gmw_data %>%
   st_transform(moll_proj) %>%
@@ -52,15 +77,15 @@ bb["ymax"] = ceiling(bb["ymax"])
 bndry <- spatialplanr::splnr_get_boundary(bb, res = 1) # Get a boundary
 
 # Get the PUs for the broader bounding box
-PUs <- spatialgridr::get_grid(bndry, option = "sf_hex",
-                              projection_crs = moll_proj,
+PUs <- spatialgridr::get_grid(bndry, output = "sf_hex",
+                              crs = moll_proj,
                               resolution = PU_AREA) %>%
   sf::st_sf() %>%
   dplyr::mutate(cellID = dplyr::row_number())
 
 # Get the larger PUs for the visualisation
-PUs_large <- spatialgridr::get_grid(bndry, option = "sf_hex",
-                              projection_crs = moll_proj,
+PUs_large <- spatialgridr::get_grid(bndry, output = "sf_hex",
+                              crs = moll_proj,
                               resolution = PU_AREA_LARGE) %>%
   sf::st_sf() %>%
   dplyr::mutate(cellID = dplyr::row_number())
@@ -69,6 +94,8 @@ gg <- ggplot() +
   geom_sf(data = PUs, linewidth = 0.00001)
 
 ggsave(file.path(FIG_DIR, "00_bbox_PUs.pdf"), gg)
+
+cat("Created planning units")
 
 # Now we only want the ones that intersect with
 overlap <- sf::st_intersects(PUs, gmw) %>%
@@ -99,10 +126,12 @@ PUs <- PUs %>%
   dplyr::mutate(PUArea_km2 = as.numeric(units::set_units(sf::st_area(.), "km2")),
                 MangroveProp = MangroveArea_km2/PUArea_km2)
 
-saveRDS(PUs, file = file.path(RESULTS_DIR, "RDS", "00_PUs_mollweide.rds"))
-st_write(PUs, file.path(RESULTS_DIR, "gpkg", "00_PUs_mollweide.gpkg"))
+saveRDS(PUs, file = file.path(RESULTS_DIR, "00_PUs_mollweide.rds"))
+st_write(PUs, file.path(RESULTS_DIR, "00_PUs_mollweide.gpkg"))
 
-saveRDS(PUs_large, file = file.path(RESULTS_DIR, "RDS", "00_PUs_large_mollweide.rds"))
+saveRDS(PUs_large, file = file.path(RESULTS_DIR, "00_PUs_large_mollweide.rds"))
+
+cat("Finished analysis")
 
 # rm(list = ls(all.names = TRUE)) #will clear all objects includes hidden objects.
 # gc() #free up memrory and report the memory usage.
