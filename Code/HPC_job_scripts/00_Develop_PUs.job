@@ -1,0 +1,41 @@
+#!/bin/bash --login
+#SBATCH --job-name=develop_PUs
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=1
+#SBATCH --mem=10G
+#SBATCH --time=10:00:00
+#SBATCH --qos=normal
+#SBATCH --partition=general
+#SBATCH --constraint=epyc4
+#SBATCH --batch=epyc4
+#SBATCH --account=a_richardson
+#SBATCH -o slurm-%j.output
+#SBATCH -e slurm-%j.error
+
+# Define directories
+QRIS_DIR="..."
+DATA_DIR=$QRIS_DIR/...
+
+echo -e "Print directories\n"
+echo $DATA_DIR
+
+# Recalling files and making sure they are loaded fine in the RDM
+/usr/local/bin/recall_medici $DATA_DIR
+
+# Make sure all loaded modules (if any) are purged
+module purge
+
+# Load R
+module load r/4.4.2
+
+# Run R script
+srun Rscript 00_Development_PUs.R $DATA_DIR
+
+# Copy Figures into RDM
+echo -e "Copying figures\n"
+cp $TMPDIR/Figures/* $QRIS_DIR/...
+
+# Copy Results into RDM
+echo -e "Copying results\n"
+cp $TMPDIR/Results/* $QRIS_DIR/...
