@@ -41,19 +41,20 @@ cat("Create new directories\n")
 
 # Use this planning unit area
 # Function to calculate diameter from area
-CellArea <- 1000*1000 # in m
+area_in_km2 <- 1000
+CellArea <- area_in_km2*(1000*1000) # in m is 1000km2
 calculate_diameter <- function(CellArea){ # calculated in m
-  diameter <- 2 * sqrt((CellArea*1e6)/((3*sqrt(3)/2))) * sqrt(3)/2 # Diameter in m's
+  height <- sqrt(2*CellArea/(sqrt(3))) # Height in m's
 }
 
-PU_AREA <- calculate_diameter(CellArea)
-PU_AREA_LARGE <- PU_AREA*10
+PU_HEIGHT <- calculate_diameter(CellArea)
+# PU_HEIGHT_LARGE <- PU_HEIGHT*10 # removing this for HPC runs
 
 cat("Calculated area\n")
 
 #original values
-#PU_AREA = 27000
-#PU_AREA_LARGE = 270000
+#PU_HEIGHT = 27000
+#PU_HEIGHT_LARGE = 270000
 
 # Define projection
 moll_proj <- "ESRI:54009"
@@ -79,16 +80,16 @@ bndry <- spatialplanr::splnr_get_boundary(bb, res = 1) # Get a boundary
 # Get the PUs for the broader bounding box
 PUs <- spatialgridr::get_grid(bndry, output = "sf_hex",
                               crs = moll_proj,
-                              resolution = PU_AREA) %>%
+                              resolution = PU_HEIGHT) %>%
   sf::st_sf() %>%
   dplyr::mutate(cellID = dplyr::row_number())
 
 # Get the larger PUs for the visualisation
-PUs_large <- spatialgridr::get_grid(bndry, output = "sf_hex",
-                              crs = moll_proj,
-                              resolution = PU_AREA_LARGE) %>%
-  sf::st_sf() %>%
-  dplyr::mutate(cellID = dplyr::row_number())
+# PUs_large <- spatialgridr::get_grid(bndry, output = "sf_hex",
+#                               crs = moll_proj,
+#                               resolution = PU_HEIGHT_LARGE) %>%
+#   sf::st_sf() %>%
+#   dplyr::mutate(cellID = dplyr::row_number())
 
 gg <- ggplot() +
   geom_sf(data = PUs, linewidth = 0.00001)
@@ -101,11 +102,11 @@ cat("Created planning units")
 overlap <- sf::st_intersects(PUs, gmw) %>%
   lengths() > 0
 
-overlap_large <- sf::st_intersects(PUs_large, gmw) %>%
-  lengths() > 0
+# overlap_large <- sf::st_intersects(PUs_large, gmw) %>%
+#   lengths() > 0
 
 PUs <- PUs[overlap,]
-PUs_large <- PUs_large[overlap_large,]
+# PUs_large <- PUs_large[overlap_large,]
 
 # Lets check it's working ok
 gg <- ggplot() +
@@ -129,7 +130,7 @@ PUs <- PUs %>%
 saveRDS(PUs, file = file.path(RESULTS_DIR, "00_PUs_mollweide.rds"))
 st_write(PUs, file.path(RESULTS_DIR, "00_PUs_mollweide.gpkg"))
 
-saveRDS(PUs_large, file = file.path(RESULTS_DIR, "00_PUs_large_mollweide.rds"))
+# saveRDS(PUs_large, file = file.path(RESULTS_DIR, "00_PUs_large_mollweide.rds"))
 
 cat("Finished analysis")
 
