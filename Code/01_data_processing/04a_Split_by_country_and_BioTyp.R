@@ -1,11 +1,30 @@
 #Author: Alvise Dabalà
 #Date: 20/02/2024
 
-pacman::p_load(tidyverse, sf, purrr)
+# Edited by Tin Buenafe 22 May 2025 for HPC functionality
 
-PUs <- readRDS("Results/RDS/PUs_02_mangroves_biotyp_cc_IUCN.rds")
+# Load packages
+#pacman::p_load(tidyverse, sf, purrr)
+library(tidyverse)
+library(sf)
+library(purrr)
 
-source("Code/Functions/f_intersect_countries.R")
+# Define directories
+args = commandArgs(trailingOnly = TRUE)
+RAW_DATA_DIR = args[1] # 1st argument in the srun Rscript function is the the directory where all the raw data are
+PROCESSED_DATA_DIR = args[2] # 2nd argument in the srun Rscript function is the directory where all the processed data are
+TMP_DIR = Sys.getenv("TMPDIR")
+RESULTS_DIR = file.path(TMP_DIR, "Results")
+
+# Create new directories
+htr_make_folder <- function(folder) { # Function is from hotrstuff
+  if (!isTRUE(file.info(folder)$isdir)) dir.create(folder, recursive = TRUE)
+}
+htr_make_folder(RESULTS_DIR)
+
+PUs <- readRDS(file.path(PROCESSED_DATA_DIR, "PUs_02_mangroves_biotyp_cc_IUCN.rds"))
+
+source("f_intersect_countries.R")
 
 #Intersect countries
 PUs <- PUs %>%
@@ -65,8 +84,10 @@ PUs <- PUs %>%
   relocate(geometry, .before = ID)
 
 saveRDS(PUs,
-        "Results/RDS/PUs_04_mangroves_cc_IUCN_split_by_country_and_biotyp.rds")
+        file.path(RESULTS_DIR, "PUs_04_mangroves_cc_IUCN_split_by_country_and_biotyp.rds"))
 
-rm(list = ls(all.names = TRUE)) #will clear all objects includes hidden objects.
-gc() #free up memrory and report the memory usage.
-.rs.restartR()
+cat("Finished analysis")
+
+#rm(list = ls(all.names = TRUE)) #will clear all objects includes hidden objects.
+#gc() #free up memrory and report the memory usage.
+#.rs.restartR()

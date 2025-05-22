@@ -1,0 +1,43 @@
+#!/bin/bash --login
+#SBATCH --job-name=calculate_area
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=1
+#SBATCH --mem=30G
+#SBATCH --time=10:00:00
+#SBATCH --qos=normal
+#SBATCH --partition=general
+#SBATCH --constraint=epyc3
+#SBATCH --batch=epyc3
+#SBATCH --account=a_richardson
+#SBATCH -o slurm-%j.output
+#SBATCH -e slurm-%j.error
+
+# Define directories
+QRIS_DIR="/QRISdata/Q7384"
+RAW_DATA_DIR=$QRIS_DIR/Mangroves_CC_NatComms
+PROCESSED_DATA_DIR=$QRIS_DIR/Output
+
+echo -e "Print directories\n"
+echo $TMPDIR
+echo -e "\n"
+echo $RAW_DATA_DIR
+echo -e "\n"
+echo $PROCESSED_DATA_DIR
+
+# Recalling files and making sure they are loaded fine in the RDM
+/usr/local/bin/recall_medici $RAW_DATA_DIR
+/usr/local/bin/recall_medici $PROCESSED_DATA_DIR
+
+# Make sure all loaded modules (if any) are purged
+module purge
+
+# Load R
+module load r/4.4.0-combo-EPYC3-only
+
+# Run R script
+srun Rscript 01_CalculateArea_BiophysicalTypology_CC.R $RAW_DATA_DIR $PROCESSED_DATA_DIR
+
+# Copy Results into RDM
+echo -e "Copying results\n"
+cp $TMPDIR/Results/* $QRIS_DIR/Output

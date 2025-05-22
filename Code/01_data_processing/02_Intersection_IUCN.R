@@ -1,15 +1,37 @@
 #Author: Alvise Dabalà
 #Date: 18/04/2023
 
-pacman::p_load(tidyverse, sf, tmap)
+# Edited by Tin Buenafe 22 May 2025 for HPC functionality
 
+# Loading packages
+
+#pacman::p_load(tidyverse, sf, tmap)
+library(tidyverse)
+library(sf)
+library(tmap)
+
+# Define projection
 moll_proj <- "ESRI:54009"
 
-PUs <- read_rds("Results/RDS/PUs_01_mangroves_biotyp_cc.rds")
+# Define directories
+args = commandArgs(trailingOnly = TRUE)
+RAW_DATA_DIR = args[1] # 1st argument in the srun Rscript function is the the directory where all the raw data are
+PROCESSED_DATA_DIR = args[2] # 2nd argument in the srun Rscript function is the directory where all the processed data are
+TMP_DIR = Sys.getenv("TMPDIR")
+RESULTS_DIR = file.path(TMP_DIR, "Results")
 
-tictoc::tic()
+# Create new directories
+htr_make_folder <- function(folder) { # Function is from hotrstuff
+  if (!isTRUE(file.info(folder)$isdir)) dir.create(folder, recursive = TRUE)
+}
+htr_make_folder(RESULTS_DIR)
 
-IUCN_mangroves <- st_read("Data/IUCN_Distribution_Mangroves/MANGROVES.shp") %>%
+
+PUs <- read_rds(file.path(PROCESSED_DATA_DIR, "PUs_01_mangroves_biotyp_cc.rds"))
+
+#tictoc::tic()
+
+IUCN_mangroves <- st_read(file.path(RAW_DATA_DIR, "IUCN_Distribution_Mangroves", "MANGROVES.shp")) %>%
   st_transform(moll_proj) %>%
   st_make_valid()
 
@@ -27,7 +49,7 @@ PUs_IUCN_index <- PUs %>%
   st_intersects(IUCN_mangroves, sparse = FALSE) %>%
   as_tibble()
 
-tictoc::toc()
+#tictoc::toc()
 
 names(PUs_IUCN_index) <- species_names
 
@@ -44,7 +66,7 @@ PUs_IUCN <- PUs %>%
                 starts_with("Sp_"))
 
 #Add using nearest neighborhood for the planning units that don't intersect
-source("Code/Functions/f_remove_zeros_nearestneighborhood_IUCN.R")
+source(file.path("f_remove_zeros_nearestneighborhood_IUCN.R"))
 
 PUs_IUCN <- fNN_zeros_IUCN(PUs_IUCN, "n_intersections") %>%
   st_drop_geometry() %>%
@@ -55,8 +77,10 @@ PUs_IUCN <- fNN_zeros_IUCN(PUs_IUCN, "n_intersections") %>%
   dplyr::select(!n_intersections) %>%
   st_as_sf()
 
-saveRDS(PUs_IUCN, "Results/RDS/PUs_02_mangroves_biotyp_cc_IUCN.rds")
+saveRDS(PUs_IUCN, file.path(RESULTS_DIR, "PUs_02_mangroves_biotyp_cc_IUCN.rds"))
 
-rm(list = ls(all.names = TRUE)) #will clear all objects includes hidden objects.
-gc() #free up memrory and report the memory usage.
-.rs.restartR()
+cat("Finished analysis")
+
+#rm(list = ls(all.names = TRUE)) #will clear all objects includes hidden objects.
+#gc() #free up memrory and report the memory usage.
+#.rs.restartR()

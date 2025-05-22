@@ -31,7 +31,7 @@ RESULTS_DIR = file.path(TMP_DIR, "Results")
 cat("Defined directories\n")
 
 # Create new directories
-htr_make_folder <- function(folder) { # Function is form hotrstuff
+htr_make_folder <- function(folder) { # Function is from hotrstuff
   if (!isTRUE(file.info(folder)$isdir)) dir.create(folder, recursive = TRUE)
 }
 htr_make_folder(FIG_DIR)
