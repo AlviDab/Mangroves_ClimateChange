@@ -1,15 +1,38 @@
 #Author: Alvise Dabalà
 #Date: 29/04/2024
 
-pacman::p_load(tidyverse, sf, parallel, furrr, purrr, wdpar)
+# Edited by Tin Buenafe 23 May 2025 for HPC functionality
 
-WDPA_PUs_valid_names <- list.files("Results/RDS/WDPA/PUs_valid/filtered",
+# Load packages
+#pacman::p_load(tidyverse, sf, parallel, furrr, purrr, wdpar)
+library(tidyverse)
+library(sf)
+library(parallelly)
+library(furrr)
+library(purrr)
+library(wdpar)
+
+# Define directories
+args = commandArgs(trailingOnly = TRUE)
+RAW_DATA_DIR = args[1] # 1st argument in the srun Rscript function is the the directory where all the raw data are
+PROCESSED_DATA_DIR = args[2] # 2nd argument in the srun Rscript function is the directory where all the processed data are
+TMP_DIR = Sys.getenv("TMPDIR")
+RESULTS_DIR = file.path(TMP_DIR, "Results")
+
+# Create new directories
+htr_make_folder <- function(folder) { # Function is from hotrstuff
+  if (!isTRUE(file.info(folder)$isdir)) dir.create(folder, recursive = TRUE)
+}
+htr_make_folder(RESULTS_DIR)
+
+WDPA_PUs_valid_names <- list.files(paste0(PROCESSED_DATA_DIR, "/PUs_valid"),
                                    pattern = "*.rds", full.names = TRUE)
 
-WDPA_PUs_not_valid_names <- list.files("Results/RDS/WDPA/PUs_not_valid/filtered",
+WDPA_PUs_not_valid_names <- list.files(paste0(PROCESSED_DATA_DIR, "/PUs_not_valid"),
                                        pattern = "*.rds", full.names = TRUE)
 
-ncores <- detectCores() - 10
+ncores <- parallelly::availableCores(method = "Slurm", omit = 1) # parallelly counterpart
+#ncores <- detectCores() - 10
 
 plan(multisession, workers = ncores)
 
@@ -29,23 +52,25 @@ WDPA_PUs <- c(WDPA_PUs_valid_names, WDPA_PUs_not_valid_names) %>%
 
 plan(sequential)
 
+cat("\nDone with loop")
+
 WDPA_PUs <- WDPA_PUs[unlist(map(WDPA_PUs, ~(nrow(.)) > 0))] %>%
   bind_rows()
 
-saveRDS(WDPA_PUs, "Results/RDS/WDPA/all_overlapping_MPAs_ESRI_54009.rds")
+saveRDS(WDPA_PUs, file.path(RESULTS_DIR, "all_overlapping_MPAs_ESRI_54009.rds"))
 
-WDPA_PUs <- readRDS("Results/RDS/WDPA/all_overlapping_MPAs_ESRI_54009.rds") #TO REMOVE
+#WDPA_PUs <- readRDS("Results/RDS/WDPA/all_overlapping_MPAs_ESRI_54009.rds") #TO REMOVE
 
-PUs <- readRDS("Results/RDS/PUs_04a_mangroves_cc_IUCN_split_by_biotyp.rds")
+PUs <- readRDS(file.path(PROCESSED_DATA_DIR, "PUs_04a_mangroves_cc_IUCN_split_by_biotyp.rds"))
 
-biotyp_intersection_WDPA <- st_read("Data/MangroveTypology/Mangrove_Typology_v3_2020.shp") %>%
+biotyp_intersection_WDPA <- st_read(file.path(RAW_DATA_DIR, "MangroveTypology", "Mangrove_Typology_v3_2020.shp")) %>%
   st_transform("ESRI:54009") %>%
   st_make_valid() %>%
   st_intersection(WDPA_PUs)
 
-saveRDS(biotyp_intersection_WDPA, "Results/RDS/WDPA/biotyp_intersection_WDPA.rds")
+saveRDS(biotyp_intersection_WDPA, file.path(RESULTS_DIR, "biotyp_intersection_WDPA.rds"))
 
-biotyp_intersection_WDPA <- readRDS("Results/RDS/WDPA/biotyp_intersection_WDPA.rds")
+#biotyp_intersection_WDPA <- readRDS("Results/RDS/WDPA/biotyp_intersection_WDPA.rds")
 
 #Divide by Class
 biotyp_intersection_WDPA <- biotyp_intersection_WDPA %>%
@@ -65,9 +90,9 @@ biotyp_intersection_WDPA_all_union <- biotyp_intersection_WDPA %>%
 
 plan(sequential)
 
-saveRDS(biotyp_intersection_WDPA_all_union, "Results/RDS/WDPA/biotyp_intersection_WDPA_all_union.rds")
+saveRDS(biotyp_intersection_WDPA_all_union, file.path(RESULTS_DIR, "biotyp_intersection_WDPA_all_union.rds"))
 
-biotyp_intersection_WDPA_all_union <- readRDS("Results/RDS/WDPA/biotyp_intersection_WDPA_all_union.rds")
+#biotyp_intersection_WDPA_all_union <- readRDS("Results/RDS/WDPA/biotyp_intersection_WDPA_all_union.rds")
 
 plan(multisession, workers = ncores)
 
@@ -95,11 +120,13 @@ PUs_biotyp_WDPA_all_intersection <- biotyp_intersection_WDPA_all_union %>%
 
 plan(sequential)
 
-saveRDS(PUs_biotyp_WDPA_all_intersection, "Results/RDS/WDPA/PUs_biotyp_WDPA_all_intersection.rds")
+saveRDS(PUs_biotyp_WDPA_all_intersection, file.path(RESULTS_DIR, "PUs_biotyp_WDPA_all_intersection.rds"))
 
-PUs_biotyp_WDPA_all_intersection <- readRDS("Results/RDS/WDPA/PUs_biotyp_WDPA_all_intersection.rds")
+cat("\nDone with intersection")
 
-rm(biotyp_intersection_WDPA_all_union)
+#PUs_biotyp_WDPA_all_intersection <- readRDS("Results/RDS/WDPA/PUs_biotyp_WDPA_all_intersection.rds")
+
+#rm(biotyp_intersection_WDPA_all_union)
 
 # #For I-VI
 # gmw_intersection_WDPA_I_VI_union <- gmw_intersection_WDPA %>%
@@ -171,8 +198,10 @@ PUs %>%
   summarise(WDPA_area = rowSums(pick(where(is.numeric)))) %>%
   sum()
 
-saveRDS(PUs, "Results/RDS/PUs_06_cc_IUCN_split_by_biotyp_WDPA.rds")
+saveRDS(PUs, file.path(RESULTS_DIR, "PUs_06_cc_IUCN_split_by_biotyp_WDPA.rds"))
 
-rm(list = ls(all.names = TRUE)) #will clear all objects includes hidden objects.
-gc() #free up memrory and report the memory usage.
-.rs.restartR()
+cat("\nDone with analysis")
+
+#rm(list = ls(all.names = TRUE)) #will clear all objects includes hidden objects.
+#gc() #free up memrory and report the memory usage.
+#.rs.restartR()

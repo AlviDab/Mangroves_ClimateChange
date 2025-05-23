@@ -43,7 +43,8 @@ f_find_priority <- function(PUs, col_name, prct, features) {
       st_drop_geometry()
   }
 
-  ncores <- detectCores() - 2
+  ncores <- parallelly::availableCores(method = "Slurm", omit = 1) # parallelly counterpart
+#ncores <- detectCores() - 10
 
   plan(multisession, workers = ncores)
 

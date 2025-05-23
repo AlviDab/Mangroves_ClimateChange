@@ -1,9 +1,30 @@
 #Author: Alvise Dabalà
 #Date: 21/02/2024
 
-pacman::p_load(tidyverse, sf, prioritizr)
+# Edited by Tin Buenafe 22 May 2025 for HPC functionality
 
-PUs_IUCN <- readRDS("Results/RDS/PUs_02_mangroves_biotyp_cc_IUCN.rds")
+# Load packages
+#pacman::p_load(tidyverse, sf, prioritizr)
+library(tidyverse)
+library(sf)
+library(prioritizr)
+
+cat("\nLoaded prioritizr (and other packages).")
+
+# Define directories
+args = commandArgs(trailingOnly = TRUE)
+RAW_DATA_DIR = args[1] # 1st argument in the srun Rscript function is the the directory where all the raw data are
+PROCESSED_DATA_DIR = args[2] # 2nd argument in the srun Rscript function is the directory where all the processed data are
+TMP_DIR = Sys.getenv("TMPDIR")
+RESULTS_DIR = file.path(TMP_DIR, "Results")
+
+# Create new directories
+htr_make_folder <- function(folder) { # Function is from hotrstuff
+  if (!isTRUE(file.info(folder)$isdir)) dir.create(folder, recursive = TRUE)
+}
+htr_make_folder(RESULTS_DIR)
+
+PUs_IUCN <- readRDS(file.path(PROCESSED_DATA_DIR, "PUs_02_mangroves_biotyp_cc_IUCN.rds"))
 
 PUs_features <- PUs_IUCN %>%
   select(starts_with("Sp_")) %>%
@@ -46,12 +67,13 @@ targets_species <- map_dbl(PUs_features$AOH, function(species_AOH) {
 PUs_features_targets <- PUs_features %>%
   mutate(targets = targets_species)
 
-saveRDS(PUs_features_targets, "Results/RDS/PUs_05_features_targets.rds")
+saveRDS(PUs_features_targets,
+        file.path(RESULTS_DIR, "PUs_05_features_targets.rds"))
 
 map(c("PUs_04_mangroves_cc_IUCN_split_by_country_and_biotyp",
       "PUs_04a_mangroves_cc_IUCN_split_by_biotyp"), function(file_name) {
 
-        PUs <- readRDS(paste0("Results/RDS/", file_name, ".rds"))
+        PUs <- readRDS(paste0(PROCESSED_DATA_DIR, "/", file_name, ".rds"))
 
         new_file_name <- sub(".*_by", "by", file_name)
 
@@ -78,11 +100,13 @@ map(c("PUs_04_mangroves_cc_IUCN_split_by_country_and_biotyp",
         PUs_features_split_targets <- map(PUs_features$feature, split_targets) %>%
           bind_rows()
 
-        saveRDS(PUs_features_split_targets, paste0("Results/RDS/PUs_05_features_split_targets_",
+        saveRDS(PUs_features_split_targets, paste0(RESULTS_DIR, "/","PUs_05_features_split_targets_",
                                                    new_file_name,
                                                    ".rds"))
       })
 
-rm(list = ls(all.names = TRUE)) #will clear all objects includes hidden objects.
-gc() #free up memrory and report the memory usage.
-.rs.restartR()
+cat("\nFinished analysis")
+
+#rm(list = ls(all.names = TRUE)) #will clear all objects includes hidden objects.
+#gc() #free up memrory and report the memory usage.
+#.rs.restartR()

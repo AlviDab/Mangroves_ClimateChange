@@ -1,27 +1,49 @@
 #Author: Alvise Dabalà
 #Date: 21/02/2024
 
-pacman::p_load(tidyverse, sf, parallel, furrr, purrr)
+# Edited by Tin Buenafe 23 May 2025 for HPC functionality
 
-options(future.globals.maxSize = 750*1024^2)
+# Load packages
+#pacman::p_load(tidyverse, sf, parallel, furrr, purrr)
+library(tidyverse)
+library(sf)
+library(parallelly)
+library(furrr)
+library(purrr)
+
+# Define directories
+args = commandArgs(trailingOnly = TRUE)
+RAW_DATA_DIR = args[1] # 1st argument in the srun Rscript function is the the directory where all the raw data are
+PROCESSED_DATA_DIR = args[2] # 2nd argument in the srun Rscript function is the directory where all the processed data are
+TMP_DIR = Sys.getenv("TMPDIR")
+RESULTS_DIR = file.path(TMP_DIR, "Results")
+
+# Create new directories
+htr_make_folder <- function(folder) { # Function is from hotrstuff
+  if (!isTRUE(file.info(folder)$isdir)) dir.create(folder, recursive = TRUE)
+}
+htr_make_folder(RESULTS_DIR)
+
+#options(future.globals.maxSize = 750*1024^2)
 
 map(c("PUs_04_mangroves_cc_IUCN_split_by_country_and_biotyp",
       "PUs_04a_mangroves_cc_IUCN_split_by_biotyp"
       ), function(file_name) {
 
-        PUs <- readRDS(paste0("Results/RDS/", file_name, ".rds"))
+        PUs <- readRDS(paste0(PROCESSED_DATA_DIR, "/", file_name, ".rds"))
 
         split <- sub(".*_by", "by", file_name)
         new_file_name <- sub(".*_m", "m", file_name)
 
-        features <- paste0("Results/RDS/PUs_05_features_split_targets_",
+        features <- paste0(PROCESSED_DATA_DIR, "/PUs_05_features_split_targets_",
                            split,
                            ".rds") %>%
           readRDS()
 
-        source("Code/Functions/f_find_priority.r")
+        source("f_find_priority.R")
 
-        dir.create("Results/RDS/prioritisation_input/Country")
+        #dir.create("Results/RDS/prioritisation_input/Country")
+        htr_make_folder(file.path(RESULTS_DIR, "prioritisation_input", "Country"))
 
         #add mean probability of gain stability
         PUs <- PUs %>%
@@ -32,7 +54,7 @@ map(c("PUs_04_mangroves_cc_IUCN_split_by_country_and_biotyp",
         #remove eventual NAs using nearest neighborhood
 
         #Add using nearest neighborhood the missing values
-        source("Code/Functions/f_remove_NAs_nearestneighborhood.R")
+        source("f_remove_NAs_nearestneighborhood.R")
 
         PUs <- PUs %>%
           fNN_NAs("Prob_gain_stability_landward") %>%
@@ -52,7 +74,7 @@ map(c("PUs_04_mangroves_cc_IUCN_split_by_country_and_biotyp",
                                             features)
 
                   saveRDS(PUs_CC,
-                          paste0("Results/RDS/prioritisation_input/Country/PUs_05_",
+                          paste0(RESULTS_DIR, "/prioritisation_input/Country/PUs_05_",
                           new_file_name,
                           "_priority_",
                                  prct, "_", CC_direction, ".rds")
@@ -61,8 +83,10 @@ map(c("PUs_04_mangroves_cc_IUCN_split_by_country_and_biotyp",
             })
       })
 
-plan(sequential)
+cat("\nFinished with analysis.")
 
-rm(list = ls(all.names = TRUE)) #will clear all objects includes hidden objects.
-gc() #free up memrory and report the memory usage.
-.rs.restartR()
+#plan(sequential)
+
+#rm(list = ls(all.names = TRUE)) #will clear all objects includes hidden objects.
+#gc() #free up memrory and report the memory usage.
+#.rs.restartR()
