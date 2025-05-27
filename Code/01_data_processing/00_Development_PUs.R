@@ -22,24 +22,34 @@ gmw <- sf::st_read("Data/gmw_v3_2020/vector/gmw_v3_2020_vec.shp") %>%
 # Lets try getting the PUs within the bbox of the GMW data
 # then check the intersection of the coverage of the PUs for the actual GMW data.
 
+bbox_coords <- c(0, 0, 5, 5)
+names(bbox_coords) = c("xmin","ymin","xmax","ymax")
+
+bb = st_bbox(bbox_coords)
+st_crs(bb) = 4326
+
 bb <- sf::st_read("Data/gmw_v3_2020/vector/gmw_v3_2020_vec.shp") %>%
   st_bbox()
+
 bb["ymin"] <- floor(bb["ymin"]) # Round the limits or they won't form a complete boundary
 bb["ymax"] = ceiling(bb["ymax"])
 
-bndry <- spatialplanr::splnr_get_boundary(bb, res = 1) # Get a boundary
+bndry <- spatialplanr::splnr_get_boundary(bb, res = 1) %>%
+  st_sf() # Get a boundary
 
 # Get the PUs for the broader bounding box
-PUs <- spatialgridr::get_grid(bndry, option = "sf_hex",
-                              projection_crs = moll_proj,
+PUs <- spatialgridr::get_grid(boundary = bb,
+                              crs = moll_proj,
+                              output = "sf_hex",
                               resolution = 27000) %>%
   sf::st_sf() %>%
   dplyr::mutate(cellID = dplyr::row_number())
 
 # Get the larger PUs for the visualisation
-PUs_large <- spatialgridr::get_grid(bndry, option = "sf_hex",
-                              projection_crs = moll_proj,
-                              resolution = 270000) %>%
+PUs_large <- spatialgridr::get_grid(bndry,
+                                    output = "sf_hex",
+                                    crs = moll_proj,
+                                    resolution = 270000) %>%
   sf::st_sf() %>%
   dplyr::mutate(cellID = dplyr::row_number())
 

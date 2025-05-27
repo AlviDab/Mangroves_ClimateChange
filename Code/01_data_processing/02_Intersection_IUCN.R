@@ -1,7 +1,7 @@
 #Author: Alvise Dabalà
 #Date: 18/04/2023
 
-pacman::p_load(tidyverse, sf, tmap)
+pacman::p_load(tidyverse, sf)
 
 moll_proj <- "ESRI:54009"
 
