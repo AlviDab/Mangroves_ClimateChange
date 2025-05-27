@@ -22,12 +22,6 @@ gmw <- sf::st_read("Data/gmw_v3_2020/vector/gmw_v3_2020_vec.shp") %>%
 # Lets try getting the PUs within the bbox of the GMW data
 # then check the intersection of the coverage of the PUs for the actual GMW data.
 
-bbox_coords <- c(0, 0, 5, 5)
-names(bbox_coords) = c("xmin","ymin","xmax","ymax")
-
-bb = st_bbox(bbox_coords)
-st_crs(bb) = 4326
-
 bb <- sf::st_read("Data/gmw_v3_2020/vector/gmw_v3_2020_vec.shp") %>%
   st_bbox()
 
