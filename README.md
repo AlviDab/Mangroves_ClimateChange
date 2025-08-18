@@ -38,7 +38,7 @@ Cloning the content of the branch "demo" it is possible to run a demo of the con
 Run time of the demo should be of approximately 1h.
 
 ## Sensitivity analysis
-The sensitivity analysis was run both producing larger planning units (1000 km²) and using 30% conservation targets instead of area-based targets. The code used to run the sensitivity analysis is currently in "resp_v1".
+The sensitivity analysis was run both producing larger planning units (1000 km²) and using 30% conservation targets instead of area-based targets. The code used to run the sensitivity analysis is currently in the branch "resp_v1".
 
 ## Instruction for use
 
