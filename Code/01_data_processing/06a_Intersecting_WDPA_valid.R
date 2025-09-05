@@ -22,7 +22,7 @@ PUs_not_valid <- PUs %>%
 ## polygons
 
 #I KEEP IT NOT PARALLEL CAUSE I CAN'T OPEN THE THREE FILES AT THE SAME TIME
-#can parallelise using future_map and removing part of the code with '#'
+#can parallelise using future_map and removing part of the code with '#' '# DON'T THINK YOU NEEDS THIS IN THIS REPO
 
 map(c("polygons",
   "points"), function(shape) {

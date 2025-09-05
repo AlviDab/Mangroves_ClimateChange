@@ -3,7 +3,7 @@
 
 pacman::p_load(tidyverse, sf, prioritizr, parallel, furrr, purrr)
 
-ncores <- detectCores() - 2
+ncores <- detectCores() - 2 #here you use 2, then I would use in the other script also 2 (not 10)
 
 plan(multisession, workers = ncores)
 
@@ -30,7 +30,7 @@ future_map(seq(0.05, 1, by = 0.05),
                                                PUs_features_split_targets$feature,
                                                cost_column = "area_km2") %>%
                    add_relative_targets(PUs_features_split_targets$targets) %>%
-                   add_locked_in_constraints(PUs$priority) %>%
+                   add_locked_in_constraints(PUs$priority) %>% #lock in climate priority area determined in 07_CPA_selection.R script
                    add_min_set_objective() %>%
                    add_gurobi_solver(gap = 1*10^-4)
 

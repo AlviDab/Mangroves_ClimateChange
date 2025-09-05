@@ -1,3 +1,5 @@
+# CAN YOU PUT A TITLE ON EACH SCRIPT SO PEOPLE KNOW WHAT THEYRE FOR?
+
 #Author: Alvise Dabalà
 #Date: 20/02/2024
 
@@ -11,7 +13,7 @@ source("Code/Functions/f_intersect_countries.R")
 PUs <- PUs %>%
   f_int_countries()
 
-#Species
+#Species # more info
 sp_names <- PUs %>%
   st_drop_geometry() %>%
   dplyr::select(starts_with("Sp")) %>%
@@ -36,7 +38,7 @@ sp_country <- map(sp_names, ~split_species(.x)) %>%
   ) %>%
   Filter(function(x) !all(x == 0), .) #remove col of all zeros
 
-#BioTyp
+#BioTyp # more info
 int_biotyp <- function(BioTyp) {
 
   sp_BioTyp <- sp_country %>%

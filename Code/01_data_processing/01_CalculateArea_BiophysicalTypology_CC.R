@@ -11,10 +11,10 @@ predictions_CC <- read.csv("Data/Predictions_Buelow/mangrove-forecasts.csv") %>%
   as_tibble() %>%
   dplyr::select("ID", "Prob_gain_stability_landward", "Prob_gain_stability_seaward")
 
-# mangroves_biotyp <- readRDS("Results/RDS/mangroves_distribution_mollweide.rds")
+# mangroves_biotyp <- readRDS("Results/RDS/mangroves_distribution_mollweide.rds") # this data isn't there?
 
 # Otherwise just use the shapefile
-mangroves_biotyp <- sf::st_read("Data/MangroveTypology/Mangrove_Typology_v3_2020.shp") %>%
+mangroves_biotyp <- st_read("Data/MangroveTypology/Mangrove_Typology_v3_2020.shp") %>%
 st_transform(moll_proj) %>%
 st_make_valid()
 
@@ -34,6 +34,7 @@ PUs_mangroves_biotyp_cc_intersection <- PUs_mangroves_biotyp_cc_intersection %>%
            as.numeric()) %>%
   pivot_wider(names_from = "Class", values_from = "area_km2")
 
+# some extra explanation here would be useful
 PUs_mangroves_biotyp_cc_intersection <- PUs_mangroves_biotyp_cc_intersection %>%
   rowwise() %>%
   mutate(area_km2 = sum(c_across(Delta:OpenCoast), na.rm = T)) %>%

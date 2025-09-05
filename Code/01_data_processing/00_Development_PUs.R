@@ -4,7 +4,7 @@
 # Updated by Jason Everett (UQ) 14th march 2024
 
 # install.packages("devtools")
-devtools::install_github("https://github.com/MathMarEcol/spatialplanr")
+devtools::install_github("https://github.com/SpatialPlanning/spatialplanr")
 
 # install.packages("devtools")
 devtools::install_github("emlab-ucsb/spatialgridr")
@@ -12,6 +12,7 @@ devtools::install_github("emlab-ucsb/spatialgridr")
 # devtools::install_github("emlab-ucsb/spatialgridr")
 pacman::p_load(sf, tidyverse, spatialgridr, spatialplanr)
 
+# set projection
 moll_proj <- "ESRI:54009"
 
 gmw <- sf::st_read("Data/gmw_v3_2020/vector/gmw_v3_2020_vec.shp") %>%
@@ -25,7 +26,7 @@ gmw <- sf::st_read("Data/gmw_v3_2020/vector/gmw_v3_2020_vec.shp") %>%
 bb <- sf::st_read("Data/gmw_v3_2020/vector/gmw_v3_2020_vec.shp") %>%
   st_bbox()
 bb["ymin"] <- floor(bb["ymin"]) # Round the limits or they won't form a complete boundary
-bb["ymax"] = ceiling(bb["ymax"])
+bb["ymax"] <- ceiling(bb["ymax"])
 
 bndry <- spatialplanr::splnr_get_boundary(bb, res = 1) # Get a boundary
 
@@ -46,6 +47,7 @@ PUs_large <- spatialgridr::get_grid(bndry, output = "sf_hex",
 gg <- ggplot() +
   geom_sf(data = PUs, linewidth = 0.00001)
 
+dir.create("Figures")
 ggsave("Figures/00_bbox_PUs.pdf", gg)
 
 # Now we only want the ones that intersect with
@@ -63,7 +65,6 @@ gg <- ggplot() +
   geom_sf(data = gmw, linewidth = 0.0001, colour = "red", fill = NA) +
   geom_sf(data = PUs, linewidth = 0.0001, fill = NA, colour = "blue")
 
-dir.create("Figures")
 ggsave("Figures/00_mangrove_PUs.pdf", gg, width = 20, height = 5)
 
 # Next we can run an intersection to return the actual overlap for each PU to calculate cutoffs

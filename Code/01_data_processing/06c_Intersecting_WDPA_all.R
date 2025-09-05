@@ -9,7 +9,8 @@ WDPA_PUs_valid_names <- list.files("Results/RDS/WDPA/PUs_valid/filtered",
 WDPA_PUs_not_valid_names <- list.files("Results/RDS/WDPA/PUs_not_valid/filtered",
                                        pattern = "*.rds", full.names = TRUE)
 
-ncores <- detectCores() - 10
+#more explanation here. This is depending on the local machine. Many people don't even have enough cores to do -10
+ncores <- detectCores() - 10 # I'd probably say -2 here to be on the save side for all machines
 
 plan(multisession, workers = ncores)
 
@@ -146,6 +147,7 @@ rm(biotyp_intersection_WDPA_all_union)
 #Add to the planning units
 biotyp_WDPA_km2 <- PUs_biotyp_WDPA_all_intersection[[1]]
 
+# some more explanation needed here
 for(i in 2:4) {
   biotyp_WDPA_km2 <- biotyp_WDPA_km2 %>%
     full_join(PUs_biotyp_WDPA_all_intersection[[i]],

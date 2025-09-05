@@ -1,9 +1,11 @@
+# This also needs a title and explanation. People won't know what CPA is
+
 #Author: Alvise Dabalà
 #Date: 21/02/2024
 
 pacman::p_load(tidyverse, sf, parallel, furrr, purrr)
 
-options(future.globals.maxSize = 750*1024^2)
+options(future.globals.maxSize = 750*1024^2) # where is this number from
 
 map(c("PUs_04_mangroves_cc_IUCN_split_by_country_and_biotyp",
       "PUs_04a_mangroves_cc_IUCN_split_by_biotyp"

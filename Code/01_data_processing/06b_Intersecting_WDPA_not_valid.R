@@ -1,3 +1,5 @@
+# Both this and the previous script need a title and short explanation what they're for
+
 #Author: Alvise Dabalà
 #Date: 29/04/2024
 
