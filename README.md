@@ -1,8 +1,10 @@
 # Protecting climate-resilient mangroves requires a small increase in the global protected area
 
-In this repository is reported the code to run the prioritisation and produce the figures of the study "Protecting climate-resilient mangroves requires a small increase in the global protected area".
+In this repository is the code to prepare the data, run the prioritisation and produce the figures of the study "Protecting climate-resilient mangroves requires a small increase in the global protected area".
 
-The code should be run sequentially, starting from "01_data_processing" to "04_patchwork_figures"
+The code (in "Code") should be run sequentially, starting from the scripts in the folder "01_data_processing", over the analysis in "02_prioritisation" to plotting in "03_Figures".
+
+Functions used in the scripts can be found in the "Functions" folder.
 
 ## System requirements
 The code was written and tested in R version 4.4.0 in Microsoft Windows 11 Home version 10.0.22631 build 22631.
@@ -16,7 +18,7 @@ Install the following packages in R to run the code and reproduce results.
                    'parallel', 'tmap', 'openxlsx', 'ggeffects', 'ggstats', 'ggrepel', 'biscale', 'irr', 'ggnewscale', 
                    'MetBrewer', 'spatstat', 'collapse', 'modelr', 'pacman'))`
                    
-`devtools::install_github("https://github.com/MathMarEcol/spatialplanr")`
+`devtools::install_github("https://github.com/SpatialPlanning/spatialplanr")`
 
 `devtools::install_github("emlab-ucsb/spatialgridr")`
 
