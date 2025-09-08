@@ -4,7 +4,7 @@
 # Updated by Jason Everett (UQ) 14th march 2024
 
 # install.packages("devtools")
-devtools::install_github("https://github.com/MathMarEcol/spatialplanr")
+devtools::install_github("https://github.com/SpatialPlanning/spatialplanr")
 
 # install.packages("devtools")
 devtools::install_github("emlab-ucsb/spatialgridr")
@@ -25,7 +25,7 @@ gmw <- readRDS("Data/Demo/gmw_png.rds") %>%
 bb <- readRDS("Data/Demo/gmw_png.rds") %>%
   st_bbox()
 bb["ymin"] <- floor(bb["ymin"]) # Round the limits or they won't form a complete boundary
-bb["ymax"] = ceiling(bb["ymax"])
+bb["ymax"] <- ceiling(bb["ymax"])
 
 bndry <- spatialplanr::splnr_get_boundary(bb, res = 1) # Get a boundary
 
@@ -49,7 +49,7 @@ gg <- ggplot() +
 dir.create("Figures")
 ggsave("Figures/00_bbox_PUs.pdf", gg)
 
-# Now we only want the ones that intersect with
+# Now we only want the ones that intersect with mangroves
 overlap <- sf::st_intersects(PUs, gmw) %>%
   lengths() > 0
 

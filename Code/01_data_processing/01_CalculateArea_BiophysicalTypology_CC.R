@@ -13,7 +13,7 @@ predictions_CC <- read.csv("Data/Predictions_Buelow/mangrove-forecasts.csv") %>%
 
 # mangroves_biotyp <- readRDS("Results/RDS/mangroves_distribution_mollweide.rds")
 
-# Otherwise just use the shapefile
+# Otherwise just use the shapefile (otherwise to what?)
 mangroves_biotyp <- readRDS("Data/Demo/biotyp_png.rds") %>%
 st_transform(moll_proj) %>%
 st_make_valid()
@@ -24,6 +24,7 @@ mangroves_biotyp_cc <- mangroves_biotyp %>%
 PUs <- PUs %>%
   rowid_to_column("ID")
 
+#some explanation
 PUs_mangroves_biotyp_cc_intersection <- PUs %>%
   st_intersection(mangroves_biotyp_cc %>%
                     dplyr::select("Class", "Prob_gain_stability_landward",
