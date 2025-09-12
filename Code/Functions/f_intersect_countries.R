@@ -1,5 +1,8 @@
 #Author: Alvise Dabalà
 #Date: 09/05/2024
+# Description: Function to intersect planning units with countries
+
+################################################################################
 
 f_int_countries <- function(PUs) {
 

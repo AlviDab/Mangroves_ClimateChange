@@ -1,5 +1,8 @@
 #Author: Alvise Dabalà
 #Date: 28/05/2024
+#Description: Function to add WDPA columns
+
+################################################################################
 
 f_addcols_WDPA <- function(sol) {
 

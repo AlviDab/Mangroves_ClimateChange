@@ -1,17 +1,23 @@
 #Author: Alvise Dabalà
 #Date: 18/04/2023
+#Description: Code to produce the planning units that overlap with the Global
+#             Mangrove Watch distribution of mangroves in 2020.
 
-# Updated by Jason Everett (UQ) 14th march 2024
+# Updated by Jason Everett (UQ) 14th March 2024
 
-# install.packages("devtools")
-devtools::install_github("https://github.com/MathMarEcol/spatialplanr")
+################################################################################
 
-# install.packages("devtools")
+# Install packages if not already installed
+install.packages("devtools")
+
+devtools::install_github("https://github.com/SpatialPlanning/spatialplanr")
+
 devtools::install_github("emlab-ucsb/spatialgridr")
 
-# devtools::install_github("emlab-ucsb/spatialgridr")
+# Load libraries
 pacman::p_load(sf, tidyverse, spatialgridr, spatialplanr)
 
+# Set projection
 moll_proj <- "ESRI:54009"
 
 gmw <- sf::st_read("Data/gmw_v3_2020/vector/gmw_v3_2020_vec.shp") %>%
@@ -26,7 +32,7 @@ bb <- sf::st_read("Data/gmw_v3_2020/vector/gmw_v3_2020_vec.shp") %>%
   st_bbox()
 
 bb["ymin"] <- floor(bb["ymin"]) # Round the limits or they won't form a complete boundary
-bb["ymax"] = ceiling(bb["ymax"])
+bb["ymax"] <- ceiling(bb["ymax"])
 
 bndry <- spatialplanr::splnr_get_boundary(bb, res = 1) %>%
   st_sf() # Get a boundary
@@ -47,12 +53,14 @@ PUs_large <- spatialgridr::get_grid(bndry,
   sf::st_sf() %>%
   dplyr::mutate(cellID = dplyr::row_number())
 
+# Check the PUs
 gg <- ggplot() +
   geom_sf(data = PUs, linewidth = 0.00001)
 
+dir.create("Figures")
 ggsave("Figures/00_bbox_PUs.pdf", gg)
 
-# Now we only want the ones that intersect with
+# Now we only want the ones that intersect with the mangroves
 overlap <- sf::st_intersects(PUs, gmw) %>%
   lengths() > 0
 
@@ -67,6 +75,7 @@ gg <- ggplot() +
   geom_sf(data = gmw, linewidth = 0.0001, colour = "red", fill = NA) +
   geom_sf(data = PUs, linewidth = 0.0001, fill = NA, colour = "blue")
 
+# Save the figure
 ggsave("Figures/00_mangrove_PUs.pdf", gg, width = 20, height = 5)
 
 # Next we can run an intersection to return the actual overlap for each PU to calculate cutoffs
@@ -76,16 +85,22 @@ area <- sf::st_intersection(gmw, PUs) %>%
   sf::st_drop_geometry() %>%
   summarise(MangroveArea_km2 = sum(MangroveArea_km2))
 
+# Calculate the area of each PU and the proportion of mangrove in each PU
 PUs <- PUs %>%
   left_join(area, by = "cellID") %>%
   dplyr::mutate(PUArea_km2 = as.numeric(units::set_units(sf::st_area(.), "km2")),
                 MangroveProp = MangroveArea_km2/PUArea_km2)
 
-saveRDS(PUs, file = "Results/RDS/00_PUs_mollweide.rds")
-st_write(PUs, "Results/gpkg/00_PUs_mollweide.gpkg")
+dir.create("Results/RDS", recursive = TRUE)
+dir.create("Results/gpkg", recursive = TRUE)
 
-saveRDS(PUs_large, file = "Results/RDS/00_PUs_large_mollweide.rds")
+# Save the PUs
+saveRDS(PUs, file = "Results/RDS/PUs_00_mollweide.rds")
+st_write(PUs, "Results/gpkg/PUs_00_mollweide.gpkg")
 
+saveRDS(PUs_large, file = "Results/RDS/PUs_00_large_mollweide.rds")
+
+# Clear environment and restart R session
 rm(list = ls(all.names = TRUE)) #will clear all objects includes hidden objects.
 gc() #free up memrory and report the memory usage.
 .rs.restartR()

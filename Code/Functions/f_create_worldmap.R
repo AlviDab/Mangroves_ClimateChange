@@ -1,5 +1,7 @@
 #Author: Dabalà Alvise
 #Date: 2023-09-15
+#Description: This function creates a world map using the Mollweide projection.
+
 ################################################################################
 
 f_worldmap <- function(scale_map = "large") {

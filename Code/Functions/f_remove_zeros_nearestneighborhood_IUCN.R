@@ -1,10 +1,13 @@
-# 19-02-2024
-## Function to substitute all species values in a PU that does not intersect
-## with IUCN species distribution with those from the nearest PU
+#Author: Alvise Dabalà
+#Data: 19-02-2024
+#Description: Function to substitute all species values in a PU that does not intersect
+#             with IUCN species distribution with those from the nearest PU
 
 #Input:
 # - x <sf>: planning units
 # - colName <string>: name of the column that report the number of intersections
+
+################################################################################
 
 fNN_zeros_IUCN <- function(x, colName) {
   x <- x %>%

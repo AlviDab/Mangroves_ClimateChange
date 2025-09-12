@@ -1,17 +1,25 @@
 #Author: Alvise Dabalà
 #Date: 21/02/2024
+#Description: This script calculates conservation targets for mangrove species
+#             based on their area of distribution following Rodrigues et al. 2004
+#             and Butchart et al. 2015.
 
+###############################################################################
+
+# Load packages
 pacman::p_load(tidyverse, sf, prioritizr)
 
+# Load the PUs with the mangrove species distributions
 PUs_IUCN <- readRDS("Results/RDS/PUs_02_mangroves_biotyp_cc_IUCN.rds")
 
+# Summarise the area of distribution of each species
 PUs_features <- PUs_IUCN %>%
   select(starts_with("Sp_")) %>%
   st_drop_geometry() %>%
   summarise(across(everything(.), sum)) %>%
   pivot_longer(names_to = "feature", values_to = "AOH", cols = everything(.))
 
-#Calculate species targets following Rodrigues et al. 2014 and Butchart et al. 2015
+# Calculate species targets following Rodrigues et al. 2004 and Butchart et al. 2015
 spp_range_size_km2 <- seq(0.01, max(PUs_features$AOH), by = 100)
 
 spp_target_percentage_rodrigues <-
@@ -43,11 +51,14 @@ targets_species <- map_dbl(PUs_features$AOH, function(species_AOH) {
   spp_target_percentage_butchart[[ID_range[[1]]]]/100
 })
 
+# Add the targets to the features table
 PUs_features_targets <- PUs_features %>%
   mutate(targets = targets_species)
 
+# Save the features with their targets
 saveRDS(PUs_features_targets, "Results/RDS/PUs_05_features_targets.rds")
 
+# Split the targets for the subspecies
 map(c("PUs_04_mangroves_cc_IUCN_split_by_country_and_biotyp",
       "PUs_04a_mangroves_cc_IUCN_split_by_biotyp"), function(file_name) {
 
@@ -83,6 +94,7 @@ map(c("PUs_04_mangroves_cc_IUCN_split_by_country_and_biotyp",
                                                    ".rds"))
       })
 
+# Clean up R environment
 rm(list = ls(all.names = TRUE)) #will clear all objects includes hidden objects.
 gc() #free up memrory and report the memory usage.
 .rs.restartR()

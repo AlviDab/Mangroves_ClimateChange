@@ -3,7 +3,9 @@
 .RData
 .Ruserdata
 .DS_Store
-/Data
+/Data/*
+!Data/MEOW
+!Data/Predictions_Buelow
 /Figures
 /Results/gpkg
 /Results/RDS/mangroves_biotyp_mollweide.rds
@@ -17,3 +19,4 @@
 /Results/resp_v1/RDS/WDPA
 /Results/resp_v1/RDS/prioritisation/Country/03_comparison
 /Results/resp_v1/RDS/prioritisation/Country/04b_comparison
+/Code/04_patchwork_figures
