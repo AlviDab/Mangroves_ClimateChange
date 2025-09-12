@@ -1,4 +1,4 @@
-# THIS CODE DOES NOT NEED TO BE RUN
+# THIS CODE DOES NOT NEED TO BE RUN - It was used for a previous analysis.
 
 # #Author: Alvise Dabalà
 # #Date: 19/02/2024

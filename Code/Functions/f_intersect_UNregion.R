@@ -1,5 +1,8 @@
 #Author: Alvise Dabalà
 #Date: 08/04/2024
+#Description: Function to intersect Planning Units with UN subregions
+
+################################################################################
 
 f_int_subregion <- function(PUs) {
 

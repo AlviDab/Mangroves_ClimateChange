@@ -1,29 +1,36 @@
 #Author: Alvise Dabalà
 #Date: 26/04/2024
+#Description: This script intersects the valid WDPA polygons with the valid PUs
+#             to extract only the protected areas that overlap with the PUs
 
+################################################################################
+
+# Load packages
 pacman::p_load(tidyverse, sf, parallel, furrr, purrr, wdpar)
 
+# Load PUs and transform to the crs of the WDPA
 PUs <- readRDS("Results/RDS/PUs_04a_mangroves_cc_IUCN_split_by_biotyp.rds") %>%
   st_transform("ESRI:54017") %>%
   mutate(valid_geom = st_is_valid(.))
 
+# Select only valid geometries
 PUs_valid <- PUs %>%
   filter(valid_geom == TRUE)
 
+# Select the PUs that are not valid (to check them later in 06b)
 '%!in%' <- function(x,y)!('%in%'(x,y))
 
 PUs_not_valid <- PUs %>%
   filter(ID %!in% PUs_valid$ID)
 
-#ncores <- detectCores() - 2
+# ncores <- detectCores() - 2
 
-#plan(multisession, workers = ncores)
+# plan(multisession, workers = ncores)
 
-## polygons
+# I KEEP IT NOT PARALLEL CAUSE I CAN'T OPEN THE THREE FILES AT THE SAME TIME
+# can parallelise using future_map and removing part of the code with '#'
 
-#I KEEP IT NOT PARALLEL CAUSE I CAN'T OPEN THE THREE FILES AT THE SAME TIME
-#can parallelise using future_map and removing part of the code with '#'
-
+# Intersect WDPA with PUs_valid
 map(c("polygons",
   "points"), function(shape) {
   map(0:2,

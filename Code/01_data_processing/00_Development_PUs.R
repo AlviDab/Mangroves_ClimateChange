@@ -1,16 +1,20 @@
 #Author: Alvise Dabalà
 #Date: 18/04/2023
-#Description: Code to produce the planning units that overlap with the Global Mangrove Watch distribution of mangroves in 2020.
+#Description: Code to produce the planning units that overlap with the Global
+#             Mangrove Watch distribution of mangroves in 2020.
 
 # Updated by Jason Everett (UQ) 14th March 2024
 
-# install.packages("devtools")
+################################################################################
+
+# Install packages if not already installed
+install.packages("devtools")
+
 devtools::install_github("https://github.com/SpatialPlanning/spatialplanr")
 
-# install.packages("devtools")
 devtools::install_github("emlab-ucsb/spatialgridr")
 
-# devtools::install_github("emlab-ucsb/spatialgridr")
+# Load libraries
 pacman::p_load(sf, tidyverse, spatialgridr, spatialplanr)
 
 # Set projection
@@ -45,13 +49,14 @@ PUs_large <- spatialgridr::get_grid(bndry, output = "sf_hex",
   sf::st_sf() %>%
   dplyr::mutate(cellID = dplyr::row_number())
 
+# Check the PUs
 gg <- ggplot() +
   geom_sf(data = PUs, linewidth = 0.00001)
 
 dir.create("Figures")
 ggsave("Figures/00_bbox_PUs.pdf", gg)
 
-# Now we only want the ones that intersect with
+# Now we only want the ones that intersect with the mangroves
 overlap <- sf::st_intersects(PUs, gmw) %>%
   lengths() > 0
 
@@ -66,6 +71,7 @@ gg <- ggplot() +
   geom_sf(data = gmw, linewidth = 0.0001, colour = "red", fill = NA) +
   geom_sf(data = PUs, linewidth = 0.0001, fill = NA, colour = "blue")
 
+# Save the figure
 ggsave("Figures/00_mangrove_PUs.pdf", gg, width = 20, height = 5)
 
 # Next we can run an intersection to return the actual overlap for each PU to calculate cutoffs
@@ -75,6 +81,7 @@ area <- sf::st_intersection(gmw, PUs) %>%
   sf::st_drop_geometry() %>%
   summarise(MangroveArea_km2 = sum(MangroveArea_km2))
 
+# Calculate the area of each PU and the proportion of mangrove in each PU
 PUs <- PUs %>%
   left_join(area, by = "cellID") %>%
   dplyr::mutate(PUArea_km2 = as.numeric(units::set_units(sf::st_area(.), "km2")),
@@ -83,11 +90,13 @@ PUs <- PUs %>%
 dir.create("Results/RDS", recursive = TRUE)
 dir.create("Results/gpkg", recursive = TRUE)
 
+# Save the PUs
 saveRDS(PUs, file = "Results/RDS/PUs_00_mollweide.rds")
 st_write(PUs, "Results/gpkg/PUs_00_mollweide.gpkg")
 
 saveRDS(PUs_large, file = "Results/RDS/PUs_00_large_mollweide.rds")
 
+# Clear environment and restart R session
 rm(list = ls(all.names = TRUE)) #will clear all objects includes hidden objects.
 gc() #free up memrory and report the memory usage.
 .rs.restartR()

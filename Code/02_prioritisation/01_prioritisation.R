@@ -1,18 +1,26 @@
 #Author: Alvise Dabalà
 #Date: 20/02/2024
+#Description: Prioritisation of mangroves for conservation without considering
+#             climate change
 
+################################################################################
+
+# Load packages
 pacman::p_load(tidyverse, sf, prioritizr)
 
 map(c("country_and_", ""), function(file_name) {
 
+  # Load data
   PUs <- readRDS(paste0("Results/RDS/prioritisation_input/Country/PUs_05_mangroves_cc_IUCN_split_by_",
                         file_name, "biotyp_priority_0.05_mean.rds"))
 
+  # Load features and targets
   PUs_features_split_targets <- readRDS(paste0("Results/RDS/PUs_05_features_split_targets_by_",
                                                file_name, "biotyp.rds"))
 
   new_file_name <- ifelse(file_name == "country_and_", "country_and_biotyp", "biotyp")
 
+  # Create prioritizr problem
   prioritizr_problem <- problem(PUs,
                                 PUs_features_split_targets$feature,
                                 cost_column = "area_km2") %>%
@@ -20,12 +28,15 @@ map(c("country_and_", ""), function(file_name) {
     add_min_set_objective() %>%
     add_gurobi_solver(gap = 1*10^-4)
 
+  # Solve problem
   solution <- solve(prioritizr_problem)
 
   #replacement_score <- eval_replacement_importance(prioritizr_problem, solution[, "solution_1"])
 
+  # Evaluate target coverage
   metrics <- prioritizr::eval_target_coverage_summary(prioritizr_problem, solution[, "solution_1"])
 
+  # Save results
   dir.create(paste0("Results/RDS/prioritisation/Country/01_prioritisation/", new_file_name), recursive = T)
   dir.create(paste0("Results/gpkg/prioritisation/Country/01_prioritisation/", new_file_name), recursive = T)
 
@@ -50,3 +61,8 @@ map(c("country_and_", ""), function(file_name) {
                           new_file_name,
                           "/metrics.rds"))
 })
+
+# Clean up R environment
+rm(list = ls(all.names = TRUE)) #will clear all objects includes hidden objects.
+gc() #free up memory and report the memory usage.
+.rs.restartR()

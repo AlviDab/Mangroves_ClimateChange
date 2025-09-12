@@ -1,8 +1,16 @@
 #Author: Alvise Dabalà
 #Date: 21/02/2024
+#Description: This script selects the priority CPAs for mangrove restoration
+#             based on the probability of gain stability under climate
+#             change scenarios.Using the climate-priority area approach from
+#             Buenafe et al. 2023 (https://doi.org/10.1002/eap.2852)
 
+################################################################################
+
+# load packages
 pacman::p_load(tidyverse, sf, parallel, furrr, purrr)
 
+# change the maximum size of global variables for future package
 options(future.globals.maxSize = 750*1024^2)
 
 map(c("PUs_04_mangroves_cc_IUCN_split_by_country_and_biotyp",
@@ -30,8 +38,6 @@ map(c("PUs_04_mangroves_cc_IUCN_split_by_country_and_biotyp",
           )
 
         #remove eventual NAs using nearest neighborhood
-
-        #Add using nearest neighborhood the missing values
         source("Code/Functions/f_remove_NAs_nearestneighborhood.R")
 
         PUs <- PUs %>%
@@ -44,8 +50,9 @@ map(c("PUs_04_mangroves_cc_IUCN_split_by_country_and_biotyp",
               map(c("landward", "seaward",
                     "mean"
                 ),
-                #.options = furrr_options(seed = TRUE),
                 function(CC_direction) {
+
+                  # Find priority
                   PUs_CC <- f_find_priority(PUs,
                                             paste0("Prob_gain_stability_", CC_direction),
                                             prct,
@@ -61,8 +68,7 @@ map(c("PUs_04_mangroves_cc_IUCN_split_by_country_and_biotyp",
             })
       })
 
-plan(sequential)
-
+# Clean up
 rm(list = ls(all.names = TRUE)) #will clear all objects includes hidden objects.
 gc() #free up memrory and report the memory usage.
 .rs.restartR()

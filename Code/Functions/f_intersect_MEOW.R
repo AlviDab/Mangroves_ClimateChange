@@ -1,5 +1,8 @@
 #Author: Alvise Dabalà
 #Date: 08/04/2024
+#Description: Function to intersect planning units with MEOW ecoregions
+
+################################################################################
 
 f_int_MEOW <- function(PUs, type = "ECOREGION") {
 

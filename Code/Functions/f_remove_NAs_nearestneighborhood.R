@@ -1,9 +1,12 @@
-# 20-03-2024
-## Function to substitute NA values in the columns with those from the nearest PU
+#Author: Alvise Dabalà
+#Data: 20-03-2024
+#Description: Function to substitute NA values in the columns with those from the nearest PU
 
 #Input:
 # - x <sf>: planning units
 # - colName <string>: name of the column that report the number of intersections
+
+################################################################################
 
 fNN_NAs <- function(x, colName) {
   x <- x %>%
