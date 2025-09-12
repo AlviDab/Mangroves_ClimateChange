@@ -6,7 +6,7 @@
 ################################################################################
 
 # Load libraries
-pacman::p_load(tidyverse, sf, tmap)
+pacman::p_load(tidyverse, sf)
 
 # Set projection
 moll_proj <- "ESRI:54009"
