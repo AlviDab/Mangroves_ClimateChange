@@ -40,7 +40,7 @@ Cloning the content of the branch "demo", it is possible to run a demo of the co
 Run time of the demo should be of approximately 1h.
 
 ## Sensitivity analysis
-The sensitivity analysis was run both producing larger planning units (1000 km²) and using 30% conservation targets instead of area-based targets. The code used to run the sensitivity analysis is currently in the branch "resp_v1".
+The sensitivity analysis was run both producing larger planning units (1000 km²) and using 30% conservation targets instead of area-based targets. The code used to create larger planning units and intersect them with the layers of interest is currently located in the "devel_tin" branch. These results were obtained by running the code on the HPC Bunya. Still, it is possible to run the code in "02_prioritisation" and "03_Figures" without running the code in that branch, as the results are already included in the "Results" folder.
 
 ## Instruction for use
 
