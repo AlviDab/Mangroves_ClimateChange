@@ -4,6 +4,7 @@
 pacman::p_load(tidyverse, sf, MoMAColors, purrr, furrr, parallel)
 
 split_group <- "biotyp"
+targets <- "targets_area"
 
 ncores <- detectCores() - 2
 
@@ -20,12 +21,12 @@ solution_cc <- future_map(seq(0.05, 0.3, by = 0.05),
                             PUs_MEOW <- readRDS("Results/RDS/PUs_03_mangroves_biotyp_cc_IUCN_MEOW.rds")
 
                             solution_cc_sw <- readRDS(paste0("Results/RDS/prioritisation/Country/02_prioritisation_CC/",
-                                                             split_group, "/seaward/solution_",
+                                                             split_group, "_", targets, "/seaward/solution_",
                                                              as.character(prct), "_seaward.rds")) %>%
                               mutate(type = "seaward")
 
                             solution_cc_lw <- readRDS(paste0("Results/RDS/prioritisation/Country/02_prioritisation_CC/",
-                                                             split_group, "/landward/solution_",
+                                                             split_group, "_", targets, "/landward/solution_",
                                                              as.character(prct), "_landward.rds")) %>%
                               mutate(type = "landward")
 
@@ -89,16 +90,16 @@ plot_sw_lw <- ggplot() +
   scale_y_continuous(expand = c(0, 0), limits = c(0, 1.1))
 
 dir.create(paste0("Figures/Country/07_plot_comparison_area_lw_sw/",
-                  split_group, "/RDS"), recursive = TRUE)
+                  split_group, "_", targets, "/RDS"), recursive = TRUE)
 
 ggsave(paste0("Figures/Country/07_plot_comparison_area_lw_sw/",
-              split_group, "/plot_comparison_area_lw_sw_",
-              split_group, "_province.pdf"),
+              split_group, "_", targets, "/plot_comparison_area_lw_sw_",
+              split_group, "_", targets, "_province.pdf"),
        dpi = 300, width = 18, height = 25, units = "cm")
 
 saveRDS(plot_sw_lw, paste0("Figures/Country/07_plot_comparison_area_lw_sw/",
-                           split_group, "/RDS/plot_comparison_area_lw_sw_",
-                     split_group, "_province.rds"))
+                           split_group, "_", targets, "/RDS/plot_comparison_area_lw_sw_",
+                     split_group, "_", targets, "_province.rds"))
 
 
 rm(list = ls(all.names = TRUE)) #will clear all objects includes hidden objects.

@@ -5,7 +5,7 @@ pacman::p_load(tidyverse, sf)
 
 dat <- spatialplanr::splnr_get_boundary(Limits = "Global")
 
-PUs <- readRDS("Results/RDS/prioritisation/Country/02_prioritisation_CC/country_and_biotyp/mean/solution_0.05_mean.rds")
+PUs <- readRDS("Results/RDS/prioritisation/Country/02_prioritisation_CC/country_and_biotyp_targets_area/mean/solution_0.05_mean.rds")
 
 source("Code/Functions/f_create_worldmap.r")
 world_map <- f_worldmap()

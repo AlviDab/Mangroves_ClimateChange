@@ -6,7 +6,7 @@ pacman::p_load(tidyverse, sf, parallel, furrr, purrr)
 prct <- 0.3
 CC_direction <- "mean"
 
-ncores <- detectCores() - 10
+ncores <- detectCores() - 2
 
 plan(multisession, workers = ncores)
 

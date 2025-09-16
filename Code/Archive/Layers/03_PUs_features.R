@@ -3,7 +3,7 @@
 
 pacman::p_load(tidyverse, sf, furrr)
 
-PUs <- readRDS("Results/RDS/prioritisation/Country/02_prioritisation_CC/biotyp/mean/solution_0.05_mean.rds")
+PUs <- readRDS("Results/RDS/prioritisation/Country/02_prioritisation_CC/biotyp_targets_area/mean/solution_0.05_mean.rds")
 
 dat <- spatialplanr::splnr_get_boundary(Limits = "Global")
 

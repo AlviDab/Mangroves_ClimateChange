@@ -1,6 +1,8 @@
 #Author: Alvise Dabalà
 #Date: 11/07/2024
 
+devtools::install_github("BlakeRMills/MoMAColors")
+
 pacman::p_load(tidyverse, sf, MoMAColors, purrr, furrr, parallel, openxlsx, ggrepel, ggpubr)
 
 source("Code/Functions/f_intersect_continents.r")
@@ -8,6 +10,8 @@ source("Code/Functions/f_intersect_countries.R")
 
 PUs <- readRDS("Results/RDS/PUs_03_mangroves_biotyp_cc_IUCN_MEOW.rds") %>%
   f_int_countries()
+
+targets <- "targets_area"
 
 ncores <- detectCores() - 2
 
@@ -24,10 +28,10 @@ CC_direction <- "mean"
 plot_layer <- map(c("country_and_biotyp", "biotyp"), function(split_group) {
 
   solution <- readRDS(paste0("Results/RDS/prioritisation/Country/01_prioritisation/",
-                             split_group,"/solution_prioritisation.rds"))
+                             split_group, "_", targets,"/solution_prioritisation.rds"))
 
   solution_cc <- readRDS(paste0("Results/RDS/prioritisation/Country/02_prioritisation_CC/",
-                                split_group, "/",
+                                split_group, "_", targets, "/",
                                 CC_direction, "/solution_",
                                 as.character(prct), "_", CC_direction, ".rds"))
 

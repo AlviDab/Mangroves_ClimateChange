@@ -5,7 +5,7 @@ pacman::p_load(tidyverse, sf, parallel, furrr, purrr)
 
 CC_direction <- "mean"
 
-PUs <- readRDS(paste0("Results/RDS/prioritisation/Country/02_prioritisation_CC/country_and_biotyp/",
+PUs <- readRDS(paste0("Results/RDS/prioritisation/Country/02_prioritisation_CC/country_and_biotyp_targets_area/",
                       CC_direction, "/solution_0.05_", CC_direction, ".rds"))
 
 ncores <- detectCores() - 2
