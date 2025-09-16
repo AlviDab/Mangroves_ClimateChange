@@ -1,6 +1,6 @@
-#Author: Alvise Dabalà
-#Date: 18/04/2023
-#Description: Code to produce the planning units that overlap with the Global
+# Author: Alvise Dabalà
+# Date: 18/04/2023
+# Description: Code to produce the planning units that overlap with the Global
 #             Mangrove Watch distribution of mangroves in 2020.
 
 # Updated by Jason Everett (UQ) 14th March 2024
@@ -38,18 +38,21 @@ bndry <- spatialplanr::splnr_get_boundary(bb, res = 1) %>%
   st_sf() # Get a boundary
 
 # Get the PUs for the broader bounding box
-PUs <- spatialgridr::get_grid(boundary = bb,
-                              crs = moll_proj,
-                              output = "sf_hex",
-                              resolution = 27000) %>%
+PUs <- spatialgridr::get_grid(
+  boundary = bb,
+  crs = moll_proj,
+  output = "sf_hex",
+  resolution = 27000
+) %>%
   sf::st_sf() %>%
   dplyr::mutate(cellID = dplyr::row_number())
 
 # Get the larger PUs for the visualisation
 PUs_large <- spatialgridr::get_grid(bndry,
-                                    output = "sf_hex",
-                                    crs = moll_proj,
-                                    resolution = 270000) %>%
+  output = "sf_hex",
+  crs = moll_proj,
+  resolution = 270000
+) %>%
   sf::st_sf() %>%
   dplyr::mutate(cellID = dplyr::row_number())
 
@@ -67,8 +70,8 @@ overlap <- sf::st_intersects(PUs, gmw) %>%
 overlap_large <- sf::st_intersects(PUs_large, gmw) %>%
   lengths() > 0
 
-PUs <- PUs[overlap,]
-PUs_large <- PUs_large[overlap_large,]
+PUs <- PUs[overlap, ]
+PUs_large <- PUs_large[overlap_large, ]
 
 # Lets check it's working ok
 gg <- ggplot() +
@@ -88,8 +91,10 @@ area <- sf::st_intersection(gmw, PUs) %>%
 # Calculate the area of each PU and the proportion of mangrove in each PU
 PUs <- PUs %>%
   left_join(area, by = "cellID") %>%
-  dplyr::mutate(PUArea_km2 = as.numeric(units::set_units(sf::st_area(.), "km2")),
-                MangroveProp = MangroveArea_km2/PUArea_km2)
+  dplyr::mutate(
+    PUArea_km2 = as.numeric(units::set_units(sf::st_area(.), "km2")),
+    MangroveProp = MangroveArea_km2 / PUArea_km2
+  )
 
 dir.create("Results/RDS", recursive = TRUE)
 dir.create("Results/gpkg", recursive = TRUE)
@@ -101,6 +106,6 @@ st_write(PUs, "Results/gpkg/PUs_00_mollweide.gpkg")
 saveRDS(PUs_large, file = "Results/RDS/PUs_00_large_mollweide.rds")
 
 # Clear environment and restart R session
-rm(list = ls(all.names = TRUE)) #will clear all objects includes hidden objects.
-gc() #free up memrory and report the memory usage.
+rm(list = ls(all.names = TRUE)) # will clear all objects includes hidden objects.
+gc() # free up memrory and report the memory usage.
 .rs.restartR()

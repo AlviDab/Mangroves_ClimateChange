@@ -159,6 +159,9 @@ theme_layer <- list(theme(
   # ggtitle("Area-weighted climate resilience of the areas selected by the prioritisations used for sensitivity analysis") +
   facet_wrap(~sensitivity))
 
+# Create output directory if it does not exist
+
+
 # Save the both ggplot results in a pdf
 ggsave(
   plot = ggplot_area, "Figures/Country/08_comparison_area_resilience_sensitivity/08_comparison_area.jpg",

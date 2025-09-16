@@ -59,22 +59,22 @@ map(c("targets_30", "targets_area"), function(targets) {
                    metrics <- prioritizr::eval_target_coverage_summary(prioritizr_problem,
                                                                        solution[, "solution_1"])
 
-                   dir.create(paste0("Results/resp_v1/RDS/prioritisation/Country/02_prioritisation_CC/",
+                   dir.create(paste0("Results/RDS/prioritisation/Country/02_prioritisation_CC/",
                                      new_file_name, "/",
                                      CC_direction), recursive = T)
 
-                   dir.create(paste0("Results/resp_v1/gpkg/prioritisation/Country/02_prioritisation_CC/",
+                   dir.create(paste0("Results/gpkg/prioritisation/Country/02_prioritisation_CC/",
                                      new_file_name, "/",
                                      CC_direction), recursive = T)
 
-                   saveRDS(solution, paste0("Results/resp_v1/RDS/prioritisation/Country/02_prioritisation_CC/",
+                   saveRDS(solution, paste0("Results/RDS/prioritisation/Country/02_prioritisation_CC/",
                                             new_file_name, "/",
                                             CC_direction, "/solution_",
                                             as.character(prct), "_", CC_direction, ".rds"))
 
                    st_write(solution %>%
                               dplyr::select(geometry,
-                                            solution_1), paste0("Results/resp_v1/gpkg/prioritisation/Country/02_prioritisation_CC/",
+                                            solution_1), paste0("Results/gpkg/prioritisation/Country/02_prioritisation_CC/",
                                                                 new_file_name, "/",
                                                                 CC_direction, "/solution_",
                                                                 as.character(prct), "_", CC_direction, ".gpkg"),
@@ -85,7 +85,7 @@ map(c("targets_30", "targets_area"), function(targets) {
                    #                                   CC_direction, "/replacement_score_",
                    #                                   as.character(prct), "_", CC_direction, ".rds"))
 
-                   saveRDS(metrics, paste0("Results/resp_v1/RDS/prioritisation/Country/02_prioritisation_CC/",
+                   saveRDS(metrics, paste0("Results/RDS/prioritisation/Country/02_prioritisation_CC/",
                                            new_file_name, "/",
                                            CC_direction, "/metrics_",
                                            as.character(prct), "_", CC_direction, ".rds"))

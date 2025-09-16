@@ -10,7 +10,7 @@ pacman::p_load(tidyverse, sf, prioritizr)
 
 map(c("targets_30", "targets_area"), function(targets) {
   map(c("country_and_", ""), function(file_name) {
-    
+
   # Load data
     PUs <- readRDS(
       paste0(
@@ -34,7 +34,7 @@ map(c("targets_30", "targets_area"), function(targets) {
     new_file_name <- ifelse(file_name == "country_and_",
                             paste0("country_and_biotyp_", targets),
                             paste0("biotyp_", targets))
-    
+
     # Create prioritizr problem
     prioritizr_problem <- problem(PUs, PUs_features_split_targets$feature,
                                   cost_column = "area_km2") %>%
@@ -53,14 +53,14 @@ map(c("targets_30", "targets_area"), function(targets) {
 
     dir.create(
       paste0(
-        "Results/resp_v1/RDS/prioritisation/Country/01_prioritisation/",
+        "Results/RDS/prioritisation/Country/01_prioritisation/",
         new_file_name
       ),
       recursive = T
     )
     dir.create(
       paste0(
-        "Results/resp_v1/gpkg/prioritisation/Country/01_prioritisation/",
+        "Results/gpkg/prioritisation/Country/01_prioritisation/",
         new_file_name
       ),
       recursive = T
@@ -69,7 +69,7 @@ map(c("targets_30", "targets_area"), function(targets) {
     saveRDS(
       solution,
       paste0(
-        "Results/resp_v1/RDS/prioritisation/Country/01_prioritisation/",
+        "Results/RDS/prioritisation/Country/01_prioritisation/",
         new_file_name,
         "/solution_prioritisation.rds"
       )
@@ -86,7 +86,7 @@ map(c("targets_30", "targets_area"), function(targets) {
           )
         ),
       paste0(
-        "Results/resp_v1/gpkg/prioritisation/Country/01_prioritisation/",
+        "Results/gpkg/prioritisation/Country/01_prioritisation/",
         new_file_name,
         "/solution_prioritisation.gpkg"
       ),
@@ -100,7 +100,7 @@ map(c("targets_30", "targets_area"), function(targets) {
     saveRDS(
       metrics,
       paste0(
-        "Results/resp_v1/RDS/prioritisation/Country/01_prioritisation/",
+        "Results/RDS/prioritisation/Country/01_prioritisation/",
         new_file_name,
         "/metrics.rds"
       )
